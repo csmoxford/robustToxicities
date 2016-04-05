@@ -4,11 +4,12 @@
 #'
 #' @param toxDB Main toxicity database.
 
-
 #' @export prepareToxicity
 
 prepareToxicity=function(toxDB){
 
+  ################################################################################
+  # checks and balances
   if(class(toxDB) != "robustToxicities") {
     stop("toxDB must be of class toxDB")
   }
@@ -18,6 +19,12 @@ prepareToxicity=function(toxDB){
     warning("Queries database was non empty. Appending to existing queries database")
   }
 
+  ################################################################################
+
+  ################################################################################
+  # internal functions
+
+  # append the query to the query data.frame and spit out a message.
   query=function(toxDB,msg,problem_type,notes,aff=FALSE){
     if(!(problem_type=="Note" & !notes)){
       message(msg)
@@ -29,10 +36,13 @@ prepareToxicity=function(toxDB){
     }
     return(toxDB@queries)
   }
-
+  ################################################################################
+  # set the data to cleanData keeping copy of the original!!
+  # get the dimention for reference
   toxDB@cleanData = toxDB@data
   dm=dim(toxDB@cleanData)
 
+  ################################################################################
   msg = paste("Number of patients:", length(unique(toxDB@cleanData$patid)), "in the provided database")
   toxDB@queries = query(toxDB, msg, "Affirmation",notes ,TRUE)
 
@@ -247,6 +257,9 @@ prepareToxicity=function(toxDB){
 
   }
 
+  ################################################################################
+  # Summarise the preparation
+
   message("\n#############################################################")
   message("# Summary of preparation")
   message("Number of patients: ",length(unique(toxDB@cleanData$patid)))
@@ -255,7 +268,20 @@ prepareToxicity=function(toxDB){
   message("Number of notes: ", sum(toxDB@queries$problem_type == "Note"))
   message("Number of missing data problems: ", sum(toxDB@queries$problem_type == "Missing data"))
 
-  toxDB@cleanData=numberToxicities(toxDB@cleanData)
+  ################################################################################
+  # number Toxicities
+  toxDB@cleanData=toxDB@cleanData[order(toxDB@cleanData$ass_category,toxDB@cleanData$ass_toxicity_disp),]
+
+  toxDB@cleanData$ass_toxID=0
+  toxDB@cleanData$ass_toxID[1]=1
+  j=1
+  for(i in 2:length( toxDB@cleanData$ass_toxID)){
+    if(toxDB@cleanData$ass_toxicity_disp[i] != toxDB@cleanData$ass_toxicity_disp[i-1]){
+      j=j+1
+    }
+    toxDB@cleanData$ass_toxID[i]=j
+  }
+  ################################################################################
 
   return(toxDB)
 }

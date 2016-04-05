@@ -6,7 +6,7 @@ Date: 2015-07-09
 Author: Peter Dutton
 Maintainer: Peter Dutton <peter.dutton@ndorms.ox.ac.uk>
 Description: Creates publication ready table and graphs from time based toxicity
-    data
+    data. Performs some built in data cleaning actions.
 License: None
 Depends:
     shiny,

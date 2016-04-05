@@ -32,14 +32,14 @@
 #'
 #' @export shiny.robustToxicities
 shiny.robustToxicities=function(){
-shiny::runApp(file.path(system.file("Shiny/robust.toxicities",package = "robust.toxicities")))
+shiny::runApp(file.path(system.file("Shiny/robustToxicities",package = "robustToxicities")))
 }
 
 #' @export shiny.robustToxicities.log
 shiny.robustToxicities.log=function(log.file){
   library(TeachingDemos)
   txtStart(paste0(log.file,".log"))
-  shiny::runApp(file.path(system.file("Shiny/robust.toxicities",package = "robust.toxicities")))
+  shiny::runApp(file.path(system.file("Shiny/robustToxicities",package = "robustToxicities")))
   txtStop()
 }
 

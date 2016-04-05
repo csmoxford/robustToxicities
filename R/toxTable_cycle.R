@@ -3,14 +3,12 @@
 #' Generates a table of all toxicities for a certain cycle or cycles. There are options to report all changes in toxicities or just the worst per patient. CTCAE grades and categories can be merged for more sucinct tables.
 #'
 #' @inheritParams prepareToxicity
-#' @param colMerge
-#' @param cycles
-#' @param worst
-#' @param discardBaseline
+#' @param cycles The cycle or cycles to generate the table for
+#'
+#'
+#' @export toxTable_cycle
 
-#' @export toxTable_worstInCycle
-
-toxTable_worstInCycle=function(toxDB , cycles, worst="worst"){
+toxTable_cycle=function(toxDB , cycles){
 
   if(class(toxDB) != "robustToxicities") {
     stop("toxDB must be of class toxDB")
@@ -54,10 +52,10 @@ toxTable_worstInCycle=function(toxDB , cycles, worst="worst"){
 
 
     # generate initial table
-    if(worst=="worst"){
+    if(toxDB@options@tabulationMethod=="worst"){
     toxTable=toxTable_worst(cleanDataSub,treats)
-    } else {
-    toxTable=toxTable_worst(cleanDataSub,treats)
+    } else if(toxDB@options@tabulationMethod=="all"){
+    toxTable=toxTable_all(cleanDataSub,treats)
     }
 
 

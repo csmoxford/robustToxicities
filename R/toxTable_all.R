@@ -1,11 +1,3 @@
-#' Table: all toxicity episodes
-#'
-#' Generates a table of all toxicities
-#'
-#' @inheritParams prepareToxicity
-#' @param treatments
-
-
 #' @export toxTable_all
 
 toxTable_all=function(toxDB,treatments){

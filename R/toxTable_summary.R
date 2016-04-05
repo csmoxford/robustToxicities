@@ -3,25 +3,18 @@
 #' Summarises toxicities by treatment and cycle
 #'
 #' @inheritParams prepareToxicity
-#' @param cycleMerge
-#' @param columnMerge
+#'
+#' @export toxTable_summary
 
-#' @export toxTable_worstSummary
+toxTable_summary=function(toxDB){
 
-toxTable_worstSummary=function(toxDB,cycleMerge=character(0),columnMerge=character(0)){
-
+  ################################################################################
+  # checks and balances
   if(class(toxDB) != "robustToxicities") {
     stop("toxDB must be of class toxDB")
   }
 
-  if(!length(columnMerge)){
-    columnMerge=toxDB@options@sumColumnMerge
-  }
-  if(!length(cycleMerge)){
-    cycleMerge=toxDB@options@sumCycleMerge
-  }
 
-  # Check stuff is named ok
   a=0
   if(length(toxDB@cleanData$patid)==0){
     a=1
@@ -35,7 +28,8 @@ toxTable_worstSummary=function(toxDB,cycleMerge=character(0),columnMerge=charact
     a=1
     message("Error: ae_ctcae_grade not named correctly in database, no table created")
   }
-
+  ################################################################################
+  # continue if everything is ok
   if(a==0){
 
     no_cycles=sum(str_detect(names(toxDB@cleanData), "cycle_start_date"))
@@ -43,7 +37,7 @@ toxTable_worstSummary=function(toxDB,cycleMerge=character(0),columnMerge=charact
     names_occur=names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "occur_in_cycle")]
 
 
-    cycle.lists=strsplit(cycleMerge,"[|]")[[1]]
+    cycle.lists=strsplit(toxDB@options@sumCycleMerge,"[|]")[[1]]
 
     # create table to populate
     toxTable=data.frame(cycle.number=cycle.lists,stringsAsFactors =F)
@@ -81,11 +75,11 @@ toxTable_worstSummary=function(toxDB,cycleMerge=character(0),columnMerge=charact
     }
 
     # Perform the column merge for toxicities
-    if(is.null(columnMerge)==FALSE){
-      columnMerge.cols=strsplit(columnMerge,"[|]")[[1]]
+    if(is.null(toxDB@options@sumColumnMerge)==FALSE){
+      cols=strsplit(toxDB@options@sumColumnMerge,"[|]")[[1]]
       toxTable.2=data.frame(cycle.number=toxTable$cycle.number)
       for(treatment in treats){
-        for(col in columnMerge.cols){
+        for(col in cols){
           composition=as.numeric(strsplit(col,",")[[1]])
           if(length(composition)>1){
             toxTable.2[,paste0("tox.",treatment,".",paste0(composition,collapse=""))]=apply(toxTable[,paste0("tox.", treatment,".",composition)],1,function(x) {sum(as.numeric(x))} )

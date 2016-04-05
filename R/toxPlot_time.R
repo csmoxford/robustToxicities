@@ -5,17 +5,16 @@
 #' @inheritParams prepareToxicity
 #' @param patid Build in patient subsetting by a list if not ""
 #' @param dayRange The range of time in days to display on the graph
-#' @param omit
 #' @param plot TRUE/FALSE plot the graph.
-#' @param plotCycleLength
+#' @param plotCycleLength The number of days in a cycle
 #'
 #'
 #' @return
 #' This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
 
-#' @export plot_toxicityTime
+#' @export toxPlot_time
 
-plot_toxicityTime=function(toxDB,patid=character(0),dayRange=c(-7,60),omit=1,plot=TRUE,plotCycleLength=21) {
+toxPlot_time=function(toxDB,patid=character(0),dayRange=c(-7,60),plot=TRUE,plotCycleLength=21) {
   # subset to specific patient if required
 
   if(class(toxDB) != "robustToxicities") {
@@ -28,8 +27,8 @@ plot_toxicityTime=function(toxDB,patid=character(0),dayRange=c(-7,60),omit=1,plo
 
 
   # tell the user about patients with no toxicities
-  if (omit==1 & length(toxDB@cleanData$patid[toxDB@cleanData$ae_ctcae_grade==0])>0) {
-    message("Patients with no toxicities omitted: ", toxDB@cleanData$patid[toxDB@cleanData$ae_ctcae_grade==0])
+  if (length(toxDB@cleanData$patid[toxDB@cleanData$ae_ctcae_grade==0])>0) {
+    message("Patients with no toxicities omitted: ", paste(toxDB@cleanData$patid[toxDB@cleanData$ae_ctcae_grade==0]))
   }
 
   toxDB@cleanData=toxDB@cleanData[toxDB@cleanData$ae_ctcae_grade>0,]

@@ -13,6 +13,9 @@ TODO: Write a project description
 See the help files
 
 ## To-do list ##
+
+Note that the shiny app is currently ignoring all the options there and just taking them from the default
+
 1. Finalise the base functions for time based data
 2. Create functions for cycle based data
 3. Ensure the shiny app works for all data types and input options
