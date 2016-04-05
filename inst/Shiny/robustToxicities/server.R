@@ -9,7 +9,7 @@ library(stringr)
 library(rtf)
 
 source("Programs/toxicityFunctions.R")
-source("defaults/LINES defaults.R")
+load("defaults/robustToxicities_LINES_defaults.rData")
 source("Programs/uiFunctions.R")
 
 
@@ -22,7 +22,7 @@ shinyServer(function(input, output, session) {
 
  ############################################################################################
  # reactive list to store all data to
- values = reactiveValues(defaults = defaults)
+ values = reactiveValues(options = options)
 
  ############################################################################################
  # reset app on close
@@ -34,15 +34,15 @@ shinyServer(function(input, output, session) {
  ############################################################################################
  # update application defaults
  change.defaults = observe({
-  input$defaults
-  isolate({
-   if (!is.null(input$defaults)) {
-    source(input$defaults$datapath)
-    values$defaults = defaults
-    message("Defaults changed to:", input$defaults$name)
-    message("################################################################")
+   if (!is.null(input$options)) {
+     isolate({
+       load(input$options$datapath)
+       values$options = options
+       message("Options changed to:", input$options$name)
+       message("################################################################")
+
+     })
    }
-  })
  })
 
  ############################################################################################
@@ -61,8 +61,8 @@ shinyServer(function(input, output, session) {
        wellPanel(
         div(
          class = "text-center",
-         fileInput("defaults", "Load application defaults for trial", accept = c(".R")),
-         textInputRow("trial.name", "Trial name (acronym)", value = values$defaults$trial.name),
+         fileInput("options", "Load application defaults for trial", accept = c(".rData")),
+         textInputRow("trial.name", "Trial name (acronym)", value = values$options@trialName),
          fileInput("trial.file", "Load Toxicity database for analysis", accept = c(".csv", ".txt")),
          p(),
          buttonInput(id = "toxicity.db.update", class = "btn action-button btn-large btn-success", 'load database')
@@ -86,11 +86,11 @@ shinyServer(function(input, output, session) {
          width = 3,
          wellPanel(
           uiOutput("plotUI"),
-          numericInput_small("plot.minday", "Minimum day on x-axis", value = values$defaults$plot.min.day),
-          numericInput_small("plot.maxday", "Maximum day on x-axis", value = values$defaults$plot.max.day),
-          numericInput_small("plot.cycle.length", "Cycle length", value = values$defaults$plot.cycle.length),
-          numericInput_small("plot.height", "Plot pixel height", value = values$defaults$plot.px.height),
-          numericInput_small("plot.width", "Plot pixel width", value = values$defaults$plot.px.width),
+          numericInput_small("plot.minday", "Minimum day on x-axis", value = values$options@plotMinDay),
+          numericInput_small("plot.maxday", "Maximum day on x-axis", value = values$options@plotMaxDay),
+          numericInput_small("plot.cycle.length", "Cycle length", value = values$options@plotCycleLength),
+          numericInput_small("plot.height", "Plot pixel height", value = values$options@plotPxHeight),
+          numericInput_small("plot.width", "Plot pixel width", value = values$options@plotPxWidth),
           buttonInput(id = "plot.update", class = "btn action-button btn-large btn-success", 'Update plot')
          )),
         column(
@@ -109,10 +109,10 @@ shinyServer(function(input, output, session) {
           div(
            class = "text-center",
            uiOutput("sum.UI1"),
-           p(textInput("sum.cycle.merge", "Cycles to merge", value = values$defaults$sum.cycle.merge)),
-           p(textInput("sum.col.merge", "Column merge", value = values$defaults$sum.column.merge)),
+           p(textInput("sum.cycle.merge", "Cycles to merge", value = values$options@sumCycleMerge)),
+           p(textInput("sum.col.merge", "Column merge", value = values$options@sumColumnMerge)),
            buttonInput(id = "sum.table.update", class = "btn action-button btn-large btn-success", 'Update table'),
-           textInputRow("sum.path", "Folder to output tables to", value = values$defaults$sum.save.folder),
+           textInputRow("sum.path", "Folder to output tables to", value = values$options@outputFolder),
            buttonInput(id = "sum.table.save", class = "btn action-button btn-large btn-warning", 'Save tables')
           ))),
         column(
@@ -131,14 +131,14 @@ shinyServer(function(input, output, session) {
           div(
            class = "text-center",
            uiOutput("listing.UI1"),
-           p(textInput("cycle.merge", "Cycles to merge", value = values$defaults$cycle.cycle.merge)),
+           p(textInput("cycle.merge", "Cycles to merge", value = values$options@cycleCycleMerge)),
            uiOutput("listing.UI2"),
            p(selectInput("worst", label = "List by time period", choices = c("worst", "all"), selected = "worst")),
            p(selectInput("skipbase", label = "Discard baseline toxicities", choices = c(TRUE, FALSE), selected = FALSE)),
-           p(textInput("col.merge", "Column merge", value = values$defaults$cycle.column.merge)),
+           p(textInput("col.merge", "Column merge", value = values$options@cycleColumnMerge)),
            p(selectInput("merge.categories", label = "Merge Categories", choices = unique(ls.cat), selected = NULL, multiple = T)),
            buttonInput(id = "table.update", class = "btn action-button btn-large btn-success", 'Update table'),
-           textInputRow("listing.path", "Folder to output tables to", value = values$defaults$cycle.save.folder),
+           textInputRow("listing.path", "Folder to output tables to", value = values$options@outputFolder),
            buttonInput(id = "listing.table.update", class = "btn action-button btn-large btn-warning", 'Save tables')
           ))),
         column(
@@ -172,12 +172,12 @@ shinyServer(function(input, output, session) {
       data = read.csv(input$trial.file$datapath, stringsAsFactors = F)
       # initial cleaning of database
 
-      options = defaultToxicityOptions(trialName = "LINES", folderPath = "I:/Data/MSG Support/projects/EuroSarc/LINES/Data Management/Data/03Jul2015_testing/Open clinica data/Stats final/For R", outputFolder = "C:/Users/pdutton/Desktop/New folder/toxicities")
+
       timeType = "time"
-      cycleLabels = labels(c("Baseline", "Cycle 1", "Cycle 2", "Cycle 3"), c(0, 1, 2, 3))
+      cycleLabels = data.frame(label=c("Baseline", "Cycle 1", "Cycle 2", "Cycle 3"), index=c(0, 1, 2, 3))
       treatmentLabels = labels(c("Linsitinib"), 1)
 
-      values$toxDB = robustToxicities(data, cycleLabels, options, treatmentLabels)
+      values$toxDB = robustToxicities(data, cycleLabels, options = values$options)
       values$toxDB = prepareToxicity(values$toxDB)
 
       if (class(values$toxDB@cleanData$ass_TRUE) == "integer") {
@@ -361,7 +361,7 @@ shinyServer(function(input, output, session) {
       message("Update plot with parameters")
 
       if (input$plot.height == 0) {
-       plot.height = toxTable_cycle(values$toxDB, dayRange = c(input$plot.minday, input$plot.maxday), plot = FALSE)*18+180
+       plot.height = toxPlot_time(values$toxDB, dayRange = c(input$plot.minday, input$plot.maxday), plot = FALSE)*18+180
 
       }else{
        plot.height = input$plot.height
@@ -371,7 +371,7 @@ shinyServer(function(input, output, session) {
       }else{
        plot.width = input$plot.width
       }
-      output$Toxicity = renderPlot({isolate({toxTable_cycle(values$toxDB, dayRange = c(input$plot.minday, input$plot.maxday), plotCycleLength = input$plot.cycle.length)})}, height = plot.height, width = plot.width)
+      output$Toxicity = renderPlot({isolate({toxPlot_time(values$toxDB, dayRange = c(input$plot.minday, input$plot.maxday), plotCycleLength = input$plot.cycle.length)})}, height = plot.height, width = plot.width)
      }
      message("################################################################")
 
