@@ -1,0 +1,16 @@
+Package: robustToxicities
+Type: Package
+Title: Shiny toxicity tables
+Version: 1.0.0
+Date: 2015-07-09
+Author: Peter Dutton
+Maintainer: Peter Dutton <peter.dutton@ndorms.ox.ac.uk>
+Description: Creates publication ready table and graphs from time based toxicity
+    data
+License: None
+Depends:
+    shiny,
+    stringr,
+    rtf,
+    TeachingDemos
+RoxygenNote: 5.0.1
