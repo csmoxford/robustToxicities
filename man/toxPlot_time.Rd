@@ -4,19 +4,14 @@
 \alias{toxPlot_time}
 \title{Plot toxicities over time}
 \usage{
-toxPlot_time(toxDB, patid = character(0), dayRange = c(-7, 60),
-  plot = TRUE, plotCycleLength = 21)
+toxPlot_time(toxDB, patid = character(0), plot = TRUE)
 }
 \arguments{
 \item{toxDB}{Main toxicity database.}
 
 \item{patid}{Build in patient subsetting by a list if not ""}
 
-\item{dayRange}{The range of time in days to display on the graph}
-
 \item{plot}{TRUE/FALSE plot the graph.}
-
-\item{plotCycleLength}{The number of days in a cycle}
 }
 \value{
 This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.

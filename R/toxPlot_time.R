@@ -3,10 +3,8 @@
 #' This function plots all the toxicities provided over time
 #'
 #' @inheritParams prepareToxicity
-#' @param patid Build in patient subsetting by a list if not ""
-#' @param dayRange The range of time in days to display on the graph
+#' @param patients Build in patient subsetting by a list if not ""
 #' @param plot TRUE/FALSE plot the graph.
-#' @param plotCycleLength The number of days in a cycle
 #'
 #'
 #' @return
@@ -14,21 +12,15 @@
 
 #' @export toxPlot_time
 
-toxPlot_time=function(toxDB,patid=character(0),dayRange=c(-7,60),plot=TRUE,plotCycleLength=21) {
+toxPlot_time=function(toxDB,patients = character(0),plot=TRUE) {
   # subset to specific patient if required
 
   if(class(toxDB) != "robustToxicities") {
-    stop("toxDB must be of class toxDB")
+    stop("toxDB must be of class robustToxicities")
   }
 
-  if (length(patid)){
-    toxDB@cleanData=toxDB@cleanData[toxDB@cleanData$patid %in% patid,]
-  }
-
-
-  # tell the user about patients with no toxicities
-  if (length(toxDB@cleanData$patid[toxDB@cleanData$ae_ctcae_grade==0])>0) {
-    message("Patients with no toxicities omitted: ", paste(toxDB@cleanData$patid[toxDB@cleanData$ae_ctcae_grade==0]))
+  if (length(patients)){
+    toxDB@cleanData=toxDB@cleanData[toxDB@cleanData$patid %in% patients,]
   }
 
   toxDB@cleanData=toxDB@cleanData[toxDB@cleanData$ae_ctcae_grade>0,]
@@ -58,7 +50,7 @@ toxPlot_time=function(toxDB,patid=character(0),dayRange=c(-7,60),plot=TRUE,plotC
   }
 
 
-  xlim=c(dayRange[1],dayRange[2])
+  xlim=c(toxDB@options@plotxMin,toxDB@options@plotxMax)
   ylim=c(0.5,max(toxDB@cleanData$gid)+0.5)
 
   par(mai=0.25*c(8,3,2,2),mfrow=c(1,1),cex=1)
@@ -70,7 +62,9 @@ toxPlot_time=function(toxDB,patid=character(0),dayRange=c(-7,60),plot=TRUE,plotC
   axis(1,label=0:100*7,at=0:100*7,pos=ylim[1])
   abline(v=1:100*7,lty=2,col="grey")
   abline(h=1:1000-0.5,lty=2,col="grey",lwd=0.5)
-  abline(v=0:20*plotCycleLength)
+  if(toxDB@options@plotCycleLength > 0){
+    abline(v=0:20*toxDB@options@plotCycleLength)
+  }
   a=c(0,by(toxDB@cleanData$gid,toxDB@cleanData$patid,max))+0.5
   patid.lab=rep(0,length(a)-1)
   for (i in 1:length(patid.lab)) {
@@ -90,7 +84,7 @@ toxPlot_time=function(toxDB,patid=character(0),dayRange=c(-7,60),plot=TRUE,plotC
     }
   }
 
-  text(dayRange[2],toxDB@cleanData$gid,labels=toxDB@cleanData$ass_toxicity_disp,pos = 2,offset=0.25)
+  text(toxDB@options@plotxMax,toxDB@cleanData$gid,labels=toxDB@cleanData$ass_toxicity_disp,pos = 2,offset=0.25)
   box()
   par(xpd=TRUE)
   xlow=xlim[1]+0.25*(xlim[2]-xlim[1])
