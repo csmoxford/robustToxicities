@@ -22,7 +22,10 @@ shinyServer(function(input, output, session) {
 
   ############################################################################################
   # reactive list to store all data to
-  values = reactiveValues(options = options)
+  values = reactiveValues(
+    defaultOptions = options,
+    options = options
+    )
 
   ############################################################################################
   # reset app on close
@@ -37,7 +40,8 @@ shinyServer(function(input, output, session) {
     if (!is.null(input$options)) {
       isolate({
         load(input$options$folderPath)
-        values$options = options
+        values$defaultOptions = options
+        print(options)
         message("Options changed to:", input$options$name)
         message("################################################################")
 
@@ -49,107 +53,60 @@ shinyServer(function(input, output, session) {
   ############################################################################################
   ############################################################################################
   # Applications ui (it's in server so defaults work!)
-  output$toxicities.UI = renderUI({
-    div(
-      tabsetPanel(
-        tabPanel(
-          "Load data and validation",
-          fluidRow(
-            column(
-              width = 3,
-              br(),
-              wellPanel(
-                div(
-                  class = "text-center",
-                  fileInput("options", "Load application defaults for trial", accept = c(".rData")),
-                  textInput("trialName", "Trial name (acronym)", value = values$options@trialName),
-                  textInput("folderPath", "Path to file", value = values$options@folderPath),
-                  uiOutput("chooseData"),
-                  p(),
-                  buttonInput(id = "toxicityDBUpdate", class = "btn action-button btn-large btn-success", 'load database')
-                )
-              )
-            ),
-            column(
-              width = 9,
-              h2("Trial toxicities database"),
-              dataTableOutput('tox.db')
-            )
-          )
-        ),
-        tabPanel(
-          "Tables and graphs",
-          tabsetPanel(
-            tabPanel(
-              "Plot time data",
-              fluidRow(
-                column(
-                  width = 3,
-                  wellPanel(
-                    uiOutput("plotUI"),
-                    numericInput_small("plotxMin", "Minimum day on x-axis", value = values$options@plotxMin),
-                    numericInput_small("plotxMax", "Maximum day on x-axis", value = values$options@plotxMax),
-                    numericInput_small("plotCycleLength", "Cycle length", value = values$options@plotCycleLength),
-                    numericInput_small("plotPxHeight", "Plot pixel height", value = values$options@plotPxHeight),
-                    numericInput_small("plotPxWidth", "Plot pixel width", value = values$options@plotPxWidth),
-                    buttonInput(id = "plotUpdate", class = "btn action-button btn-large btn-success", 'Update plot')
-                  )),
-                column(
-                  width = 9,
-                  plotOutput("Toxicity")
-                )
-              )
-            ),
-            tabPanel(
-              "Summary",
-              fluidRow(
-                column(
-                  width = 3,
-                  wellPanel(
-                    div(
-                      class = "text-center",
-                      uiOutput("sum.UI1"),
-                      p(textInput("sumCycleMerge", "Cycles to merge", value = values$options@sumCycleMerge)),
-                      p(textInput("sumColumnMerge", "Column merge", value = values$options@sumColumnMerge)),
-                      buttonInput(id = "sumTableUpdate", class = "btn action-button btn-large btn-success", 'Update table'),
-                      textInputRow("sum.path", "Folder to output tables to", value = values$options@outputFolder),
-                      buttonInput(id = "sum.table.save", class = "btn action-button btn-large btn-warning", 'Save tables')
-                    ))),
-                column(
-                  width = 9,
-                  p(),
-                  tableOutput("summary")
-                )
-              )
-            ),
-            tabPanel(
-              "By time period",
-              fluidRow(
-                column(
-                  width = 3,
-                  wellPanel(
-                    div(
-                      class = "text-center",
-                      uiOutput("listingUI1"),
-                      p(textInput("cycle.merge", "Cycles to merge", value = values$options@cycleCycleMerge)),
-                      uiOutput("listingUI2"),
-                      p(selectInput("worst", label = "List by time period", choices = c("worst", "all"), selected = "worst")),
-                      p(selectInput("skipbase", label = "Discard baseline toxicities", choices = c(TRUE, FALSE), selected = FALSE)),
-                      p(textInput("cycleColumnMerge", "Column merge", value = values$options@cycleColumnMerge)),
-                      p(selectInput("cycleCategoryMerge", label = "Merge Categories", choices = unique(ls.cat), selected = values$options@cycleCategoryMerge, multiple = T)),
-                      buttonInput(id = "table.update", class = "btn action-button btn-large btn-success", 'Update table'),
-                      textInputRow("listing.path", "Folder to output tables to", value = values$options@outputFolder),
-                      buttonInput(id = "listing.table.update", class = "btn action-button btn-large btn-warning", 'Save tables')
-                    ))),
-                column(
-                  width = 9,
-                  p(),
-                  tableOutput("listing")
-                )
-              )
-            )
-          )
-        )
+  output$uiLoad = renderUI({
+    wellPanel(
+      div(
+        class = "text-center",
+        fileInput("options", "Load application defaults for trial", accept = c(".rData")),
+        textInput("trialName", "Trial name (acronym)", value = values$defaultOptions@trialName),
+        textInput("folderPath", "Path to file", value = values$defaultOptions@folderPath),
+        uiOutput("chooseData"),
+        p(),
+        buttonInput(id = "toxicityDBUpdate", class = "btn action-button btn-large btn-success", 'load database')
+      )
+    )
+  })
+
+  output$uiPlot = renderUI({
+    wellPanel(
+      uiOutput("plotUI"),
+      numericInput_small("plotxMin", "Minimum day on x-axis", value = values$defaultOptions@plotxMin),
+      numericInput_small("plotxMax", "Maximum day on x-axis", value = values$defaultOptions@plotxMax),
+      numericInput_small("plotCycleLength", "Cycle length", value = values$defaultOptions@plotCycleLength),
+      numericInput_small("plotPxHeight", "Plot pixel height", value = values$defaultOptions@plotPxHeight),
+      numericInput_small("plotPxWidth", "Plot pixel width", value = values$defaultOptions@plotPxWidth),
+      buttonInput(id = "plotUpdate", class = "btn action-button btn-large btn-success", 'Update plot')
+    )
+  })
+
+  output$uiTimePeriod = renderUI({
+    wellPanel(
+      div(
+        class = "text-center",
+        uiOutput("listingUI1"),
+        p(textInput("cycle.merge", "Cycles to merge", value = values$defaultOptions@cycleCycleMerge)),
+        uiOutput("listingUI2"),
+        p(selectInput("worst", label = "List by time period", choices = c("worst", "all"), selected = "worst")),
+        p(selectInput("skipbase", label = "Discard baseline toxicities", choices = c(TRUE, FALSE), selected = FALSE)),
+        p(textInput("cycleColumnMerge", "Column merge", value = values$defaultOptions@cycleColumnMerge)),
+        p(selectInput("cycleCategoryMerge", label = "Merge Categories", choices = unique(ls.cat), selected = values$defaultOptions@cycleCategoryMerge, multiple = T)),
+        buttonInput(id = "table.update", class = "btn action-button btn-large btn-success", 'Update table'),
+        textInputRow("listing.path", "Folder to output tables to", value = values$defaultOptions@outputFolder),
+        buttonInput(id = "listing.table.update", class = "btn action-button btn-large btn-warning", 'Save tables')
+      )
+    )
+  })
+
+  output$uiSummary = renderUI({
+    wellPanel(
+      div(
+        class = "text-center",
+        uiOutput("sum.UI1"),
+        p(textInput("sumCycleMerge", "Cycles to merge", value = values$defaultOptions@sumCycleMerge)),
+        p(textInput("sumColumnMerge", "Column merge", value = values$defaultOptions@sumColumnMerge)),
+        buttonInput(id = "sumTableUpdate", class = "btn action-button btn-large btn-success", 'Update table'),
+        textInputRow("sum.path", "Folder to output tables to", value = values$defaultOptions@outputFolder),
+        buttonInput(id = "sum.table.save", class = "btn action-button btn-large btn-warning", 'Save tables')
       )
     )
   })
@@ -160,13 +117,32 @@ shinyServer(function(input, output, session) {
         isolate({
           values$fileList=list.files(path=input$folderPath)
           values$fileList=values$fileList[grepl(".csv",values$fileList) | grepl(".txt",values$fileList) | grepl(".dta",values$fileList)]
-          output$chooseData=renderUI(selectInput("dataFile","Select data (.txt or .csv)", selected = values$options@fileName,choices=values$fileList))
+          output$chooseData=renderUI(selectInput("dataFile","Select data (.txt or .csv)", selected = values$defaultOptions@fileName,choices=values$fileList))
         })
       }
     }
   })
 
-
+  updateoptions = observe({
+    test=names(getSlots("toxicityOptions"))
+    for(var in test){
+      if(!is.null(input[[var]])){
+        isolate({
+          if(!is.null(values$options)){
+            theClass = class(slot(values$options,var))
+            if(!is.na(input[[var]])){
+              if(slot(values$options,var) != input[[var]]) {
+                slot(values$options,var) = input[[var]]
+                if(!is.null(values$toxDB)){
+                  slot(values$toxDB@options,var) = input[[var]]
+                }
+              }
+            }
+          }
+        })
+      }
+    }
+  })
 
   ############################################################################################
   # load and visually display Toxicity database in app
