@@ -3,11 +3,13 @@
 .toxicityOptions = setClass("toxicityOptions", slots = c(
   trialName = "character",
   folderPath = "character",
+  fileName = "character",
+  timeType = "character",
   displayNotes = "logical",
   tabulationMethod = "character",
   discardBaseline = "logical",
-  plotMinDay = "numeric",
-  plotMaxDay = "numeric",
+  plotxMin = "numeric",
+  plotxMax = "numeric",
   plotCycleLength = "numeric",
   plotPxHeight = "numeric",
   plotPxWidth = "numeric",
@@ -21,15 +23,23 @@
 
 #' @export defaultToxicityOptions
 
-defaultToxicityOptions = function(trialName, folderPath = NULL, outputFolder = NULL) {
+defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", timeType="time", outputFolder = NULL) {
+
+  if(!timeType %in% c("time", "cycle")){
+    stop("timeType must be one of time or cycle")
+  }
+
+
   .toxicityOptions(
     trialName = trialName,
     folderPath = folderPath,
+    fileName = fileName,
+    timeType = timeType,
     displayNotes = TRUE,
     tabulationMethod = "worst",
     discardBaseline = FALSE,
-    plotMinDay = -7,
-    plotMaxDay = 60,
+    plotxMin = -7,
+    plotxMax = 60,
     plotCycleLength = 21,
     plotPxHeight = 0,
     plotPxWidth = 1100,
@@ -44,10 +54,10 @@ defaultToxicityOptions = function(trialName, folderPath = NULL, outputFolder = N
 
 
 #' @exportClass robustToxicities
-.robustToxicities = setClass("robustToxicities",slots = c(data = "data.frame", cleanData = "data.frame", treatmentLabels = "character", timeType = "character", cycleLabels = "data.frame", queries = "data.frame", options = "toxicityOptions"))
+.robustToxicities = setClass("robustToxicities",slots = c(data = "data.frame", cleanData = "data.frame", treatmentLabels = "character", cycleLabels = "data.frame", queries = "data.frame", options = "toxicityOptions"))
 
 #' @export robustToxicities
-robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL, timeType = "time") {
+robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) {
 
 
   ################################################################################
@@ -99,14 +109,8 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL, 
   }
 
   ################################################################################
-  # time data type
-  if(!timeType %in% c("time", "cycle")){
-    stop("timeType must be one of time or cycle")
-  }
-
-  ################################################################################
   # time data only checks
-  if(timeType  == "time") {
+  if(options@timeType  == "time") {
     requiredData = c("registration_date","ae_start_date", "ae_end_date", "ae_cont_end_study", "date_stopped_treatment", paste0("cycle_start_date",cycleLabels$index[2:length(cycleLabels$index)]))
     # time data names
     for (colName in requiredData) {
@@ -138,7 +142,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL, 
   queries = data.frame(matrix("",nrow = 0,ncol = length(queryNames)),stringsAsFactors = FALSE)
   names(queries) = queryNames
 
-  return(.robustToxicities(data = data, queries = queries, timeType = timeType, cycleLabels = cycleLabels, options = options))
+  return(.robustToxicities(data = data, queries = queries, cycleLabels = cycleLabels, options = options))
 }
 
 

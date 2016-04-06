@@ -108,7 +108,7 @@ prepareToxicity=function(toxDB){
   }
 
   # time based stuff now
-  if(toxDB@timeType == "time") {
+  if(toxDB@options@timeType == "time") {
 
     ############################################################################################
     # if missing ae_cycle_occured, generate this
