@@ -90,9 +90,7 @@ shinyServer(function(input, output, session) {
         p(selectInput("skipbase", label = "Discard baseline toxicities", choices = c(TRUE, FALSE), selected = FALSE)),
         p(textInput("cycleColumnMerge", "Column merge", value = values$defaultOptions@cycleColumnMerge)),
         p(selectInput("cycleCategoryMerge", label = "Merge Categories", choices = unique(ls.cat), selected = values$defaultOptions@cycleCategoryMerge, multiple = T)),
-        buttonInput(id = "table.update", class = "btn action-button btn-large btn-success", 'Update table'),
-        textInputRow("listing.path", "Folder to output tables to", value = values$defaultOptions@outputFolder),
-        buttonInput(id = "listing.table.update", class = "btn action-button btn-large btn-warning", 'Save tables')
+        buttonInput(id = "table.update", class = "btn action-button btn-large btn-success", 'Update table')
       )
     )
   })
@@ -104,9 +102,17 @@ shinyServer(function(input, output, session) {
         uiOutput("sum.UI1"),
         p(textInput("sumCycleMerge", "Cycles to merge", value = values$defaultOptions@sumCycleMerge)),
         p(textInput("sumColumnMerge", "Column merge", value = values$defaultOptions@sumColumnMerge)),
-        buttonInput(id = "sumTableUpdate", class = "btn action-button btn-large btn-success", 'Update table'),
-        textInputRow("sum.path", "Folder to output tables to", value = values$defaultOptions@outputFolder),
-        buttonInput(id = "sum.table.save", class = "btn action-button btn-large btn-warning", 'Save tables')
+        buttonInput(id = "sumTableUpdate", class = "btn action-button btn-large btn-success", 'Update table')
+      )
+    )
+  })
+
+  output$uiSaveTables = renderUI({
+    wellPanel(
+      div(
+        class = "text-center",
+        textInput("outputFolder", "Folder to output tables to", value = values$defaultOptions@outputFolder),
+        buttonInput(id = "tableSave", class = "btn action-button btn-large btn-warning", 'Save all tables')
       )
     )
   })
@@ -140,6 +146,57 @@ shinyServer(function(input, output, session) {
             }
           }
         })
+      }
+    }
+  })
+
+  # ui for merging cycles and viewing certain plots
+  listingUI = observe({
+    if (!is.null(input$toxicityDBUpdate)) {
+      if (input$toxicityDBUpdate>0) {
+        if (!is.null(values$toxDB)) {
+          isolate({
+            names_cycle = names(values$toxDB)[str_detect(names(values$toxDB), "cycle_start_date")]
+            values$names_cycle_stub = sub("cycle_start_date", "", names_cycle)
+            given_cycles = unique(values$toxDB@cleanData$ae_cycle_occured)
+            output$list.cycles = renderText(unique(c(values$names_cycle_stub, given_cycles)))
+            output$listingUI1 = renderUI({
+              div(
+                p("Names of time points / cycles or time periods:"),
+                textOutput("list.cycles")
+              )
+            })
+            output$sum.cycles = renderText(unique(c(values$names_cycle_stub, given_cycles)))
+            output$sum.UI1 = renderUI({
+              div(
+                p("Names of time points / cycles or time periods:"),
+                textOutput("sum.cycles")
+              )
+            })
+          })
+        }
+      }
+    }
+  })
+
+  # display choices for viewed cycles table
+  selectCycle = observe({
+    if (is.null(input$cycle.merge) == FALSE) {
+      values$plot.cycle.merge = strsplit(input$cycle.merge, "[|]")[[1]]
+      output$listingUI2 = renderUI({
+        selectInput("view.tab", label = "View generated table", choices = 1:length(values$plot.cycle.merge), selected = 1)
+      })
+    }
+  })
+
+  ############################################################################################
+  # Render the database
+  output$toxDB = renderDataTable({
+    if (!is.null(values$toxDB)) {
+      if ("ae_system" %in% names(values$toxDB@cleanData) & "ae" %in% names(values$toxDB@cleanData)) {
+        return(values$toxDB@cleanData[c("patid", "ae_cycle_occured", "ae_system", "ae_term", "ae", "ass_category", "ass_toxicity_disp", "ass_TRUE")])
+      } else {
+        return(values$toxDB@cleanData[c("patid", "ae_cycle_occured", "ae_term", "ass_category", "ass_toxicity_disp", "ass_TRUE")])
       }
     }
   })
@@ -180,60 +237,13 @@ shinyServer(function(input, output, session) {
             }
           }
         })
-      }}
-  })
-
-  output$tox.db = renderDataTable({
-    if (!is.null(values$toxDB)) {
-      if ("ae_system" %in% names(values$toxDB@cleanData) & "ae" %in% names(values$toxDB@cleanData)) {
-        return(values$toxDB@cleanData[c("patid", "ae_cycle_occured", "ae_system", "ae_term", "ae", "ass_category", "ass_toxicity_disp", "ass_TRUE")])
-      } else {
-        return(values$toxDB@cleanData[c("patid", "ae_cycle_occured", "ae_term", "ass_category", "ass_toxicity_disp", "ass_TRUE")])
       }
-    }
-  })
-
-
-  ############################################################################################
-  # ui for merging cycles and viewing certain plots
-  listing.UI = observe({
-    if (!is.null(input$toxicityDBUpdate)) {
-      if (input$toxicityDBUpdate>0) {
-        names_cycle = names(values$toxDB)[str_detect(names(values$toxDB), "cycle_start_date")]
-        values$names_cycle_stub = sub("cycle_start_date", "", names_cycle)
-        given_cycles = unique(values$toxDB@cleanData$ae_cycle_occured)
-        output$list.cycles = renderText(unique(c(values$names_cycle_stub, given_cycles)))
-        output$listingUI1 = renderUI({
-          div(
-            p("Names of time points / cycles or time periods:"),
-            textOutput("list.cycles")
-          )
-        })
-        output$sum.cycles = renderText(unique(c(values$names_cycle_stub, given_cycles)))
-        output$sum.UI1 = renderUI({
-          div(
-            p("Names of time points / cycles or time periods:"),
-            textOutput("sum.cycles")
-          )
-        })
-      }
-    }
-  })
-
-  ############################################################################################
-  # display choices for viewed table
-  linked.listing.inputs = observe({
-    if (is.null(input$cycle.merge) == FALSE) {
-      values$plot.cycle.merge = strsplit(input$cycle.merge, "[|]")[[1]]
-      output$listingUI2 = renderUI({
-        selectInput("view.tab", label = "View generated table", choices = 1:length(values$plot.cycle.merge), selected = 1)
-      })
     }
   })
 
   ############################################################################################
   # display requesting by time period table
-  table.listing.out = observe({
+  tableCycle = observe({
     if (!is.null(input$table.update)) {
       if (input$table.update>0) {
         isolate({
@@ -252,81 +262,62 @@ shinyServer(function(input, output, session) {
   })
 
   ############################################################################################
-  # save all by time period
-  table.listing.save = observe({
-    if (!is.null(input$listing.table.update)) {
-      if (input$listing.table.update>0) {
+  # display summary toxicity data
+  tableSummary = observe({
+    if (!is.null(input$sumTableUpdate)) {
+      if (input$sumTableUpdate>0) {
         isolate({
           if (!is.null(values$toxDB)) {
-            # save tables to csv
-            if (file.exists(input$listing.path)) {
-              message("Saving toxicity listing by cycle:")
+            output$summary = renderTable({ toxTable_summary(values$toxDB)}, digits = 0, include.rownames = FALSE)
+          } else {
+            message("No matched data in database, table not created")
+            message("################################################################")
+          }
+        })
+      }
+    }
+  })
 
-              rtffile <- RTF(paste0(input$listing.path, "/", input$trialName, "_toxity_cycles.doc")) # this can be an .rtf or a .doc
 
+  tableSave = observe({
+    if (!is.null(input$tableSave)) {
+      if (input$tableSave>0) {
+        isolate({
+
+          if (!is.null(values$toxDB)) {
+            if (file.exists(input$outputFolder)) {
+              rtfFile <- RTF(paste0(input$outputFolder, "/", input$trialName, "_toxity_summary.doc")) # this can be an .rtf or a .doc
+
+              sumTable =  toxTable_summary(values$toxDB)
+
+
+              fname = paste0(input$trialName, "_ToxicityTables", ".csv")
+              write.csv(sumTable, paste0(input$outputFolder, "/", fname), row.names = F)
+              addTable(rtfFile, sumTable, NA.string = "")
+
+              message("Saving toxicity summary:")
+              message("Filename: ", fname)
+
+              values$plot.cycle.merge = strsplit(input$cycle.merge, "[|]")[[1]]
               for(i in 1:length(values$plot.cycle.merge)) {
                 # cycles to build table
                 cycles = strsplit(values$plot.cycle.merge[i], ", ")[[1]]
                 tox.table =  toxTable_cycle(values$toxDB, cycles=cycles)
                 cycles = paste0(cycles, collapse = "")
-                write.csv(tox.table, paste0(input$listing.path, "/", input$trialName, "_cycle_", cycles, ".csv"), row.names = F)
+                write.csv(tox.table, paste0(input$outputFolder, "/", input$trialName, "_cycle_", cycles, ".csv"), row.names = F)
                 message("Filename:", paste0(input$trialName, "_cycle_", cycles, ".csv"))
-                addParagraph(rtffile, paste("Toxicities Cycle:", cycles, ""))
-                addTable(rtffile, tox.table, NA.string = "")
+                addNewLine(rtfFile, n=1)
+                addParagraph(rtfFile, paste("Toxicities Cycle:", cycles, ""))
+                addTable(rtfFile, tox.table, NA.string = "")
               }
-              done(rtffile)
 
+              done(rtfFile)
+              message("################################################################")
             } else {
               message("Folder path does not exist no files created")
             }
-            message("################################################################")
-          } else {
-            message("No matched data in database, table not created")
           }
-        })
-      }
-    }
-  })
 
-  ############################################################################################
-  # display worst toxicity by time period table
-  table.sum.out = observe({
-    if (!is.null(input$sumTableUpdate)) {
-      if (input$sumTableUpdate>0) {
-        isolate({
-
-          if (!is.null(values$toxDB)) {
-            output$summary = renderTable({ toxTable_summary(values$toxDB)})
-          } else {
-            message("No matched data in database, table not created")
-            message("################################################################")
-          }
-        })
-      }
-    }
-  })
-
-  ############################################################################################
-  # Save all worst toxicity summary
-  table.sum.save = observe({
-    if (!is.null(input$sum.table.save)) {
-      if (input$sum.table.save>0) {
-        isolate({
-          if (!is.null(values$toxDB)) {
-            sum.table =  toxTable_summary(values$toxDB)
-            if (file.exists(input$sum.path)) {
-              rtffile <- RTF(paste0(input$sum.path, "/", input$trialName, "_toxity_summary.doc")) # this can be an .rtf or a .doc
-
-              write.csv(sum.table, paste0(input$sum.path, "/", input$trialName, "_summary", ".csv"), row.names = F)
-              addTable(rtffile, sum.table, NA.string = "")
-              done(rtffile)
-              message("Saving toxicity summary:")
-              message("Filename:", paste0(input$trialName, "_summary", ".csv"))
-            } else {
-              message("Folder path does not exist no files created")
-            }
-            message("################################################################")
-          }
         })
       }
     }
@@ -334,7 +325,7 @@ shinyServer(function(input, output, session) {
 
   ############################################################################################
   # generate the plot time data
-  plot.toxicity = observe({
+  plotToxicity = observe({
     if (!is.null(input$plotUpdate)) {
       if (input$plotUpdate>0) {
         isolate({

@@ -91,6 +91,9 @@ toxTable_summary=function(toxDB){
       toxTable=toxTable.2
     }
 
+    # renaming
+    colnames(toxTable)[1:2]=c("Category","Toxicity")
+
     # return the table to the app
     return(toxTable)
   }

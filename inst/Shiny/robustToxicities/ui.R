@@ -21,7 +21,7 @@ shinyUI(fluidPage(
           column(
             width = 9,
             h2("Trial toxicities database"),
-            dataTableOutput('tox.db')
+            dataTableOutput('toxDB')
           )
         )
       ),
@@ -66,6 +66,15 @@ shinyUI(fluidPage(
                 width = 9,
                 p(),
                 tableOutput("listing")
+              )
+            )
+          ),
+          tabPanel(
+            "Save tables",
+            fluidRow(
+              column(
+                width = 3,
+                uiOutput("uiSaveTables")
               )
             )
           )
