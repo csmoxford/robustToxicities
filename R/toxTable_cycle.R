@@ -58,7 +58,6 @@ toxTable_cycle=function(toxDB , cycles){
     toxTable=toxTable_all(cleanDataSub,treats)
     }
 
-
     # count and record number of patients having at least some of the required time period
     for(treatment in 1:length(treats)){
       # number of patients at this cycle
@@ -70,11 +69,10 @@ toxTable_cycle=function(toxDB , cycles){
       }
     }
 
-
     # Perform the column merge for toxicities
     if(is.null(toxDB@options@cycleColumnMerge)==FALSE){
       colMerge=strsplit(toxDB@options@cycleColumnMerge,"[|]")[[1]]
-      toxTableClean=data.frame(toxID=toxTable$toxID,category=toxTable$category,toxicity=toxTable$toxicity)
+      toxTableClean=data.frame(toxID=toxTable$toxID,category=toxTable$category,toxicity=toxTable$toxicity, stringsAsFactors = FALSE)
       for(side in 1:length(treats)){
         for(col in colMerge){
           composition=as.numeric(strsplit(col,",")[[1]])
@@ -92,22 +90,22 @@ toxTable_cycle=function(toxDB , cycles){
     # Order according to toxID (ensuring that the toxicities are ordered alphabetically first by category and then by toxicity)
     toxTable=toxTable[order(as.numeric(as.character(toxTable$toxID)),decreasing = FALSE),]
     toxTable=toxTable[which(toxTable$toxicity!=""),]
-
     # Perform the row merge for categories
     if(length(toxDB@options@cycleCategoryMerge)){
       for(category in toxDB@options@cycleCategoryMerge){
-        if(category %in% toxTable$category){
-          merge.rows=which(category==toxTable$category)
-          di=dim(toxTable)
-          toxTable[merge.rows[1],4:di[2]]=apply(toxTable[merge.rows,4:di[2]],2,function(x) {sum(as.numeric(x))})
-          toxTable$toxicity[merge.rows[1]]=""
-          if(length(merge.rows)>1){
-          toxTable=toxTable[-merge.rows[2:length(merge.rows)],]
+        if(category != ""){
+          if(category %in% toxTable$category){
+            merge.rows=which(category==toxTable$category)
+            di=dim(toxTable)
+            toxTable[merge.rows[1],4:di[2]]=apply(toxTable[merge.rows,4:di[2]],2,function(x) {sum(as.numeric(x))})
+            toxTable$toxicity[merge.rows[1]]=""
+            if(length(merge.rows)>1){
+              toxTable=toxTable[-merge.rows[2:length(merge.rows)],]
+            }
           }
         }
       }
     }
-
 
 
     # drop toxID as not needed after ordering
@@ -115,14 +113,15 @@ toxTable_cycle=function(toxDB , cycles){
 
     # remove duplication of writing categories (one under the other before)
     a=dim(toxTable)[1]
-    if(a>=2){
-      for(i in a:2){
-        if(toxTable$category[i-1]==toxTable$category[i]){toxTable$category[i]=""}
+    if(a>=3){
+      for(i in a:3){
+        if(toxTable$category[i-1]==toxTable$category[i]){
+          toxTable$category[i]=""
+          }
       }
     }
 
     # renaming
-    toxTable[1,4:dim(toxTable)[2]]=NA
     colnames(toxTable)[1:2]=c("Category","Toxicity")
 
     # return the table to the app

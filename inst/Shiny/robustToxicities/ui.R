@@ -74,7 +74,7 @@ shinyUI(fluidPage(
             fluidRow(
               column(
                 width = 3,
-                uiOutput("uiSaveTables")
+                uiOutput("uiSave")
               )
             )
           )

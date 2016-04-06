@@ -107,12 +107,16 @@ shinyServer(function(input, output, session) {
     )
   })
 
-  output$uiSaveTables = renderUI({
+  output$uiSave = renderUI({
     wellPanel(
       div(
         class = "text-center",
         textInput("outputFolder", "Folder to output tables to", value = values$defaultOptions@outputFolder),
-        buttonInput(id = "tableSave", class = "btn action-button btn-large btn-warning", 'Save all tables')
+        buttonInput(id = "tableSave", class = "btn action-button btn-large btn-warning", 'Save all tables'),
+        h3("Save options"),
+        textInput("optionsFolder", "Folder to output options to", value = values$defaultOptions@outputFolder),
+        textInput("optionsFileName", "File name of options file", value = paste0(values$defaultOptions@trialName,"_toxicityOtiopns.rData")),
+        buttonInput(id="optionsSave", class = "btn action-button btn-large btn-success", 'Save options')
       )
     )
   })
@@ -182,9 +186,9 @@ shinyServer(function(input, output, session) {
   # display choices for viewed cycles table
   selectCycle = observe({
     if (is.null(input$cycle.merge) == FALSE) {
-      values$plot.cycle.merge = strsplit(input$cycle.merge, "[|]")[[1]]
+      values$cycleMerge = strsplit(input$cycle.merge, "[|]")[[1]]
       output$listingUI2 = renderUI({
-        selectInput("view.tab", label = "View generated table", choices = 1:length(values$plot.cycle.merge), selected = 1)
+        selectInput("view.tab", label = "View generated table", choices = 1:length(values$cycleMerge), selected = 1)
       })
     }
   })
@@ -248,7 +252,7 @@ shinyServer(function(input, output, session) {
       if (input$table.update>0) {
         isolate({
           # cycles to build table
-          cycles = strsplit(values$plot.cycle.merge[as.numeric(input$view.tab)], ", ")[[1]]
+          cycles = strsplit(values$cycleMerge[as.numeric(input$view.tab)], ", ")[[1]]
           if (!is.null(values$toxDB)) {
             tox.table =  toxTable_cycle(values$toxDB, cycles=cycles)
             output$listing = renderTable({tox.table}, digits = 0, include.rownames = FALSE)
@@ -298,10 +302,10 @@ shinyServer(function(input, output, session) {
               message("Saving toxicity summary:")
               message("Filename: ", fname)
 
-              values$plot.cycle.merge = strsplit(input$cycle.merge, "[|]")[[1]]
-              for(i in 1:length(values$plot.cycle.merge)) {
+              cycleMerge = strsplit(values$toxDB@options@cycleCycleMerge, "[|]")[[1]]
+              for(i in 1:length(cycleMerge)) {
                 # cycles to build table
-                cycles = strsplit(values$plot.cycle.merge[i], ", ")[[1]]
+                cycles = strsplit(cycleMerge[i], ", ")[[1]]
                 tox.table =  toxTable_cycle(values$toxDB, cycles=cycles)
                 cycles = paste0(cycles, collapse = "")
                 write.csv(tox.table, paste0(input$outputFolder, "/", input$trialName, "_cycle_", cycles, ".csv"), row.names = F)
@@ -352,6 +356,24 @@ shinyServer(function(input, output, session) {
     }
   })
 
+  saveOptions = observe({
+    if (!is.null(input$optionsSave)) {
+      if(input$optionsSave > 0) {
+        isolate({
+          print(input$optionsFolder)
+          print(file.exists(input$optionsFolder))
+          print(paste0(input$optionsFolder,"/",input$optionsFileName))
+          if(file.exists(input$optionsFolder)) {
+            options = values$toxDB@options
+            print(options)
+            save(options, file=paste0(input$optionsFolder,"/",input$optionsFileName))
+            message("Toxicity options saved to file: ", input$optionsFileName)
+            message("Folder: ", input$optionsFolder)
+          }
+        })
+      }
+    }
+  })
 
 
   # End of server program
