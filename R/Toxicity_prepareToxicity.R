@@ -133,8 +133,6 @@ prepareToxicity=function(toxDB){
       }
     }
 
-
-
     ############################################################################################
     # maximum number of cycles of any patient
     no_cycles = sum(str_detect(names(toxDB@cleanData), "cycle_start_date"))
@@ -158,12 +156,38 @@ prepareToxicity=function(toxDB){
     for(i in 1:dm[1]){
       if(toxDB@cleanData$ass_TRUE[i]){
         if(is.na(toxDB@cleanData$ae_start_date[i])){
-          msg = paste("Patient",toxDB@cleanData$patid[i], "is missing the date of start of toxicity for:", toxDB@cleanData$ae_term[i], "line", i, "(setting to 7 days prior to registration)")
+          msg = paste("Patient", toxDB@cleanData$patid[i], "is missing the date of start of toxicity for:", toxDB@cleanData$ae_term[i], "line", i, "(setting to 7 days prior to registration)")
           toxDB@queries = query(toxDB, msg, "Missing data",notes)
           toxDB@cleanData$ae_start_date[i]=toxDB@cleanData$registration_date[i]-7
         }
       }
     }
+
+    ############################################################################################
+    # Check date ordering and missing internal dates
+    dates = grep("cycle_start_date",names(toxDB@cleanData))
+    for (j in 2:length(dates)) {
+      for (i in 1:dm[1]) {
+        d1 = toxDB@cleanData[i,dates[j - 1]]
+        d2 = toxDB@cleanData[i,dates[j]]
+        if(!is.na(d2)) {
+          # second date exists
+          if(!is.na(d1)) {
+            # first date exists
+            if( d1 > d2) {
+              # first date before second date
+              msg = paste0("Patient ", toxDB@cleanData$patid[i], " date for cycle ", dates[j - 1], "(", d1, ") is before date for ", dates[j], "(", d2, ")")
+              toxDB@queries = query(toxDB, msg, "Wrong data", notes)
+            }
+          } else {
+            # first date missing by second date available
+            msg = paste0("Patient ", toxDB@cleanData$patid[i], " date for ", dates[j - 1], " is missing but the future date for",  dates[j], "(", d2, ") is not")
+            toxDB@queries = query(toxDB, msg, "Missing data", notes)
+          }
+        }
+      }
+    }
+
 
     ############################################################################################
     # Missing end of treatment date
