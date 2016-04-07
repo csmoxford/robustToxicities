@@ -58,7 +58,6 @@ toxTable_summary = function(toxDB) {
 
       #sub set by treatment
       cleanDataAll=toxDB@cleanData[toxDB@cleanData$treatment  ==  treats[treatment],]
-
       for(cycle.no in 1:length(cycle.lists)){
         cycles=strsplit(cycle.lists[cycle.no],"[,]")[[1]]
         # if merging more than one cycle need to apply to merge columns
@@ -66,16 +65,16 @@ toxTable_summary = function(toxDB) {
         if(length(cycles)>1){
           # cycle totals
           toxTable[cycle.no, 7 * treatment - 5] = length(unique(cleanDataAll$patid[apply(cleanDataAll[, paste0("cycle_start_date", cycles)], 1, function(x) sum(!is.na(x)) > 0)]))
-
-
           x=aggregate(apply(cleanDataAll[, paste0("occur_in_cycle_",cycles)],1,max),by=list(cleanDataAll$patid),FUN=max)$x
         } else {
           toxTable[cycle.no, 7 * treatment - 5 ] = length(unique(cleanDataAll$patid[is.na(cleanDataAll[, paste0("cycle_start_date", cycles)]) == FALSE]))
-
           x=aggregate(cleanDataSub[,paste0("occur_in_cycle_",cycles)],by=list(cleanDataSub$patid),FUN=max)$x
         }
-        print(x)
-        toxTable[cycle.no,3:8 + (treatment - 1) * 7] = c(sum(x == 0),sum(x == 1),sum(x == 2),sum(x == 3),sum(x == 4),sum(x == 5))
+        if(toxDB@options@cumulativeGrades){
+          toxTable[cycle.no,3:8 + (treatment - 1) * 7] = c(sum(x >= 0),sum(x >= 1),sum(x >= 2),sum(x >= 3),sum(x >= 4),sum(x == 5))
+        } else {
+          toxTable[cycle.no,3:8 + (treatment - 1) * 7] = c(sum(x == 0),sum(x == 1),sum(x == 2),sum(x == 3),sum(x == 4),sum(x == 5))
+        }
       }
     }
 

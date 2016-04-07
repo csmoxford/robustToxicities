@@ -78,7 +78,11 @@ toxTable_cycle = function(toxDB , cycles){
       for(side in 1:length(treats)){
         for(col in colMerge){
           composition = as.numeric(strsplit(col, ",")[[1]])
-          if(length(composition)>1){
+          if(toxDB@options@cumulativeGrades) {
+            composition = min(composition):5
+            print(composition[1])
+            toxTableClean[, paste0("tox.", side, ".", paste0(composition[1], collapse = ""))] = apply(toxTable[, paste0("tox.", side, ".", composition)], 1, function(x) {sum(as.numeric(x))} )
+          } else if(length(composition)>1){
             toxTableClean[, paste0("tox.", side, ".", paste0(composition, collapse = ""))] = apply(toxTable[, paste0("tox.", side, ".", composition)], 1, function(x) {sum(as.numeric(x))} )
           } else {
             toxTableClean[, paste0("tox.", side, ".", composition)] = toxTable[, paste0("tox.", side, ".", composition)]
