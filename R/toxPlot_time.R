@@ -12,7 +12,7 @@
 
 #' @export toxPlot_time
 
-toxPlot_time=function(toxDB, patients = character(0), plot=TRUE) {
+toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   # subset to specific patient if required
   cleanDataSub = toxDB@cleanData[toxDB@cleanData$ass_TRUE == TRUE, ]
 
@@ -25,9 +25,9 @@ toxPlot_time=function(toxDB, patients = character(0), plot=TRUE) {
     cleanDataSub = cleanDataSub[cleanDataSub$patid %in% patients, ]
   }
 
-  cleanDataSub = cleanDataSub[cleanDataSub$ae_ctcae_grade>0,]
-  cleanDataSub$rel_start = cleanDataSub$ae_start_date - cleanDataSub$registration_date
-  cleanDataSub$rel_end   = cleanDataSub$ae_end_date   - cleanDataSub$registration_date
+  cleanDataSub             = cleanDataSub[cleanDataSub$ae_ctcae_grade>0,]
+  cleanDataSub$rel_start   = cleanDataSub$ae_start_date - cleanDataSub$registration_date
+  cleanDataSub$rel_end     = cleanDataSub$ae_end_date   - cleanDataSub$registration_date
   cleanDataSub$rel_ent_trt = cleanDataSub$date_stopped_treatment  - cleanDataSub$registration_date
 
   cleanDataSub = cleanDataSub[order(cleanDataSub$patid,cleanDataSub$ass_category,cleanDataSub$ass_toxicity_disp,cleanDataSub$ae_start_date),]
@@ -45,39 +45,39 @@ toxPlot_time=function(toxDB, patients = character(0), plot=TRUE) {
 
 
   # colouring
-  cols=c("#00CC00","#FF9900","red","black","black")
-  cleanDataSub$col=""
+  cols = c("#00CC00","#FF9900","red","black","black")
+  cleanDataSub$col = ""
   for (i in 1:length(cleanDataSub$col)) {
     cleanDataSub$col[i]=cols[cleanDataSub$ae_ctcae_grade[i]]
   }
 
 
-  xlim=c(toxDB@options@plotxMin,toxDB@options@plotxMax)
-  ylim=c(0.5,max(cleanDataSub$gid)+0.5)
+  xlim = c(toxDB@options@plotxMin, toxDB@options@plotxMax)
+  ylim = c(0.5, max(cleanDataSub$gid) + 0.5)
 
-  par(mai=0.25*c(8,3,2,2),mfrow=c(1,1),cex=1)
-  plot(0,0,xlim=xlim,ylim=ylim,type="n",axes=FALSE,xlab="Days from start of treatment",ylab="",xaxs="i",yaxs="i")
+  par(mai = 0.25 * c(8,3,2,2), mfrow = c(1,1), cex = 1)
+  plot(0, 0, xlim = xlim, ylim = ylim, type = "n", axes = FALSE, xlab = "Days from start of treatment", ylab = "", xaxs = "i", yaxs = "i")
 
-  ud=0.3
+  ud = 0.3
 
 
-  axis(1,label=0:100*7,at=0:100*7,pos=ylim[1])
-  abline(v=1:100*7,lty=2,col="grey")
-  abline(h=1:1000-0.5,lty=2,col="grey",lwd=0.5)
-  if(toxDB@options@plotCycleLength > 0){
-    abline(v=0:20*toxDB@options@plotCycleLength)
+  axis(1, label = 0:100 * 7, at = 0:100*7, pos = ylim[1])
+  abline(v = 1:100*7, lty = 2, col = "grey")
+  abline(h = 1:1000-0.5, lty = 2, col = "grey", lwd = 0.5)
+  if (toxDB@options@plotCycleLength > 0) {
+    abline(v = 0:20 * toxDB@options@plotCycleLength)
   }
-  a=c(0,by(cleanDataSub$gid,cleanDataSub$patid,max))+0.5
-  patid.lab=rep(0,length(a)-1)
+  a = c(0, by(cleanDataSub$gid, cleanDataSub$patid, max)) + 0.5
+  patid.lab = rep(0, length(a) - 1)
   for (i in 1:length(patid.lab)) {
-    patid.lab[i]=(a[i]+a[i+1])/2
+    patid.lab[i] = (a[i] + a[i + 1]) / 2
   }
-  abline(h=a,lwd=2)
-  axis(2,label=unique(cleanDataSub$patid),at=patid.lab,tick = FALSE)
+  abline(h = a,lwd = 2)
+  axis(2,label = unique(cleanDataSub$patid), at = patid.lab, tick = FALSE)
 
 
 
-  for (i in 1:length(cleanDataSub$col)){
+  for (i in 1:length(cleanDataSub$col)) {
     segments(cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]-0.5,cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]+0.5,lwd=3,col=1)
     if (cleanDataSub$rel_end[i]-cleanDataSub$rel_start[i]<1) {
       points(cleanDataSub$rel_start[i],cleanDataSub$gid[i],pch=19,col=cleanDataSub$col[i],cex=2.5)
