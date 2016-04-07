@@ -12,46 +12,48 @@
 
 #' @export toxPlot_time
 
-toxPlot_time=function(toxDB,patients = character(0),plot=TRUE) {
+toxPlot_time=function(toxDB, patients = character(0), plot=TRUE) {
   # subset to specific patient if required
+  cleanDataSub = toxDB@cleanData[toxDB@cleanData$ass_TRUE == TRUE, ]
 
-  if(class(toxDB) != "robustToxicities") {
+
+  if (class(toxDB) != "robustToxicities") {
     stop("toxDB must be of class robustToxicities")
   }
 
-  if (length(patients)){
-    toxDB@cleanData=toxDB@cleanData[toxDB@cleanData$patid %in% patients,]
+  if (length(patients)) {
+    cleanDataSub = cleanDataSub[cleanDataSub$patid %in% patients, ]
   }
 
-  toxDB@cleanData=toxDB@cleanData[toxDB@cleanData$ae_ctcae_grade>0,]
-  toxDB@cleanData$rel_start=toxDB@cleanData$ae_start_date- toxDB@cleanData$registration_date
-  toxDB@cleanData$rel_end  =toxDB@cleanData$ae_end_date  - toxDB@cleanData$registration_date
-  toxDB@cleanData$rel_ent_trt = toxDB@cleanData$date_stopped_treatment  - toxDB@cleanData$registration_date
+  cleanDataSub = cleanDataSub[cleanDataSub$ae_ctcae_grade>0,]
+  cleanDataSub$rel_start = cleanDataSub$ae_start_date - cleanDataSub$registration_date
+  cleanDataSub$rel_end   = cleanDataSub$ae_end_date   - cleanDataSub$registration_date
+  cleanDataSub$rel_ent_trt = cleanDataSub$date_stopped_treatment  - cleanDataSub$registration_date
 
-  toxDB@cleanData=toxDB@cleanData[order(toxDB@cleanData$patid,toxDB@cleanData$ass_category,toxDB@cleanData$ass_toxicity_disp,toxDB@cleanData$ae_start_date),]
-  un=unique(toxDB@cleanData[,c("patid","ass_category","ass_toxicity_disp")])
+  cleanDataSub = cleanDataSub[order(cleanDataSub$patid,cleanDataSub$ass_category,cleanDataSub$ass_toxicity_disp,cleanDataSub$ae_start_date),]
+  un = unique(cleanDataSub[, c("patid", "ass_category", "ass_toxicity_disp")])
 
-  toxDB@cleanData$gid=0
-  for (i in 1:length(toxDB@cleanData$gid)) {
-    st = which(toxDB@cleanData$patid[i]==un$patid & toxDB@cleanData$ass_category[i]==un$ass_category & toxDB@cleanData$ass_toxicity_disp[i]==un$ass_toxicity_disp)
-    toxDB@cleanData$gid[i]=which(toxDB@cleanData$patid[i]==un$patid & toxDB@cleanData$ass_category[i]==un$ass_category & toxDB@cleanData$ass_toxicity_disp[i]==un$ass_toxicity_disp)
+  cleanDataSub$gid = 0
+  for (i in 1:length(cleanDataSub$gid)) {
+    st = which(cleanDataSub$patid[i]==un$patid & cleanDataSub$ass_category[i]==un$ass_category & cleanDataSub$ass_toxicity_disp[i]==un$ass_toxicity_disp)
+    cleanDataSub$gid[i]=which(cleanDataSub$patid[i]==un$patid & cleanDataSub$ass_category[i]==un$ass_category & cleanDataSub$ass_toxicity_disp[i]==un$ass_toxicity_disp)
   }
 
   if (!plot) {
-    return(max(toxDB@cleanData$gid[i]))
+    return(max(cleanDataSub$gid[i]))
   }
 
 
   # colouring
   cols=c("#00CC00","#FF9900","red","black","black")
-  toxDB@cleanData$col=""
-  for (i in 1:length(toxDB@cleanData$col)) {
-    toxDB@cleanData$col[i]=cols[toxDB@cleanData$ae_ctcae_grade[i]]
+  cleanDataSub$col=""
+  for (i in 1:length(cleanDataSub$col)) {
+    cleanDataSub$col[i]=cols[cleanDataSub$ae_ctcae_grade[i]]
   }
 
 
   xlim=c(toxDB@options@plotxMin,toxDB@options@plotxMax)
-  ylim=c(0.5,max(toxDB@cleanData$gid)+0.5)
+  ylim=c(0.5,max(cleanDataSub$gid)+0.5)
 
   par(mai=0.25*c(8,3,2,2),mfrow=c(1,1),cex=1)
   plot(0,0,xlim=xlim,ylim=ylim,type="n",axes=FALSE,xlab="Days from start of treatment",ylab="",xaxs="i",yaxs="i")
@@ -65,26 +67,26 @@ toxPlot_time=function(toxDB,patients = character(0),plot=TRUE) {
   if(toxDB@options@plotCycleLength > 0){
     abline(v=0:20*toxDB@options@plotCycleLength)
   }
-  a=c(0,by(toxDB@cleanData$gid,toxDB@cleanData$patid,max))+0.5
+  a=c(0,by(cleanDataSub$gid,cleanDataSub$patid,max))+0.5
   patid.lab=rep(0,length(a)-1)
   for (i in 1:length(patid.lab)) {
     patid.lab[i]=(a[i]+a[i+1])/2
   }
   abline(h=a,lwd=2)
-  axis(2,label=unique(toxDB@cleanData$patid),at=patid.lab,tick = FALSE)
+  axis(2,label=unique(cleanDataSub$patid),at=patid.lab,tick = FALSE)
 
 
 
-  for (i in 1:length(toxDB@cleanData$col)){
-    segments(toxDB@cleanData$rel_ent_trt[i],toxDB@cleanData$gid[i]-0.5,toxDB@cleanData$rel_ent_trt[i],toxDB@cleanData$gid[i]+0.5,lwd=3,col=1)
-    if (toxDB@cleanData$rel_end[i]-toxDB@cleanData$rel_start[i]<1) {
-      points(toxDB@cleanData$rel_start[i],toxDB@cleanData$gid[i],pch=19,col=toxDB@cleanData$col[i],cex=2.5)
+  for (i in 1:length(cleanDataSub$col)){
+    segments(cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]-0.5,cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]+0.5,lwd=3,col=1)
+    if (cleanDataSub$rel_end[i]-cleanDataSub$rel_start[i]<1) {
+      points(cleanDataSub$rel_start[i],cleanDataSub$gid[i],pch=19,col=cleanDataSub$col[i],cex=2.5)
     } else {
-      polygon(c(toxDB@cleanData$rel_start[i],toxDB@cleanData$rel_start[i],toxDB@cleanData$rel_end[i],toxDB@cleanData$rel_end[i]),toxDB@cleanData$gid[i]+c(-ud,ud,ud,-ud),col=toxDB@cleanData$col[i],border =toxDB@cleanData$col[i])
+      polygon(c(cleanDataSub$rel_start[i],cleanDataSub$rel_start[i],cleanDataSub$rel_end[i],cleanDataSub$rel_end[i]),cleanDataSub$gid[i]+c(-ud,ud,ud,-ud),col=cleanDataSub$col[i],border =cleanDataSub$col[i])
     }
   }
 
-  text(toxDB@options@plotxMax,toxDB@cleanData$gid,labels=toxDB@cleanData$ass_toxicity_disp,pos = 2,offset=0.25)
+  text(toxDB@options@plotxMax,cleanDataSub$gid,labels=cleanDataSub$ass_toxicity_disp,pos = 2,offset=0.25)
   box()
   par(xpd=TRUE)
   xlow=xlim[1]+0.25*(xlim[2]-xlim[1])
@@ -105,5 +107,5 @@ toxPlot_time=function(toxDB,patients = character(0),plot=TRUE) {
 
   par(xpd=FALSE)
 
-  return(max(toxDB@cleanData$gid))
+  return(max(cleanDataSub$gid))
 }
