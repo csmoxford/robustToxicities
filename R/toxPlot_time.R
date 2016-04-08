@@ -26,9 +26,9 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   }
 
   cleanDataSub             = cleanDataSub[cleanDataSub$ae_ctcae_grade>0,]
-  cleanDataSub$rel_start   = cleanDataSub$ae_start_date - cleanDataSub$registration_date
-  cleanDataSub$rel_end     = cleanDataSub$ae_end_date   - cleanDataSub$registration_date
-  cleanDataSub$rel_ent_trt = cleanDataSub$date_stopped_treatment  - cleanDataSub$registration_date
+  cleanDataSub$rel_start   = cleanDataSub$ae_start_date - cleanDataSub[,toxDB@options@plotStartTreatment]
+  cleanDataSub$rel_end     = cleanDataSub$ae_end_date   - cleanDataSub[,toxDB@options@plotStartTreatment]
+  cleanDataSub$rel_ent_trt = cleanDataSub$date_stopped_treatment  - cleanDataSub[,toxDB@options@plotStartTreatment]
 
   cleanDataSub = cleanDataSub[order(cleanDataSub$patid,cleanDataSub$ass_category,cleanDataSub$ass_toxicity_disp,cleanDataSub$ae_start_date),]
   un = unique(cleanDataSub[, c("patid", "ass_category", "ass_toxicity_disp")])
@@ -78,11 +78,13 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
 
 
   for (i in 1:length(cleanDataSub$col)) {
-    segments(cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]-0.5,cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]+0.5,lwd=3,col=1)
-    if (cleanDataSub$rel_end[i]-cleanDataSub$rel_start[i]<1) {
-      points(cleanDataSub$rel_start[i],cleanDataSub$gid[i],pch=19,col=cleanDataSub$col[i],cex=2.5)
-    } else {
-      polygon(c(cleanDataSub$rel_start[i],cleanDataSub$rel_start[i],cleanDataSub$rel_end[i],cleanDataSub$rel_end[i]),cleanDataSub$gid[i]+c(-ud,ud,ud,-ud),col=cleanDataSub$col[i],border =cleanDataSub$col[i])
+    if(!is.na(cleanDataSub$rel_start[i])) {
+      if (cleanDataSub$rel_end[i]-cleanDataSub$rel_start[i]<1) {
+        points(cleanDataSub$rel_start[i],cleanDataSub$gid[i],pch=19,col=cleanDataSub$col[i],cex=2.5)
+      } else {
+        polygon(c(cleanDataSub$rel_start[i],cleanDataSub$rel_start[i],cleanDataSub$rel_end[i],cleanDataSub$rel_end[i]),cleanDataSub$gid[i]+c(-ud,ud,ud,-ud),col=cleanDataSub$col[i],border =cleanDataSub$col[i])
+      }
+      segments(cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]-0.5,cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]+0.5,lwd=3,col=1)
     }
   }
 

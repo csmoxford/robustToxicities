@@ -41,7 +41,6 @@ shinyServer(function(input, output, session) {
       isolate({
         load(input$options$folderPath)
         values$defaultOptions = options
-        print(options)
         message("Options changed to:", input$options$name)
         message("################################################################")
 
@@ -70,6 +69,7 @@ shinyServer(function(input, output, session) {
   output$uiPlot = renderUI({
     wellPanel(
       uiOutput("plotUI"),
+      textInput("plotStartTreatment", "Variable containing date treatment started", value = values$defaultOptions@plotStartTreatment),
       numericInput_small("plotxMin", "Minimum day on x-axis", value = values$defaultOptions@plotxMin),
       numericInput_small("plotxMax", "Maximum day on x-axis", value = values$defaultOptions@plotxMax),
       numericInput_small("plotCycleLength", "Cycle length", value = values$defaultOptions@plotCycleLength),
@@ -84,7 +84,7 @@ shinyServer(function(input, output, session) {
       div(
         class = "text-center",
         uiOutput("listingUI1"),
-        p(textInput("cycle.merge", "Cycles to merge", value = values$defaultOptions@cycleCycleMerge)),
+        p(textInput("cycleCycleMerge", "Cycles to merge", value = values$defaultOptions@cycleCycleMerge)),
         uiOutput("listingUI2"),
         p(selectInput("worst", label = "List by time period", choices = c("worst", "all"), selected = "worst")),
         p(selectInput("skipbase", label = "Discard baseline toxicities", choices = c(TRUE, FALSE), selected = FALSE)),
@@ -135,10 +135,13 @@ shinyServer(function(input, output, session) {
 
   updateoptions = observe({
     test=names(getSlots("toxicityOptions"))
+    # print(test)
     for(var in test){
       if(!is.null(input[[var]])){
         isolate({
           if(!is.null(values$options)){
+            # print(var)
+            # print(class(slot(values$options,var)))
             theClass = class(slot(values$options,var))
             if(!is.na(input[[var]])){
               if(slot(values$options,var) != input[[var]]) {
@@ -185,8 +188,8 @@ shinyServer(function(input, output, session) {
 
   # display choices for viewed cycles table
   selectCycle = observe({
-    if (is.null(input$cycle.merge) == FALSE) {
-      values$cycleMerge = strsplit(input$cycle.merge, "[|]")[[1]]
+    if (is.null(input$cycleCycleMerge) == FALSE) {
+      values$cycleMerge = strsplit(input$cycleCycleMerge, "[|]")[[1]]
       output$listingUI2 = renderUI({
         selectInput("view.tab", label = "View generated table", choices = 1:length(values$cycleMerge), selected = 1)
       })
