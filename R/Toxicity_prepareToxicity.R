@@ -101,7 +101,6 @@ prepareToxicity=function(toxDB){
   if (is.null(toxDB@cleanData$ae_cycle_occured)) {
     message("ae_cycle_occured not provided, creating column and will populate it")
     toxDB@cleanData$ae_cycle_occured = NA
-
   }
 
   ############################################################################################
@@ -177,6 +176,7 @@ prepareToxicity=function(toxDB){
   # time based stuff now
   if (toxDB@options@timeType == "time") {
 
+
     # if missing ae_cont_end_study, for time data generate this
     if (is.null(toxDB@cleanData$ae_cont_end_study)) {
       toxDB@cleanData$ae_cont_end_study = NA
@@ -197,37 +197,37 @@ prepareToxicity=function(toxDB){
 
     ############################################################################################
     # maximum number of cycles of any patient
-    no_cycles = sum(str_detect(names(toxDB@cleanData), "cycle_start_date"))
+    no_cycles = sum(str_detect(names(toxDB@cleanData), "cycle_start_date_"))
     ############################################################################################
     # location of the dates for those cycles
-    names_cycle = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "cycle_start_date")]
-    names_cycle_stub = sub("cycle_start_date", "", names_cycle)
+    names_cycle = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "cycle_start_date_")]
+    names_cycle_stub = sub("cycle_start_date_", "", names_cycle)
 
-    ############################################################################################
-    # Missing registration date
-    for(i in 1:dm[1]){
-      if(toxDB@cleanData$ass_TRUE[i]){
-        if(is.na(toxDB@cleanData$registration_date[i])){
-          msg = paste("Patient ",toxDB@cleanData$patid[i], "is missing the registration date for:", toxDB@cleanData$ae_term[i], "line", i)
-          toxDB@queries = query(toxDB, i, msg, "Missing data",notes)
-        }
+    # generate present_for_cycle if not provided:
+    no_present = sum(str_detect(names(toxDB@cleanData), "present_in_cycle_"))
+    if (no_present < no_cycles) {
+      for (stub in names_cycle_stub) {
+        toxDB@cleanData[,paste0("present_in_cycle_",stub)] = !is.na(toxDB@cleanData[,paste0("cycle_start_date_",stub)])
       }
     }
+
+
     ############################################################################################
     # If baseline toxicity without start date assign registration date -7. Tell user.
     for(i in 1:dm[1]){
       if(toxDB@cleanData$ass_TRUE[i]){
         if(is.na(toxDB@cleanData$ae_start_date[i])){
-          msg = paste("Patient", toxDB@cleanData$patid[i], "is missing the date of start of toxicity for:", toxDB@cleanData$ae_term[i], "line", i, "(setting to 7 days prior to registration)")
+          msg = paste("Patient", toxDB@cleanData$patid[i], "is missing the date of start of toxicity for:", toxDB@cleanData$ae_term[i], "line", i, "(setting to 7 days prior to earlist known date)")
           toxDB@queries = query(toxDB, i, msg, "Missing data",notes)
-          toxDB@cleanData$ae_start_date[i]=toxDB@cleanData$registration_date[i]-7
+          cycle_dates=names(toxDB@cleanData)[grepl("cycle_start_date_", names(toxDB@cleanData))]
+          toxDB@cleanData$ae_start_date[i]=min(as.numeric(toxDB@cleanData[i,cycle_dates]), na.rm = TRUE) - 7
         }
       }
     }
 
     ############################################################################################
     # Check date ordering and missing internal dates
-    dates = grep("cycle_start_date",names(toxDB@cleanData))
+    dates = grep("cycle_start_date_",names(toxDB@cleanData))
     for (j in 2:length(dates)) {
       for (i in 1:dm[1]) {
         d1 = toxDB@cleanData[i,dates[j - 1]]
@@ -336,7 +336,6 @@ prepareToxicity=function(toxDB){
     }
 
     toxDB@cleanData$occur_in_cycle_0  = toxDB@cleanData$ae_ctcae_grade * (toxDB@cleanData$ae_cycle_occured == 0)
-    toxDB@cleanData$cycle_start_date0 = toxDB@cleanData$registration_date
 
   }
 

@@ -116,7 +116,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   ################################################################################
   # time data only checks
   if(options@timeType  == "time") {
-    requiredData = c("registration_date","ae_start_date", "ae_end_date", "ae_cont_end_study", "date_stopped_treatment", paste0("cycle_start_date",cycleLabels$index[2:length(cycleLabels$index)]))
+    requiredData = c("ae_start_date", "ae_end_date", "ae_cont_end_study", "date_stopped_treatment", paste0("cycle_start_date_",cycleLabels$index))
     # time data names
     for (colName in requiredData) {
       if (!colName %in% name) {
@@ -124,6 +124,9 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
         stp = 1
       }
     }
+
+
+
   } else if(options@timeType  == "cycle") {
     ################################################################################
     # require either ae_cycle_occured or occur_in_cycle_
@@ -131,6 +134,19 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
       message("Column with name ", colName, " was not found in the data and is required.")
       stp = 1
     }
+
+    ################################################################################
+    # Must provide present in cycle
+    cycleLabels$index
+    requiredData = paste0("present_in_cycle_", cycleLabels$index)
+    # time data names
+    for (colName in requiredData) {
+      if (!colName %in% name) {
+        message("Column with name",colName, "was not found in the data and is required.")
+        stp = 1
+      }
+    }
+
   } else {
     message("Option timeType must be one of time, and cycle was: ", options@timeType)
   }
