@@ -72,12 +72,9 @@ toxPlot_cycle = function(toxDB, patients = character(0), plot=TRUE) {
   ud = 0.3
 
 
-  axis(1, label = 0:100 * 7, at = 0:100*7, pos = ylim[1])
-  abline(v = 1:100*7, lty = 2, col = "grey")
+
   abline(h = 1:1000-0.5, lty = 2, col = "grey", lwd = 0.5)
-  if (toxDB@options@plotCycleLength > 0) {
-    abline(v = 0:20 * toxDB@options@plotCycleLength)
-  }
+
   a = c(0, by(cleanDataSub$gid, cleanDataSub$patid, max)) + 0.5
   patid.lab = rep(0, length(a) - 1)
   for (i in 1:length(patid.lab)) {
@@ -95,9 +92,11 @@ toxPlot_cycle = function(toxDB, patients = character(0), plot=TRUE) {
       } else {
         polygon(c(cleanDataSub$rel_start[i],cleanDataSub$rel_start[i],cleanDataSub$rel_end[i],cleanDataSub$rel_end[i]),cleanDataSub$gid[i]+c(-ud,ud,ud,-ud),col=cleanDataSub$col[i],border =cleanDataSub$col[i])
       }
-      segments(cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]-0.5,cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]+0.5,lwd=3,col=1)
     }
+    segments(cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]-0.5,cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]+0.5,lwd=3,col=1)
   }
+
+  print(cleanDataSub$rel_ent_trt)
 
   text(toxDB@options@plotxMax,cleanDataSub$gid,labels=cleanDataSub$ass_toxicity_disp,pos = 2,offset=0.25)
   box()
