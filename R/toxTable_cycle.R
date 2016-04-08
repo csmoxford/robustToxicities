@@ -35,7 +35,6 @@ toxTable_cycle = function(toxDB , cycles){
 
 
   if (a == 0) {
-    #print(names(toxDB@cleanData))
     # subset database with toxicities in requested cycles cycles
     toxDB@cleanData$x = apply(toxDB@cleanData[paste0("occur_in_cycle_", cycles)] , 1 , function(y) max(as.numeric(y)))
     cleanDataSub = toxDB@cleanData[toxDB@cleanData$x > 0 & toxDB@cleanData$ass_TRUE, ]
@@ -62,10 +61,10 @@ toxTable_cycle = function(toxDB , cycles){
       # number of patients at this cycle
       tox_s = toxDB@cleanData[toxDB@cleanData$treatment == treats[treatment], ]
       if(length(cycles)>1){
-        npatients[treatment] = length(unique(tox_s$patid[apply(tox_s[, paste0("cycle_start_date", cycles)], 1, function(x) sum(is.na(x) == FALSE)>0)]))
+        npatients[treatment] = length(unique(tox_s$patid[apply(tox_s[, paste0("present_in_cycle_", cycles)], 1, function(x) sum(x) > 0)]))
         toxTable[1, 5*treatment-1] = npatients[treatment]
       } else {
-        npatients[treatment] = length(unique(tox_s$patid[!is.na(tox_s[, paste0("cycle_start_date", cycles)])]))
+        npatients[treatment] = length(unique(tox_s$patid[tox_s[, paste0("present_in_cycle_", cycles)]]))
         toxTable[1, 5*treatment-1] = npatients[treatment]
       }
     }
@@ -76,15 +75,33 @@ toxTable_cycle = function(toxDB , cycles){
       toxTableClean = data.frame(toxID = toxTable$toxID, category = toxTable$category, toxicity = toxTable$toxicity, stringsAsFactors = FALSE)
       for(side in 1:length(treats)){
         for(col in colMerge){
-          composition = as.numeric(strsplit(col, ",")[[1]])
           if(toxDB@options@cumulativeGrades) {
-            composition = min(composition):5
-            print(composition[1])
-            toxTableClean[, paste0("tox.", side, ".", paste0(composition[1], collapse = ""))] = apply(toxTable[, paste0("tox.", side, ".", composition)], 1, function(x) {sum(as.numeric(x))} )
-          } else if(length(composition)>1){
-            toxTableClean[, paste0("tox.", side, ".", paste0(composition, collapse = ""))] = apply(toxTable[, paste0("tox.", side, ".", composition)], 1, function(x) {sum(as.numeric(x))} )
+
+            composition = min(as.numeric(strsplit(col, ",")[[1]])):5
+            cols = paste0("tox.", side, ".", composition)
+            cname = paste0("tox.", side, ".", composition[1])
+            if(length(composition) > 1) {
+              toxTableClean[, cname] = apply(toxTable[, cols], 1, function(x) {sum(as.numeric(x), na.rm = TRUE)})
+              if(!1 %in% composition) {
+                toxTableClean[1, cname] = NA
+              }
+            } else {
+              toxTableClean[, cname] = toxTable[, cols]
+            }
+
           } else {
-            toxTableClean[, paste0("tox.", side, ".", composition)] = toxTable[, paste0("tox.", side, ".", composition)]
+
+            composition = as.numeric(strsplit(col, ",")[[1]])
+            cols = paste0("tox.", side, ".", composition)
+            cname = paste0("tox.", side, ".", paste0(composition, collapse = ""))
+            if(length(composition) > 1) {
+              toxTableClean[, cname] = apply(toxTable[, cols], 1, function(x) {sum(as.numeric(x), na.rm = TRUE)})
+              if(!1 %in% composition) {
+                toxTableClean[1, cname] = NA
+              }
+            } else {
+              toxTableClean[, cols] = toxTable[, cols]
+            }
           }
         }
       }

@@ -32,10 +32,8 @@ toxTable_summary = function(toxDB) {
   # continue if everything is ok
   if(a == 0){
 
-    no_cycles = sum(str_detect(names(toxDB@cleanData), "cycle_start_date"))
-    names_cycle = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "cycle_start_date")]
-    names_occur = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "occur_in_cycle")]
-
+    no_cycles = sum(str_detect(names(toxDB@cleanData), "present_in_cycle_"))
+    names_cycle = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "present_in_cycle_")]
 
     cycle.lists=strsplit(toxDB@options@sumCycleMerge,"[|]")[[1]]
 
@@ -64,10 +62,10 @@ toxTable_summary = function(toxDB) {
         cleanDataSub = cleanDataAll[cleanDataAll$ass_TRUE  ==  TRUE,]
         if(length(cycles)>1){
           # cycle totals
-          toxTable[cycle.no, 7 * treatment - 5] = length(unique(cleanDataAll$patid[apply(cleanDataAll[, paste0("cycle_start_date", cycles)], 1, function(x) sum(!is.na(x)) > 0)]))
+          toxTable[cycle.no, 7 * treatment - 5] = length(unique(cleanDataAll$patid[apply(cleanDataAll[, paste0("present_in_cycle_", cycles)], 1, function(x) sum(x) > 0)]))
           x=aggregate(apply(cleanDataAll[, paste0("occur_in_cycle_",cycles)],1,max),by=list(cleanDataAll$patid),FUN=max)$x
         } else {
-          toxTable[cycle.no, 7 * treatment - 5 ] = length(unique(cleanDataAll$patid[is.na(cleanDataAll[, paste0("cycle_start_date", cycles)]) == FALSE]))
+          toxTable[cycle.no, 7 * treatment - 5 ] = length(unique(cleanDataAll$patid[cleanDataAll[, paste0("present_in_cycle_", cycles)]]))
           x=aggregate(cleanDataSub[,paste0("occur_in_cycle_",cycles)],by=list(cleanDataSub$patid),FUN=max)$x
         }
         if(toxDB@options@cumulativeGrades){
