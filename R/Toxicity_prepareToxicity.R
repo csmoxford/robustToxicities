@@ -334,9 +334,6 @@ prepareToxicity=function(toxDB){
         }
       }
     }
-
-    toxDB@cleanData$occur_in_cycle_0  = toxDB@cleanData$ae_ctcae_grade * (toxDB@cleanData$ae_cycle_occured == 0)
-
   }
 
 

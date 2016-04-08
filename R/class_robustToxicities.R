@@ -39,7 +39,7 @@ defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", t
     timeType = timeType,
     displayNotes = TRUE,
     tabulationMethod = "worst",
-    cumulativeGrades = FALSE,
+    cumulativeGrades = TRUE,
     discardBaseline = FALSE,
     plotStartTreatment = "cycle_start_date_1",
     plotxMin = -7,
@@ -47,10 +47,10 @@ defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", t
     plotCycleLength = 21,
     plotPxHeight = 0,
     plotPxWidth = 1100,
-    sumCycleMerge = "0|1|2|3",
+    sumCycleMerge = "",
     sumColumnMerge = "total|1|2|3|4,5",
     cycleColumnMerge = "1|2|3|4,5",
-    cycleCycleMerge = "0|1|2|3",
+    cycleCycleMerge = "",
     cycleCategoryMerge = "", # collapse CTCAE categories in table
     outputFolder = outputFolder
   )
@@ -58,7 +58,7 @@ defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", t
 
 
 #' @exportClass robustToxicities
-.robustToxicities = setClass("robustToxicities",slots = c(data = "data.frame", cleanData = "data.frame", treatmentLabels = "character", cycleLabels = "data.frame", queries = "data.frame", options = "toxicityOptions"))
+.robustToxicities = setClass("robustToxicities",slots = c(data = "data.frame", cleanData = "data.frame", treatmentLabels = "character", cycleLabels = "character", queries = "data.frame", options = "toxicityOptions"))
 
 #' @export robustToxicities
 robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) {
@@ -105,20 +105,17 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     data$treatment = sapply(data$treatment, function(x) which(x == treatmentLabels))
 
   }
+
   data$treatment = as.integer(data$treatment)
-  if(!class(data$treatment) == "integer"){
-    message("data$treatment must be of class integer")
-    stp = 1
-  }
-  if(length(unique(data$treatment)) < max(data$treatment)) {
-    message("data$treatment must be integer values and not have gaps")
+  if(length(treatmentLabels) < max(data$treatment)) {
+    message("data$treatment must be integer valued and correspond to the labels in treatmentLabels")
     stp = 1
   }
 
   ################################################################################
   # time data only checks
   if(options@timeType  == "time") {
-    requiredData = c("ae_start_date", "ae_end_date", "ae_cont_end_study", "date_stopped_treatment", paste0("cycle_start_date_",cycleLabels$index))
+    requiredData = c("ae_start_date", "ae_end_date", "ae_cont_end_study", "date_stopped_treatment", paste0("cycle_start_date_",1:length(cycleLabels)))
     # time data names
     for (colName in requiredData) {
       if (!colName %in% name) {
@@ -139,8 +136,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
 
     ################################################################################
     # Must provide present in cycle
-    cycleLabels$index
-    requiredData = paste0("present_in_cycle_", cycleLabels$index)
+    requiredData = paste0("present_in_cycle_", length(cycleLabels))
     # time data names
     for (colName in requiredData) {
       if (!colName %in% name) {
@@ -163,7 +159,18 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   queries = data.frame(matrix("",nrow = 0,ncol = length(queryNames)),stringsAsFactors = FALSE)
   names(queries) = queryNames
 
-  return(.robustToxicities(data = data, queries = queries, cycleLabels = cycleLabels, options = options))
+
+  # set options based on data:
+  if (options@sumCycleMerge == "") {
+    options@sumCycleMerge = paste0(1:length(cycleLabels), collapse = "|")
+  }
+  if (options@cycleCycleMerge == "") {
+    options@cycleCycleMerge = paste0(1:length(cycleLabels), collapse = "|")
+  }
+
+
+
+  return(.robustToxicities(data = data, queries = queries, treatmentLabels = treatmentLabels, cycleLabels = cycleLabels, options = options))
 }
 
 
