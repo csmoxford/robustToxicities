@@ -41,9 +41,8 @@ toxTable_cycle = function(toxDB , cycles){
     cleanDataSub = toxDB@cleanData[toxDB@cleanData$x > 0 & toxDB@cleanData$ass_TRUE, ]
 
     # maximum cycle must go up to
-    max.cycle = sum(str_detect(names(cleanDataSub), "cycle_start_date"))
+    max.cycle = sum(str_detect(names(cleanDataSub), "occur_in_cycle"))
     # names of the cycles
-    names_cycle = names(cleanDataSub)[str_detect(names(cleanDataSub), "cycle_start_date")]
     names_occur = names(cleanDataSub)[str_detect(names(cleanDataSub), "occur_in_cycle")]
 
 

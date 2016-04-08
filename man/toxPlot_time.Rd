@@ -4,12 +4,12 @@
 \alias{toxPlot_time}
 \title{Plot toxicities over time}
 \usage{
-toxPlot_time(toxDB, patid = character(0), plot = TRUE)
+toxPlot_time(toxDB, patients = character(0), plot = TRUE)
 }
 \arguments{
 \item{toxDB}{Main toxicity database.}
 
-\item{patid}{Build in patient subsetting by a list if not ""}
+\item{patients}{Build in patient subsetting by a list if not ""}
 
 \item{plot}{TRUE/FALSE plot the graph.}
 }

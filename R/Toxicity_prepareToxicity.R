@@ -24,17 +24,50 @@ prepareToxicity=function(toxDB){
   # internal functions
 
   # append the query to the query data.frame and spit out a message.
-  query=function(toxDB,msg,problem_type,notes,aff=FALSE){
+  query=function(toxDB,i,msg,problem_type,notes,aff=FALSE){
     if(!(problem_type == "Note" & !notes)){
       message(msg)
     }
     if(!aff){
-    toxDB@queries[dim(toxDB@queries)[1]+1,]=c(toxDB@cleanData$patid[i], toxDB@cleanData$ae[i], toxDB@cleanData$ae_cycle_occured[i], problem_type, msg)
+      toxDB@queries[dim(toxDB@queries)[1]+1,]=c(toxDB@cleanData$patid[i], toxDB@cleanData$ae_term[i], toxDB@cleanData$ae_cycle_occured[i], problem_type, msg)
     } else {
       toxDB@queries[dim(toxDB@queries)[1]+1,]=c("", "", "", problem_type, msg)
     }
     return(toxDB@queries)
   }
+
+  # list of formatted categories for CTCAE classification
+  categoryList=c(
+    "Blood and lymphatic system disorders",
+    "Cardiac disorders",
+    "Congenital, familial and genetic disorders",
+    "Ear and labyrinth disorders",
+    "Endocrine disorders",
+    "Eye disorders",
+    "Gastrointestinal disorders",
+    "General disorders and administration site conditions",
+    "Hepatobiliary disorders",
+    "Immune system disorders",
+    "Infections and infestations",
+    "Injury, poisoning and procedural complications",
+    "Investigations",
+    "Metabolism and nutrition disorders",
+    "Musculoskeletal and connective tissue disorders",
+    "Neoplasms benign, malignant and unspecified (incl cysts and polyps)",
+    "Nervous system disorders",
+    "Pregnancy, puerperium and perinatal conditions",
+    "Psychiatric disorders",
+    "Renal and urinary disorder",
+    "Reproductive system and breast disorders",
+    "Respiratory, thoracic and mediastinal disorders",
+    "Skin and subcutaneous tissue disorders",
+    "Social circumstances",
+    "Surgical and medical procedures",
+    "Vascular disorders",
+    "Other",
+    "")
+  categoryListMatch = tolower(gsub("[[:punct:]]", "",word(categoryList)))
+  categoryListCompare = tolower(gsub(" ","",gsub("[[:punct:]]","",gsub("&","and",categoryList))))
   ################################################################################
   # set the data to cleanData keeping copy of the original!!
   # get the dimention for reference
@@ -43,7 +76,7 @@ prepareToxicity=function(toxDB){
 
   ################################################################################
   msg = paste("Number of patients:", length(unique(toxDB@cleanData$patid)), "in the provided database")
-  toxDB@queries = query(toxDB, msg, "Affirmation",notes ,TRUE)
+  toxDB@queries = query(toxDB, i, msg, "Affirmation",notes ,TRUE)
 
   noToxicities = 0
   for (i in 1:dm[1]) {
@@ -52,7 +85,6 @@ prepareToxicity=function(toxDB){
       if (sum(toxDB@cleanData$patid == toxDB@cleanData$patid[i]) == 1 & (toxDB@cleanData$ae_term[i] == "" | is.na(toxDB@cleanData$ae_term[i]))) {
         noToxicities = noToxicities + 1
         toxDB@cleanData$ae_ctcae_grade[i] = 0
-        toxDB@cleanData$ae_cycle_occured[i] = 0
         toxDB@cleanData$ae_term[i] = ""
         toxDB@cleanData$ae_start_date[i] = 0
       }
@@ -61,7 +93,15 @@ prepareToxicity=function(toxDB){
   # number of patients without toxicities
   if (noToxicities > 0) {
     msg = paste("There were", noToxicities, "patients with no eligible toxicities")
-    toxDB@queries = query(toxDB, msg, "Affirmation",notes , TRUE)
+    toxDB@queries = query(toxDB, i, msg, "Affirmation",notes , TRUE)
+  }
+
+  ############################################################################################
+  # if missing ae_cycle_occured, generate this
+  if (is.null(toxDB@cleanData$ae_cycle_occured)) {
+    message("ae_cycle_occured not provided, creating column and will populate it")
+    toxDB@cleanData$ae_cycle_occured = NA
+
   }
 
   ############################################################################################
@@ -69,7 +109,35 @@ prepareToxicity=function(toxDB){
   for (i in 1:dm[1]) {
     if (toxDB@cleanData$patid[i] == "") {
       msg = paste("Missing patid on row", i)
-      toxDB@queries = query(toxDB, msg, "Missing data",notes)
+      toxDB@queries = query(toxDB, i, msg, "Missing data",notes)
+    }
+  }
+
+  ################################################################################
+  # tidy the toxicity term ?
+  if(is.null(toxDB@cleanData$ass_toxicity_disp)){
+    toxDB@cleanData$ass_toxicity_disp = toxDB@cleanData$ae_term
+  }
+
+  ################################################################################
+  # tidy the categories
+  toxDB@cleanData$ass_category = ""
+  for ( i in 1:dm[1]) {
+    clean = tolower(gsub(" ","",gsub("[[:punct:]]", "", gsub("&", "and", toxDB@cleanData$ae_system[i]))))
+    j = which(clean == categoryListCompare)
+    if(length(j)) {
+      toxDB@cleanData$ass_category[i] = categoryList[j]
+    } else {
+      m = tolower(gsub("[[:punct:]]", "",word(toxDB@cleanData$ae_system[i])))
+      j = which(m == categoryListMatch)
+      if (length(j)) {
+        msg = paste("Note: Category partial match for patient:", toxDB@cleanData$patid[i], "Category:", toxDB@cleanData$ae_system[i], "Matched to:", categoryList[j])
+        toxDB@queries = query(toxDB, i, msg, "Note", notes)
+        toxDB@cleanData$ass_category[i] = categoryList[j]
+      } else {
+        msg = paste("Category not matched for patient:", toxDB@cleanData$patid[i], "Category:", toxDB@cleanData$ae_system[i])
+        toxDB@queries = query(toxDB, i, msg, "Wrong data", notes)
+      }
     }
   }
 
@@ -79,7 +147,7 @@ prepareToxicity=function(toxDB){
     if (toxDB@cleanData$ass_TRUE[i]) {
       if (is.na(toxDB@cleanData$ae_ctcae_grade[i])) {
         msg = paste("Patient", toxDB@cleanData$patid[i], "is missing toxicity grade for",toxDB@cleanData$ae_term , "line", i, "(currently set to zero)")
-        toxDB@queries = query(toxDB, msg, "Missing data",notes)
+        toxDB@queries = query(toxDB, i, msg, "Missing data",notes)
       }
     }
   }
@@ -90,7 +158,7 @@ prepareToxicity=function(toxDB){
     if (toxDB@cleanData$ass_TRUE[i]) {
       if (is.na(toxDB@cleanData$ae_term[i])) {
         msg = paste("Patient", toxDB@cleanData$patid[i], "is missing ae_term (toxicity term), line", i)
-        toxDB@queries = query(toxDB, msg, "Missing data",notes)
+        toxDB@queries = query(toxDB, i, msg, "Missing data",notes)
       }
     }
   }
@@ -101,7 +169,7 @@ prepareToxicity=function(toxDB){
     if (toxDB@cleanData$ass_TRUE[i]) {
       if (is.na(toxDB@cleanData$ae_system[i])) {
         msg = paste("Patient", toxDB@cleanData$patid[i], "is missing ae_system (ctcae category), line", i)
-        toxDB@queries = query(toxDB, msg, "Missing data",notes)
+        toxDB@queries = query(toxDB, i, msg, "Missing data",notes)
       }
     }
   }
@@ -109,12 +177,6 @@ prepareToxicity=function(toxDB){
   # time based stuff now
   if (toxDB@options@timeType == "time") {
 
-    ############################################################################################
-    # if missing ae_cycle_occured, generate this
-    if (is.null(toxDB@cleanData$ae_cycle_occured)) {
-      message("ae_cycle_occured not provided, creating column and will populate it")
-      toxDB@cleanData$ae_cycle_occured = NA
-    }
     # if missing ae_cont_end_study, for time data generate this
     if (is.null(toxDB@cleanData$ae_cont_end_study)) {
       toxDB@cleanData$ae_cont_end_study = NA
@@ -147,7 +209,7 @@ prepareToxicity=function(toxDB){
       if(toxDB@cleanData$ass_TRUE[i]){
         if(is.na(toxDB@cleanData$registration_date[i])){
           msg = paste("Patient ",toxDB@cleanData$patid[i], "is missing the registration date for:", toxDB@cleanData$ae_term[i], "line", i)
-          toxDB@queries = query(toxDB, msg, "Missing data",notes)
+          toxDB@queries = query(toxDB, i, msg, "Missing data",notes)
         }
       }
     }
@@ -157,7 +219,7 @@ prepareToxicity=function(toxDB){
       if(toxDB@cleanData$ass_TRUE[i]){
         if(is.na(toxDB@cleanData$ae_start_date[i])){
           msg = paste("Patient", toxDB@cleanData$patid[i], "is missing the date of start of toxicity for:", toxDB@cleanData$ae_term[i], "line", i, "(setting to 7 days prior to registration)")
-          toxDB@queries = query(toxDB, msg, "Missing data",notes)
+          toxDB@queries = query(toxDB, i, msg, "Missing data",notes)
           toxDB@cleanData$ae_start_date[i]=toxDB@cleanData$registration_date[i]-7
         }
       }
@@ -177,12 +239,12 @@ prepareToxicity=function(toxDB){
             if( d1 > d2) {
               # first date before second date
               msg = paste0("Patient ", toxDB@cleanData$patid[i], " date for cycle ", dates[j - 1], "(", d1, ") is before date for ", dates[j], "(", d2, ")")
-              toxDB@queries = query(toxDB, msg, "Wrong data", notes)
+              toxDB@queries = query(toxDB, i, msg, "Wrong data", notes)
             }
           } else {
             # first date missing by second date available
             msg = paste0("Patient ", toxDB@cleanData$patid[i], " date for ", dates[j - 1], " is missing but the future date for",  dates[j], "(", d2, ") is not")
-            toxDB@queries = query(toxDB, msg, "Missing data", notes)
+            toxDB@queries = query(toxDB, i, msg, "Missing data", notes)
           }
         }
       }
@@ -205,7 +267,7 @@ prepareToxicity=function(toxDB){
     }
     if(noEndTreatment > 0){
       msg = paste("Patients missing date of end of treatment (includes those still on study):", noEndTreatment)
-      toxDB@queries = query(toxDB, msg, "Affirmation",notes, TRUE)
+      toxDB@queries = query(toxDB, i, msg, "Affirmation",notes, TRUE)
     }
 
     ############################################################################################
@@ -216,15 +278,15 @@ prepareToxicity=function(toxDB){
           if(!is.na(toxDB@cleanData$date_stopped_treatment[i])){
             toxDB@cleanData$ae_end_date[i]=toxDB@cleanData$date_stopped_treatment[i] + 30
             msg = paste("Note: Patient:", toxDB@cleanData$patid[i], "toxicity:", toxDB@cleanData$ae_term[i], "line:", i, "is continueing at end of study, setting the ae_end_date to 30 days after date_stopped_treatment")
-            toxDB@queries = query(toxDB, msg, "Note",notes)
+            toxDB@queries = query(toxDB, i, msg, "Note",notes)
           } else {
             msg = paste("Patient:", toxDB@cleanData$patid[i], "toxicity:", toxDB@cleanData$ae_term[i], "line:", i, "is continueing at end of study but the date_stopped_treatment is missing (setting ae_end_date to a large value)")
-            toxDB@queries = query(toxDB, msg, "Missing data",notes)
+            toxDB@queries = query(toxDB, i, msg, "Missing data",notes)
             toxDB@cleanData$ae_end_date[i]=30000
           }
         } else if(is.na(toxDB@cleanData$ae_end_date[i])){
           msg = paste("Patient:", toxDB@cleanData$patid[i], "toxicity:", toxDB@cleanData$ae_term[i], "line:", i, "has no end date for toxicity (setting ae_end_date to a large value)")
-          toxDB@queries = query(toxDB, msg, "Missing data",notes)
+          toxDB@queries = query(toxDB, i, msg, "Missing data",notes)
           toxDB@cleanData$ae_end_date[i] = 30000
         }
       }
@@ -236,7 +298,7 @@ prepareToxicity=function(toxDB){
       if(toxDB@cleanData$ass_TRUE[i]){
         if(toxDB@cleanData$ae_cont_end_study[i]=="no" & is.na(toxDB@cleanData$ae_end_date[i])){
           msg = paste("Patient:", toxDB@cleanData$patid[i], "toxicity:", toxDB@cleanData$ae_term[i], "line:", i, "is missing the date_stopped_treatment (setting ae_end_date to a large value)")
-          toxDB@queries = query(toxDB, msg, "Missing data",notes)
+          toxDB@queries = query(toxDB, i, msg, "Missing data",notes)
           toxDB@cleanData$ae_end_date[i]=30000
         }
       }
@@ -278,16 +340,6 @@ prepareToxicity=function(toxDB){
 
   }
 
-  ################################################################################
-  # Summarise the preparation
-
-  message("\n#############################################################")
-  message("# Summary of preparation")
-  message("Number of patients: ", length(unique(toxDB@cleanData$patid)))
-  message("Number of patients with no toxicities: ", noToxicities)
-  message("Patients missing date of end of treatment: ", noEndTreatment)
-  message("Number of notes: ", sum(toxDB@queries$problem_type == "Note"))
-  message("Number of missing data problems: ", sum(toxDB@queries$problem_type == "Missing data"))
 
   ################################################################################
   # number Toxicities
@@ -303,6 +355,18 @@ prepareToxicity=function(toxDB){
     toxDB@cleanData$ass_toxID[i] = j
   }
   ################################################################################
+  # Summarise the preparation
+
+  message("\n#############################################################")
+  message("# Summary of preparation")
+  message("Number of patients: ", length(unique(toxDB@cleanData$patid)))
+  message("Number of patients with no toxicities: ", noToxicities)
+  if(toxDB@options@timeType == "time"){
+    message("Patients missing date of end of treatment: ", noEndTreatment)
+  }
+  message("Number of notes: ", sum(toxDB@queries$problem_type == "Note"))
+  message("Number of missing data problems: ", sum(toxDB@queries$problem_type == "Missing data"))
+  message("Number of incorrect data problems: ", sum(toxDB@queries$problem_type == "Wrong data"))
 
   return(toxDB)
 }

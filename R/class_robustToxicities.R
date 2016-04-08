@@ -61,6 +61,9 @@ defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", t
 #' @export robustToxicities
 robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) {
 
+  if(class(data) != "data.frame") {
+    stop("data must be of class data.frame")
+  }
 
   ################################################################################
   # Check fields are provided (all need these fields)
@@ -121,17 +124,15 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
         stp = 1
       }
     }
-  } else {
+  } else if(options@timeType  == "cycle") {
     ################################################################################
-    # cycle data only checks
-    requiredData = c("ae_cycle_occured")
-    # time data names
-    for (colName in requiredData) {
-      if (!colName %in% name) {
-        message("Column with name ",colName, " was not found in the data and is required.")
-        stp = 1
-      }
+    # require either ae_cycle_occured or occur_in_cycle_
+    if (!"ae_cycle_occured" %in% name & sum(grepl("occur_in_cycle_", name)) == 0) {
+      message("Column with name ", colName, " was not found in the data and is required.")
+      stp = 1
     }
+  } else {
+    message("Option timeType must be one of time, and cycle was: ", options@timeType)
   }
 
   if(stp){
