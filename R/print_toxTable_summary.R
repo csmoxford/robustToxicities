@@ -57,7 +57,7 @@ print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
       return(toxTable)
     } else if( printMethod == "latex") {
 
-      align = c("l","l|",rep("c",dim(toxTable)[2]-1))
+      align = c("l","|r|",rep("c",dim(toxTable)[2]-2),"c|")
       return(print(xtable(toxTable, digits = 0, align=align),include.rownames=FALSE))
 
     } else if( printMethod == "rtf") {
@@ -94,10 +94,9 @@ print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
     } else if( printMethod == "latex") {
 
       nColTrt = (dim(toxTable)[2]-1)/length(toxDB@treatmentLabels)
-      align = c("l","l",rep(c("|c",rep("c",nColTrt-1)),length(toxDB@treatmentLabels)))
+      align = c("l","|r|",rep(c(rep("c",nColTrt-1),"c|"),length(toxDB@treatmentLabels)))
 
       xtab = xtable(toxTable, digits = 0, align=align)
-
       addtorow <- list()
       addtorow$pos <- list(-1)
       addtorow$command <- paste0(paste0('& \\multicolumn{',nColTrt , '}{|c}{', toxDB@treatmentLabels, '}', collapse=''), '\\\\')
