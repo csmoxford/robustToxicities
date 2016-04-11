@@ -49,64 +49,38 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "print", rtfDoc = N
 
 
 
-  if (length(toxDB@treatmentLabels) == 1) {
-    colnames(toxTable) = grade
+  colnames(toxTable) = grade
 
+  if( printMethod == "print") {
+    return(toxTable)
+  } else if( printMethod == "latex") {
 
-    if( printMethod == "print") {
-      return(toxTable)
-    } else if( printMethod == "latex") {
+    nColTrt = (dim(toxTable)[2]-2)/length(toxDB@treatmentLabels)
+    align = c("l","|p{5cm}",">{\\raggedleft\\arraybackslash}p{5cm}|",rep(c(rep("c",nColTrt-1),"c|"),length(toxDB@treatmentLabels)))
 
-      align = c("l","|l","r|",rep("c",dim(toxTable)[2]-3),"c|")
-      return(print(xtable(toxTable, digits = 0, align=align),include.rownames=FALSE))
-
-    } else if( printMethod == "rtf") {
-
-    }
-
-  } else {
-    # not yet done
-
-    toxTable2 = as.matrix(rbind(rep("",2*dim(toxTable)[2]),toxTable))
-    toxTable2[1, ] = grade
-
-
-    treatment2 = treatment
-    treatment2[1] = ""
-    trtcur = ""
-    for (i in 2:length(treatment)) {
-      if (!is.na(treatment[i])) {
-        trt = toxDB@treatmentLabels[treatment[i]]
-        if(trt != trtcur) {
-          treatment2[i] = trt
-          trtcur = trt
-        } else {
-          treatment2[i] = ""
-        }
-      } else {
-        treatment2[i] = ""
+    # define appearance of \multirow
+    fullRow = which(toxTable[[1]] != "")
+    row.lengths = c(fullRow[2:length(fullRow)],nrow(toxTable)+1)-fullRow[1:(length(fullRow))]
+    for(i in 1:length(fullRow)){
+      if(row.lengths[i]>1){
+        toxTable[[1]][fullRow[i]] = paste0("\\multirow{", row.lengths[i], "}{*}{\\parbox{5cm}{", toxTable[[1]][fullRow[i]], "}}")
       }
     }
-    colnames(toxTable) = grade
 
-    if( printMethod == "print") {
-      return(toxTable)
-    } else if( printMethod == "latex") {
-
-      nColTrt = (dim(toxTable)[2]-2)/length(toxDB@treatmentLabels)
-      align = c("l","|l","r|",rep(c(rep("c",nColTrt-1),"c|"),length(toxDB@treatmentLabels)))
-
+    # add multicolumn for treatments and return
+    if(length(toxDB@treatmentLabels) > 1){
+    xtab = xtable(toxTable, digits = 0, align=align)
+    addtorow <- list()
+    addtorow$pos <- list(-1)
+    addtorow$command <- paste0("\\hline\n &",paste0('& \\multicolumn{',nColTrt , '}{c|}{', toxDB@treatmentLabels, '}', collapse=''), '\\\\\n')
+    return(print(xtab, add.to.row=addtorow, include.rownames=FALSE, hline.after = c(0,fullRow-1,nrow(xtab)), sanitize.text.function = force))
+    } else {
       xtab = xtable(toxTable, digits = 0, align=align)
-      addtorow <- list()
-      addtorow$pos <- list(-1)
-      addtorow$command <- paste0("\\hline\n &",paste0('& \\multicolumn{',nColTrt , '}{c|}{', toxDB@treatmentLabels, '}', collapse=''), '\\\\\n')
-
-
-      return(print(xtab, add.to.row=addtorow, include.rownames=FALSE, hline.after = c(0,nrow(xtab))))
-
-    } else if( printMethod == "rtf") {
-
+      return(print(xtab,include.rownames=FALSE, hline.after = c(-1,0,fullRow-1,nrow(xtab)), sanitize.text.function = force))
     }
+
+  } else if( printMethod == "rtf") {
+
   }
 
 }

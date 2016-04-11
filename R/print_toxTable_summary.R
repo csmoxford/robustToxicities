@@ -49,48 +49,12 @@ print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
     }
   }
 
-  if (length(toxDB@treatmentLabels) == 1) {
-    colnames(toxTable) = grade
 
-
-    if( printMethod == "print") {
-      return(toxTable)
-    } else if( printMethod == "latex") {
-
-      align = c("l","|r|",rep("c",dim(toxTable)[2]-2),"c|")
-      return(print(xtable(toxTable, digits = 0, align=align),include.rownames=FALSE))
-
-    } else if( printMethod == "rtf") {
-
-    }
-
-  } else {
-    # not yet done
-
-    toxTable2 = as.matrix(rbind(rep("",2*dim(toxTable)[2]),toxTable))
-    toxTable2[1, ] = grade
-
-
-    treatment2 = treatment
-    treatment2[1] = ""
-    trtcur = ""
-    for (i in 2:length(treatment)) {
-      if (!is.na(treatment[i])) {
-        trt = toxDB@treatmentLabels[treatment[i]]
-        if(trt != trtcur) {
-          treatment2[i] = trt
-          trtcur = trt
-        } else {
-          treatment2[i] = ""
-        }
-      } else {
-        treatment2[i] = ""
-      }
-    }
     colnames(toxTable) = grade
 
     if( printMethod == "print") {
       return(toxTable)
+
     } else if( printMethod == "latex") {
 
       nColTrt = (dim(toxTable)[2]-1)/length(toxDB@treatmentLabels)
@@ -101,13 +65,11 @@ print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
       addtorow$pos <- list(-1)
       addtorow$command <- paste0("\\hline\n",paste0('& \\multicolumn{',nColTrt , '}{c|}{', toxDB@treatmentLabels, '}', collapse=''), '\\\\\n')
 
-
       return(print(xtab, add.to.row=addtorow, include.rownames=FALSE, hline.after = c(0,nrow(xtab))))
 
     } else if( printMethod == "rtf") {
 
     }
-  }
 
 }
 
