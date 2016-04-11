@@ -1,13 +1,13 @@
 
 #' Format the toxTable_summary to an output medium
 
-#' @inheritParams prepareToxicity
+#' @inheritParams toxTable_cycle
 #' @param printMethod One of "print" "rtf" or "latex"
 #' @param rtfDoc the name of the rtf document to output to
 
-#' @export print_toxTable_summary
+#' @export print_toxTable_cycle
 
-print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
+print_toxTable_cycle = function(toxDB, cycles, printMethod = "print", rtfDoc = NULL) {
 
   if (class(toxDB) != "robustToxicities") {
     stop("toxDB must be of class toxDB")
@@ -17,12 +17,12 @@ print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
     stop("Print method not defined for method: ",printMethod)
   }
 
-  toxTable = toxTable_summary(toxDB)
+  toxTable = toxTable_cycle(toxDB, cycles)
 
   treatment = as.integer(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][2]))
   grade     = suppressWarnings(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][3]))
-
-  for (i in 1:length(grade)) {
+  grade[1:2] = c("Category", "Event Term")
+  for (i in 3:length(grade)) {
     if (!is.na(grade[i])) {
       if (grade[i] == "total") {
         grade[i] = "Total"
@@ -38,16 +38,16 @@ print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
         }
       } else {
         if (str_length(grade[i]) == 2) {
-        grade[i] = paste(paste0(strsplit(grade[i],"")[[1]], collapse = " and "))
+          grade[i] = paste(paste0(strsplit(grade[i],"")[[1]], collapse = " and "))
         } else {
           num = as.numeric(strsplit(grade[i],"")[[1]])
-        grade[i] = paste(min(num),"-",max(num))
+          grade[i] = paste(min(num),"-",max(num))
         }
       }
-    } else {
-      grade[i] = "Time period"
     }
   }
+
+
 
   if (length(toxDB@treatmentLabels) == 1) {
     colnames(toxTable) = grade
@@ -57,7 +57,7 @@ print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
       return(toxTable)
     } else if( printMethod == "latex") {
 
-      align = c("l","|r|",rep("c",dim(toxTable)[2]-2),"c|")
+      align = c("l","|l","r|",rep("c",dim(toxTable)[2]-3),"c|")
       return(print(xtable(toxTable, digits = 0, align=align),include.rownames=FALSE))
 
     } else if( printMethod == "rtf") {
@@ -93,13 +93,13 @@ print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
       return(toxTable)
     } else if( printMethod == "latex") {
 
-      nColTrt = (dim(toxTable)[2]-1)/length(toxDB@treatmentLabels)
-      align = c("l","|r|",rep(c(rep("c",nColTrt-1),"c|"),length(toxDB@treatmentLabels)))
+      nColTrt = (dim(toxTable)[2]-2)/length(toxDB@treatmentLabels)
+      align = c("l","|l","r|",rep(c(rep("c",nColTrt-1),"c|"),length(toxDB@treatmentLabels)))
 
       xtab = xtable(toxTable, digits = 0, align=align)
       addtorow <- list()
       addtorow$pos <- list(-1)
-      addtorow$command <- paste0("\\hline\n",paste0('& \\multicolumn{',nColTrt , '}{c|}{', toxDB@treatmentLabels, '}', collapse=''), '\\\\\n')
+      addtorow$command <- paste0("\\hline\n &",paste0('& \\multicolumn{',nColTrt , '}{c|}{', toxDB@treatmentLabels, '}', collapse=''), '\\\\\n')
 
 
       return(print(xtab, add.to.row=addtorow, include.rownames=FALSE, hline.after = c(0,nrow(xtab))))
@@ -110,5 +110,3 @@ print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
   }
 
 }
-
-

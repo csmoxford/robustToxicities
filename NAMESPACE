@@ -2,6 +2,7 @@
 
 export(defaultToxicityOptions)
 export(prepareToxicity)
+export(print_toxTable_cycle)
 export(print_toxTable_summary)
 export(robustToxicities)
 export(shiny.robustToxicities)

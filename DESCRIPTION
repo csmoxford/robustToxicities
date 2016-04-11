@@ -12,5 +12,5 @@ Depends:
     shiny,
     stringr,
     rtf,
-    TeachingDemos
+    xtable
 RoxygenNote: 5.0.1
