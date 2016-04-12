@@ -1,13 +1,3 @@
-
-
-
-#' Table: Worst toxicity
-#'
-#'
-#'
-#' @inheritParams prepareToxicity
-#' @param treatments vector of treatments
-
 #' @export toxTable_worst
 
 toxTable_worst = function (toxDB, treatments) {

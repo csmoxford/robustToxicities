@@ -1,7 +1,7 @@
 
 #' Format the toxTable_summary
 #'
-#' Returns a clean version of toxTable_summary.
+#' Returns a clean version of \code{\link{toxTable_summary}}.
 #' Also includes an option to output a version for latex.
 #'
 

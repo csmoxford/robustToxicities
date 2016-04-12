@@ -1,7 +1,7 @@
 
 #' Format the toxTable_cycle to an output medium
 #'
-#' Returns a clean version of toxTable_cycle.
+#' Returns a clean version of \code{\link{toxTable_cycle}}.
 #' Also includes an option to output a version for latex.
 #'
 #' @inheritParams toxTable_cycle

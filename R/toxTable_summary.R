@@ -8,13 +8,15 @@
 #'
 #' @details
 #' The output relies on the following options:
-#' \item sumCycleMerge
-#' \item sumColumnMerge
-#' \item cumulativeGrades
+#' \itemize{
+#'  \item sumCycleMerge
+#'  \item sumColumnMerge
+#'  \item cumulativeGrades
+#' }
 #'  The output also uses the cycleNames in the first column of the table. If cycles are to be merged the name for the first one will be used.
 #'
 #'
-#' @seealso \link{\code{print_toxTable_summary}}
+#' @seealso \code{\link{print_toxTable_summary}}
 #'
 #'
 #' @export toxTable_summary

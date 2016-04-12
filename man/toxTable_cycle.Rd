@@ -14,6 +14,17 @@ toxTable_cycle(toxDB, cycles)
 \description{
 Generates a table of all toxicities for a certain cycle or cycles. There are options to report all changes in toxicities or just the worst per patient. CTCAE grades and categories can be merged for more sucinct tables.
 }
+\details{
+The output relies on the following options:
+\itemize{
+ \item cycleCycleMerge
+ \item cycleColumnMerge
+ \item cycleColumnMerge
+ \item cycleCategoryMerge
+}
+
+ The output also uses the cycleNames in the first column of the table. If cycles are to be merged the name for the first one will be used.
+}
 \seealso{
 \code{\link{print_toxTable_cycle}}
 }

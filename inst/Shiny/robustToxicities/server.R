@@ -224,7 +224,7 @@ shinyServer(function(input, output, session) {
             data = read.csv(paste0(input$folderPath,"\\",input$dataFile), stringsAsFactors = FALSE)
             # initial cleaning of database
 
-            cycleLabels = data.frame(label=c("Baseline", "Cycle 1", "Cycle 2", "Cycle 3"), index=c(0, 1, 2, 3))
+            cycleLabels = cycleLabels=c("Baseline", "Cycle 1", "Cycle 2", "Cycle 3")
 
             values$toxDB = robustToxicities(data, cycleLabels, options = values$options)
             values$toxDB = prepareToxicity(values$toxDB)

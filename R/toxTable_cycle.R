@@ -6,15 +6,19 @@
 #' @param cycles The cycle or cycles to include toxicities from
 #'
 #'
-#' #' @details
+#' @details
 #' The output relies on the following options:
-#' \item cycleCycleMerge
-#' \item cycleColumnMerge
-#' \item cumulativeGrades
-#' \item cycleCategoryMerge
+#' \itemize{
+#'  \item cycleCycleMerge
+#'  \item cycleColumnMerge
+#'  \item cycleColumnMerge
+#'  \item cycleCategoryMerge
+#' }
+#'
 #'  The output also uses the cycleNames in the first column of the table. If cycles are to be merged the name for the first one will be used.
 #'
-#' @seealso \link{\code{print_toxTable_cycle}}
+#'
+#' @seealso \code{\link{print_toxTable_cycle}}
 #'
 #' @export toxTable_cycle
 

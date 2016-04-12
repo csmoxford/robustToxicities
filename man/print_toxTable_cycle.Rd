@@ -12,7 +12,7 @@ print_toxTable_cycle(toxDB, cycles, printMethod = "table")
 \item{printMethod}{One of "table" or "latex"}
 }
 \description{
-Returns a clean version of toxTable_cycle.
+Returns a clean version of \code{\link{toxTable_cycle}}.
 Also includes an option to output a version for latex.
 }
 \details{

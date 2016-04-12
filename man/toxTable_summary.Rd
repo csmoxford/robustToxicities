@@ -10,6 +10,18 @@ toxTable_summary(toxDB)
 \item{toxDB}{Main toxicity database.}
 }
 \description{
-Summarises toxicities by treatment and cycle
+Summarises toxicities by treatment and cycle.
+}
+\details{
+The output relies on the following options:
+\itemize{
+ \item sumCycleMerge
+ \item sumColumnMerge
+ \item cumulativeGrades
+}
+ The output also uses the cycleNames in the first column of the table. If cycles are to be merged the name for the first one will be used.
+}
+\seealso{
+\code{\link{print_toxTable_summary}}
 }
 

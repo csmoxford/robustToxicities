@@ -1,64 +1,22 @@
-#' @exportClass toxicityOptions
 
-.toxicityOptions = setClass("toxicityOptions", slots = c(
-  trialName = "character",
-  folderPath = "character",
-  fileName = "character",
-  timeType = "character",
-  displayNotes = "logical",
-  tabulationMethod = "character",
-  cumulativeGrades = "logical",
-  discardBaseline = "logical",
-  plotStartTreatment = "character",
-  plotxMin = "numeric",
-  plotxMax = "numeric",
-  plotCycleLength = "numeric",
-  plotPxHeight = "numeric",
-  plotPxWidth = "numeric",
-  sumCycleMerge = "character",
-  sumColumnMerge = "character",
-  cycleCycleMerge = "character",
-  cycleColumnMerge = "character",
-  cycleCategoryMerge = "character", # what is this supposed to be?
-  outputFolder = "character"
-))
-
-#' @export defaultToxicityOptions
-
-defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", timeType="time", outputFolder = NULL) {
-
-  if(!timeType %in% c("time", "cycle")){
-    stop("timeType must be one of time or cycle")
-  }
-
-
-  .toxicityOptions(
-    trialName = trialName,
-    folderPath = folderPath,
-    fileName = fileName,
-    timeType = timeType,
-    displayNotes = TRUE,
-    tabulationMethod = "worst",
-    cumulativeGrades = TRUE,
-    discardBaseline = FALSE,
-    plotStartTreatment = "cycle_start_date_1",
-    plotxMin = -7,
-    plotxMax = 60,
-    plotCycleLength = 21,
-    plotPxHeight = 0,
-    plotPxWidth = 1100,
-    sumCycleMerge = "",
-    sumColumnMerge = "total|1|2|3|4,5",
-    cycleColumnMerge = "1|2|3|4,5",
-    cycleCycleMerge = "",
-    cycleCategoryMerge = "", # collapse CTCAE categories in table
-    outputFolder = outputFolder
-  )
-}
+#' The robustToxicities class
+#'
+#' This is core object of this package. This object stores the original dataset as well as the automatically cleaned dataset and a list of notes and queries generated when cleaning the dataset. A list of options is also provided to store plot and tabulation options and provide additional metadata. Finally treatment and cycle labels are also required.
+#'
+#' @slot data The original dataset
+#' @slot cleanData The cleaned dataset
+#' @slot treatmentLabels A vector of treatment labels
+#' @slot cycleLabels A vector of cycle / time perior labels
+#' @slot options An s4 object of class \code{\link{toxicityOptions}} containing options and metadata for the files.
 
 
 #' @exportClass robustToxicities
 .robustToxicities = setClass("robustToxicities",slots = c(data = "data.frame", cleanData = "data.frame", treatmentLabels = "character", cycleLabels = "character", queries = "data.frame", options = "toxicityOptions"))
+
+
+
+
+
 
 #' @export robustToxicities
 robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) {
