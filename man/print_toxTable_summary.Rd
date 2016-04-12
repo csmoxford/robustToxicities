@@ -2,18 +2,18 @@
 % Please edit documentation in R/print_toxTable_summary.R
 \name{print_toxTable_summary}
 \alias{print_toxTable_summary}
-\title{Format the toxTable_summary to an output medium}
+\title{Format the toxTable_summary}
 \usage{
-print_toxTable_summary(toxDB, printMethod = "print", rtfDoc = NULL)
+print_toxTable_summary(toxDB, printMethod = "table")
 }
 \arguments{
-\item{toxDB}{Main toxicity database.}
-
-\item{printMethod}{One of "print" "rtf" or "latex"}
-
-\item{rtfDoc}{the name of the rtf document to output to}
+\item{printMethod}{One of "table" or "latex"}
 }
 \description{
-Format the toxTable_summary to an output medium
+Returns a clean version of toxTable_summary.
+Also includes an option to output a version for latex.
+}
+\details{
+The latex option details requires you to use the \code{array} and \code{multirow} packages in the .tex file using \code{\\usepackage{array, multirow}}.
 }
 

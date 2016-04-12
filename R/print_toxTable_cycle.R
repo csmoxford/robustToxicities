@@ -1,19 +1,24 @@
 
-#' Format the toxTable_summary to an output medium
-
+#' Format the toxTable_cycle to an output medium
+#'
+#' Returns a clean version of toxTable_cycle.
+#' Also includes an option to output a version for latex.
+#'
 #' @inheritParams toxTable_cycle
-#' @param printMethod One of "print" "rtf" or "latex"
-#' @param rtfDoc the name of the rtf document to output to
-
+#' @param printMethod One of "table" or "latex"
+#'
+#' @details
+#' The latex option details requires you to use the \code{array} and \code{multirow} packages in the .tex file using \code{\\usepackage{array, multirow}}.
+#'
 #' @export print_toxTable_cycle
 
-print_toxTable_cycle = function(toxDB, cycles, printMethod = "print", rtfDoc = NULL) {
+print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
 
   if (class(toxDB) != "robustToxicities") {
     stop("toxDB must be of class toxDB")
   }
 
-  if(!printMethod %in% c("print", "rtf", "latex")) {
+  if(!printMethod %in% c("table", "latex")) {
     stop("Print method not defined for method: ",printMethod)
   }
 
@@ -58,14 +63,14 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "print", rtfDoc = N
   } else if( printMethod == "latex") {
 
     nColTrt = (dim(toxTable)[2]-2)/length(toxDB@treatmentLabels)
-    align = c("l","|p{5cm}",">{\\raggedleft\\arraybackslash}p{5cm}|",rep(c(rep("c",nColTrt-1),"c|"),length(toxDB@treatmentLabels)))
+    align = c("l","|p{4cm}",">{\\raggedleft\\arraybackslash}p{5cm}|",rep(c(rep("c",nColTrt-1),"c|"),length(toxDB@treatmentLabels)))
 
     # define appearance of \multirow
     fullRow = which(toxTable[[1]] != "")
     row.lengths = c(fullRow[2:length(fullRow)],nrow(toxTable)+1)-fullRow[1:(length(fullRow))]
     for(i in 1:length(fullRow)){
       if(row.lengths[i]>1){
-        toxTable[[1]][fullRow[i]] = paste0("\\multirow{", row.lengths[i], "}{*}{\\parbox{5cm}{", toxTable[[1]][fullRow[i]], "}}")
+        toxTable[[1]][fullRow[i]] = paste0("\\multirow{", row.lengths[i], "}{*}{\\parbox{4cm}{", toxTable[[1]][fullRow[i]], "}}")
       }
     }
 
@@ -80,9 +85,5 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "print", rtfDoc = N
       xtab = xtable(toxTable, digits = 0, align=align)
       return(print(xtab,include.rownames=FALSE, hline.after = c(-1,0,fullRow-1,nrow(xtab)), sanitize.text.function = force))
     }
-
-  } else if( printMethod == "rtf") {
-
   }
-
 }

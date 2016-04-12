@@ -16,8 +16,6 @@ See the help files
 
 Note that the shiny app is currently ignoring all the options there and just taking them from the default
 
-1. Clean output for latex format
-2. Clean output to rtf format
 3. Comprehensive checks and balances for input data type and options.
 4. Write comprehensive help files
 5.  Ensure the shiny app works for all data types and input options

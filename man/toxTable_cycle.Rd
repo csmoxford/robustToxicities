@@ -9,9 +9,12 @@ toxTable_cycle(toxDB, cycles)
 \arguments{
 \item{toxDB}{Main toxicity database.}
 
-\item{cycles}{The cycle or cycles to generate the table for}
+\item{cycles}{The cycle or cycles to include toxicities from}
 }
 \description{
 Generates a table of all toxicities for a certain cycle or cycles. There are options to report all changes in toxicities or just the worst per patient. CTCAE grades and categories can be merged for more sucinct tables.
+}
+\seealso{
+\code{\link{print_toxTable_cycle}}
 }
 

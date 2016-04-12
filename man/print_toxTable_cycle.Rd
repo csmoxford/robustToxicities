@@ -2,18 +2,20 @@
 % Please edit documentation in R/print_toxTable_cycle.R
 \name{print_toxTable_cycle}
 \alias{print_toxTable_cycle}
-\title{Format the toxTable_summary to an output medium}
+\title{Format the toxTable_cycle to an output medium}
 \usage{
-print_toxTable_cycle(toxDB, cycles, printMethod = "print", rtfDoc = NULL)
+print_toxTable_cycle(toxDB, cycles, printMethod = "table")
 }
 \arguments{
-\item{cycles}{The cycle or cycles to generate the table for}
+\item{cycles}{The cycle or cycles to include toxicities from}
 
-\item{printMethod}{One of "print" "rtf" or "latex"}
-
-\item{rtfDoc}{the name of the rtf document to output to}
+\item{printMethod}{One of "table" or "latex"}
 }
 \description{
-Format the toxTable_summary to an output medium
+Returns a clean version of toxTable_cycle.
+Also includes an option to output a version for latex.
+}
+\details{
+The latex option details requires you to use the \code{array} and \code{multirow} packages in the .tex file using \code{\\usepackage{array, multirow}}.
 }
 

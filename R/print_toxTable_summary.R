@@ -1,23 +1,30 @@
 
-#' Format the toxTable_summary to an output medium
+#' Format the toxTable_summary
+#'
+#' Returns a clean version of toxTable_summary.
+#' Also includes an option to output a version for latex.
+#'
 
-#' @inheritParams prepareToxicity
-#' @param printMethod One of "print" "rtf" or "latex"
-#' @param rtfDoc the name of the rtf document to output to
-
+#' @inheritParams toxTable_summary
+#' @param printMethod One of "table" or "latex"
+#'
+#' @details
+#' The latex option details requires you to use the \code{array} and \code{multirow} packages in the .tex file using \code{\\usepackage{array, multirow}}.
+#'
 #' @export print_toxTable_summary
 
-print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
+print_toxTable_summary = function(toxDB, printMethod = "table") {
 
   if (class(toxDB) != "robustToxicities") {
     stop("toxDB must be of class toxDB")
   }
 
-  if(!printMethod %in% c("print", "rtf", "latex")) {
+  if(!printMethod %in% c("table", "latex")) {
     stop("Print method not defined for method: ",printMethod)
   }
 
   toxTable = toxTable_summary(toxDB)
+
 
   treatment = as.integer(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][2]))
   grade     = suppressWarnings(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][3]))
@@ -49,7 +56,6 @@ print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
     }
   }
 
-
     colnames(toxTable) = grade
 
     if( printMethod == "print") {
@@ -64,11 +70,7 @@ print_toxTable_summary = function(toxDB, printMethod = "print", rtfDoc = NULL) {
       addtorow <- list()
       addtorow$pos <- list(-1)
       addtorow$command <- paste0("\\hline\n",paste0('& \\multicolumn{',nColTrt , '}{c|}{', toxDB@treatmentLabels, '}', collapse=''), '\\\\\n')
-
       return(print(xtab, add.to.row=addtorow, include.rownames=FALSE, hline.after = c(0,nrow(xtab))))
-
-    } else if( printMethod == "rtf") {
-
     }
 
 }
