@@ -50,6 +50,8 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "print", rtfDoc = N
 
 
   colnames(toxTable) = grade
+  # remove NA's note this will make the table character based so do numeric manipulation before this step
+  toxTable[1,is.na(toxTable[1,])] = ""
 
   if( printMethod == "print") {
     return(toxTable)
