@@ -47,11 +47,13 @@ toxTable_cycle = function(toxDB , cycles){
     toxDB@cleanData = toxDB@cleanData[toxDB@cleanData$ae_cycle_occured != 0, ]
   }
 
+  # print all permitted data
   if(cycles == "all") {
     cycles = 1:length(toxDB@cycleLabels)
   }
 
-
+  #####################################################################
+  # If everything checks out
   if (a == 0) {
     # subset database with toxicities in requested cycles cycles
     toxDB@cleanData$x = apply(toxDB@cleanData[paste0("occur_in_cycle_", cycles)] , 1 , function(y) max(as.numeric(y)))

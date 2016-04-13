@@ -6,9 +6,6 @@
 \usage{
 toxTable_summary(toxDB)
 }
-\arguments{
-\item{toxDB}{Main toxicity database.}
-}
 \description{
 Summarises toxicities by treatment and cycle.
 }

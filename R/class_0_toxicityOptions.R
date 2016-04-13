@@ -52,7 +52,19 @@
   cycleColumnMerge = "character",
   cycleCategoryMerge = "character", # what is this supposed to be?
   outputFolder = "character"
-))
+),validity = function(object) {
+
+  if(!object@timeType %in% c("time","cycle")) {
+    return("Option timeType is not one of 'time' or 'cycle'")
+  }
+
+  if(!object@tabulationMethod %in% c("worst","all")) {
+    return("Option tabulationMethod is not one of 'worst' or 'all'")
+  }
+
+
+  return(TRUE)
+})
 
 #' @export defaultToxicityOptions
 

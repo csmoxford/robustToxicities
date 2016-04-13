@@ -15,6 +15,8 @@
 
 print_toxTable_summary = function(toxDB, printMethod = "table") {
 
+  validObject(toxDB)
+
   if (class(toxDB) != "robustToxicities") {
     stop("toxDB must be of class toxDB")
   }

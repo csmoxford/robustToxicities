@@ -7,8 +7,6 @@
 toxTable_cycle(toxDB, cycles)
 }
 \arguments{
-\item{toxDB}{Main toxicity database.}
-
 \item{cycles}{The cycle or cycles to include toxicities from}
 }
 \description{

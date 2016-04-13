@@ -23,7 +23,7 @@ The toxicity file should have the following column heading names in a csv file.
  \item cycle_start_* (these should be dates for the start of cycles)
  \item date_stopped_treatment
  \item ae_term
- \item ae_ctcae_grade
+ \item ae_grade
  \item ae_cycle_occured
  \item ae_start_date
  \item ae_end_date
