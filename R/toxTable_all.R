@@ -2,14 +2,13 @@
 
 toxTable_all=function(toxDB,treatments){
 
-  tox.id=sort(unique(toxDB$ass_toxID))
 
   # create table to populate
   toxTable = .toxTableSetup(length(treatments))
 
-
   i=1
-  for (tox in tox.id) {
+  toxID=sort(unique(toxDB$ass_toxID))
+  for (tox in toxID) {
     toxDB_2 = toxDB[toxDB$ass_toxID == tox, ]
     i = i + 1
     # ID, category and name of toxicity

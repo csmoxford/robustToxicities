@@ -27,7 +27,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
 
   ################################################################################
   # Check fields are provided (all need these fields)
-  requiredData = c("patid", "ae_term", "ae_system", "ae_ctcae_grade")
+  requiredData = c("patid", "ae_term", "ae_system", "ae_grade")
   name = names(data)
   # generic names
   stp = 0
@@ -70,9 +70,17 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     stp = 1
   }
 
+
+
   ################################################################################
   # time data only checks
   if(options@timeType  == "time") {
+
+    ################################################################################
+    # convert the columns which
+
+
+
     requiredData = c("ae_start_date", "ae_end_date", "ae_cont_end_study", "date_stopped_treatment", paste0("cycle_start_date_",1:length(cycleLabels)))
     # time data names
     for (colName in requiredData) {

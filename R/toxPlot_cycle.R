@@ -36,7 +36,7 @@ toxPlot_cycle = function(toxDB, patients = character(0), plot=TRUE) {
 
 
 
-  cleanDataSub             = cleanDataSub[cleanDataSub$ae_ctcae_grade > 0, ]
+  cleanDataSub             = cleanDataSub[cleanDataSub$ae_grade > 0, ]
   cleanDataSub$rel_start   = apply(cleanDataSub[,names_cycle], 1, function(x) min(which(x > 0)) - 1)
   cleanDataSub$rel_end     = apply(cleanDataSub[,names_cycle], 1, function(x) max(which(x > 0)))
   cleanDataSub$rel_ent_trt = apply(cleanDataSub[,names_present], 1, function(x) max(which(x > 0)))
@@ -59,7 +59,7 @@ toxPlot_cycle = function(toxDB, patients = character(0), plot=TRUE) {
   cols = c("#00CC00","#FF9900","red","black","black")
   cleanDataSub$col = ""
   for (i in 1:length(cleanDataSub$col)) {
-    cleanDataSub$col[i]=cols[cleanDataSub$ae_ctcae_grade[i]]
+    cleanDataSub$col[i]=cols[cleanDataSub$ae_grade[i]]
   }
 
 

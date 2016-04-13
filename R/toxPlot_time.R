@@ -25,7 +25,7 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
     cleanDataSub = cleanDataSub[cleanDataSub$patid %in% patients, ]
   }
 
-  cleanDataSub             = cleanDataSub[cleanDataSub$ae_ctcae_grade>0,]
+  cleanDataSub             = cleanDataSub[cleanDataSub$ae_grade>0,]
   cleanDataSub$rel_start   = cleanDataSub$ae_start_date - cleanDataSub[,toxDB@options@plotStartTreatment]
   cleanDataSub$rel_end     = cleanDataSub$ae_end_date   - cleanDataSub[,toxDB@options@plotStartTreatment]
   cleanDataSub$rel_ent_trt = cleanDataSub$date_stopped_treatment  - cleanDataSub[,toxDB@options@plotStartTreatment]
@@ -48,7 +48,7 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   cols = c("#00CC00","#FF9900","red","black","black")
   cleanDataSub$col = ""
   for (i in 1:length(cleanDataSub$col)) {
-    cleanDataSub$col[i]=cols[cleanDataSub$ae_ctcae_grade[i]]
+    cleanDataSub$col[i]=cols[cleanDataSub$ae_grade[i]]
   }
 
 

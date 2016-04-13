@@ -45,10 +45,10 @@ print_toxTable_summary = function(toxDB, printMethod = "table") {
         }
       } else {
         if (str_length(grade[i]) == 2) {
-        grade[i] = paste(paste0(strsplit(grade[i],"")[[1]], collapse = " and "))
+          grade[i] = paste(paste0(strsplit(grade[i],"")[[1]], collapse = " and "))
         } else {
           num = as.numeric(strsplit(grade[i],"")[[1]])
-        grade[i] = paste(min(num),"-",max(num))
+          grade[i] = paste(min(num),"-",max(num))
         }
       }
     } else {
@@ -56,22 +56,21 @@ print_toxTable_summary = function(toxDB, printMethod = "table") {
     }
   }
 
-    colnames(toxTable) = grade
+  colnames(toxTable) = grade
 
-    if( printMethod == "print") {
-      return(toxTable)
+  if( printMethod == "table") {
+    return(toxTable)
+  } else if( printMethod == "latex") {
 
-    } else if( printMethod == "latex") {
+    nColTrt = (dim(toxTable)[2]-1)/length(toxDB@treatmentLabels)
+    align = c("l","|r|",rep(c(rep("c",nColTrt-1),"c|"),length(toxDB@treatmentLabels)))
 
-      nColTrt = (dim(toxTable)[2]-1)/length(toxDB@treatmentLabels)
-      align = c("l","|r|",rep(c(rep("c",nColTrt-1),"c|"),length(toxDB@treatmentLabels)))
-
-      xtab = xtable(toxTable, digits = 0, align=align)
-      addtorow <- list()
-      addtorow$pos <- list(-1)
-      addtorow$command <- paste0("\\hline\n",paste0('& \\multicolumn{',nColTrt , '}{c|}{', toxDB@treatmentLabels, '}', collapse=''), '\\\\\n')
-      return(print(xtab, add.to.row=addtorow, include.rownames=FALSE, hline.after = c(0,nrow(xtab))))
-    }
+    xtab = xtable(toxTable, digits = 0, align=align)
+    addtorow <- list()
+    addtorow$pos <- list(-1)
+    addtorow$command <- paste0("\\hline\n",paste0('& \\multicolumn{',nColTrt , '}{c|}{', toxDB@treatmentLabels, '}', collapse=''), '\\\\\n')
+    return(print(xtab, add.to.row=addtorow, include.rownames=FALSE, hline.after = c(0,nrow(xtab))))
+  }
 
 }
 

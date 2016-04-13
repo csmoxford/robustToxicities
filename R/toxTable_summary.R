@@ -39,7 +39,7 @@ toxTable_summary = function(toxDB) {
     a = 1
     message("Error: ae_cycle_occured not named correctly in database, no table created")
   }
-  if (length(toxDB@cleanData$ae_ctcae_grade)  ==  0) {
+  if (length(toxDB@cleanData$ae_grade)  ==  0) {
     a = 1
     message("Error: ae_ctcae_grade not named correctly in database, no table created")
   }

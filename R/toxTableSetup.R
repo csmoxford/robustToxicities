@@ -12,7 +12,5 @@
     toxTable[paste0("tox.", side,".4", sep = "")]= 0
     toxTable[paste0("tox.", side,".5", sep = "")]= 0
   }
-  toxTable[1,] = NA
-  toxTable[1,1:3] = c(0,"","Number of patients")
-  return(toxTable)
+  return(toxTable[0,])
 }

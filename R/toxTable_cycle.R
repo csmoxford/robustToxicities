@@ -38,13 +38,17 @@ toxTable_cycle = function(toxDB , cycles){
     a = 1
     message("Error: ae_cycle_occured not named correctly in database, no table created\n")
   }
-  if (!length(toxDB@cleanData$ae_ctcae_grade)) {
+  if (!length(toxDB@cleanData$ae_grade)) {
     a = 1
-    message("Error: ae_ctcae_grade not named correctly in database, no table created\n")
+    message("Error: ae_grade not named correctly in database, no table created\n")
   }
 
   if (toxDB@options@discardBaseline) {
     toxDB@cleanData = toxDB@cleanData[toxDB@cleanData$ae_cycle_occured != 0, ]
+  }
+
+  if(cycles == "all") {
+    cycles = 1:length(toxDB@cycleLabels)
   }
 
 
@@ -69,17 +73,15 @@ toxTable_cycle = function(toxDB , cycles){
       toxTable = toxTable_all(cleanDataSub, treats)
     }
 
-    npatients = rep(0, length(treats))
-    # count and record number of patients having at least some of the required time period (saved in table and in npatients)
+    nPatients = rep(0, length(treats))
+    # count and record number of patients having at least some of the required time period (saved in nPatients)
     for(treatment in 1:length(treats)){
       # number of patients at this cycle
       tox_s = toxDB@cleanData[toxDB@cleanData$treatment == treats[treatment], ]
       if(length(cycles)>1){
-        npatients[treatment] = length(unique(tox_s$patid[apply(tox_s[, paste0("present_in_cycle_", cycles)], 1, function(x) sum(x) > 0)]))
-        toxTable[1, 5*treatment-1] = npatients[treatment]
+        nPatients[treatment] = length(unique(tox_s$patid[apply(tox_s[, paste0("present_in_cycle_", cycles)], 1, function(x) sum(x) > 0)]))
       } else {
-        npatients[treatment] = length(unique(tox_s$patid[tox_s[, paste0("present_in_cycle_", cycles)]]))
-        toxTable[1, 5*treatment-1] = npatients[treatment]
+        nPatients[treatment] = length(unique(tox_s$patid[tox_s[, paste0("present_in_cycle_", cycles)]]))
       }
     }
 
@@ -150,7 +152,7 @@ toxTable_cycle = function(toxDB , cycles){
     # remove duplication of writing categories (one under the other before)
     a = dim(toxTable)[1]
     if(a >= 3){
-      for(i in a:3){
+      for(i in a:2){
         if(toxTable$category[i-1] == toxTable$category[i]){
           toxTable$category[i] = ""
         }
@@ -161,7 +163,7 @@ toxTable_cycle = function(toxDB , cycles){
     colnames(toxTable)[1:2] = c("Category", "Toxicity")
 
     # return the table to the app
-    return(toxTable)
+    return(list(toxTable=toxTable, nPatients=nPatients))
   }
 }
 # end

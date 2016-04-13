@@ -84,7 +84,7 @@ prepareToxicity=function(toxDB){
       # toxicity free patient counter
       if (sum(toxDB@cleanData$patid == toxDB@cleanData$patid[i]) == 1 & (toxDB@cleanData$ae_term[i] == "" | is.na(toxDB@cleanData$ae_term[i]))) {
         noToxicities = noToxicities + 1
-        toxDB@cleanData$ae_ctcae_grade[i] = 0
+        toxDB@cleanData$ae_grade[i] = 0
         toxDB@cleanData$ae_term[i] = ""
         toxDB@cleanData$ae_start_date[i] = 0
       }
@@ -144,7 +144,7 @@ prepareToxicity=function(toxDB){
   # set ctcae grade to zero if missing
   for (i in 1:dm[1]) {
     if (toxDB@cleanData$ass_TRUE[i]) {
-      if (is.na(toxDB@cleanData$ae_ctcae_grade[i])) {
+      if (is.na(toxDB@cleanData$ae_grade[i])) {
         msg = paste("Patient", toxDB@cleanData$patid[i], "is missing toxicity grade for",toxDB@cleanData$ae_term , "line", i, "(currently set to zero)")
         toxDB@queries = query(toxDB, i, msg, "Missing data",notes)
       }
@@ -318,18 +318,18 @@ prepareToxicity=function(toxDB){
                toxDB@cleanData[i,c_sd]<=toxDB@cleanData$ae_end_date[i]   & toxDB@cleanData$ae_end_date[i]<toxDB@cleanData[i,c_ed]   |
                toxDB@cleanData$ae_start_date[i]<=toxDB@cleanData[i,c_sd] & toxDB@cleanData[i,c_sd]<=toxDB@cleanData$ae_end_date[i]   |
                toxDB@cleanData$ae_start_date[i]<toxDB@cleanData[i,c_ed] & toxDB@cleanData[i,c_ed]<toxDB@cleanData$ae_start_date[i] ){
-               toxDB@cleanData[i,occur]=toxDB@cleanData$ae_ctcae_grade[i]
+               toxDB@cleanData[i,occur]=toxDB@cleanData$ae_grade[i]
             }
           } else if(!is.na(toxDB@cleanData[i,c_sd]) & is.na(toxDB@cleanData[i,c_ed]) & !is.na(toxDB@cleanData[i,"date_stopped_treatment"])){
             if(toxDB@cleanData[i,c_sd] <= toxDB@cleanData$ae_start_date[i] & toxDB@cleanData$ae_start_date[i] < toxDB@cleanData[i,"date_stopped_treatment"] |
                toxDB@cleanData[i,c_sd] <= toxDB@cleanData$ae_end_date[i]   & toxDB@cleanData$ae_end_date[i] < toxDB@cleanData[i,"date_stopped_treatment"]   |
                toxDB@cleanData$ae_start_date[i] <= toxDB@cleanData[i, c_sd] & toxDB@cleanData[i, c_sd] <= toxDB@cleanData$ae_end_date[i]   |
                toxDB@cleanData$ae_start_date[i] < toxDB@cleanData[i, "date_stopped_treatment"] & toxDB@cleanData[i, "date_stopped_treatment"] < toxDB@cleanData$ae_start_date[i] ){
-              toxDB@cleanData[i, occur] = toxDB@cleanData$ae_ctcae_grade[i]
+              toxDB@cleanData[i, occur] = toxDB@cleanData$ae_grade[i]
             }
           } else if(!is.na(toxDB@cleanData[i,c_sd]) & is.na(toxDB@cleanData[i,c_ed]) & is.na(toxDB@cleanData[i,"date_stopped_treatment"])){
             #if the cycle start date is the last recorded date it must be in this cycle
-            toxDB@cleanData[i,occur] = toxDB@cleanData$ae_ctcae_grade[i]
+            toxDB@cleanData[i,occur] = toxDB@cleanData$ae_grade[i]
           }
         }
       }

@@ -22,7 +22,9 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
     stop("Print method not defined for method: ",printMethod)
   }
 
-  toxTable = toxTable_cycle(toxDB, cycles)
+  toxTableList = toxTable_cycle(toxDB, cycles)
+  toxTable  = toxTableList$toxTable
+  nPatients = toxTableList$nPatients
 
   treatment = as.integer(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][2]))
   grade     = suppressWarnings(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][3]))
@@ -58,7 +60,15 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
   # remove NA's note this will make the table character based so do numeric manipulation before this step
   toxTable[1,is.na(toxTable[1,])] = ""
 
-  if( printMethod == "print") {
+  if( printMethod == "table") {
+
+    toxTable = rbind(rep("",dim(toxTable)[1]),toxTable)
+    toxTable[1,2] = "Number of patients"
+    nColTrt = (dim(toxTable)[2]-2)/length(toxDB@treatmentLabels)
+    for(i in 1:length(toxDB@treatmentLabels)){
+      toxTable[1,nColTrt*(i-1)+3] = nPatients[i]
+    }
+
     return(toxTable)
   } else if( printMethod == "latex") {
 
@@ -75,15 +85,10 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
     }
 
     # add multicolumn for treatments and return
-    if(length(toxDB@treatmentLabels) > 1){
     xtab = xtable(toxTable, digits = 0, align=align)
     addtorow <- list()
     addtorow$pos <- list(-1)
-    addtorow$command <- paste0("\\hline\n &",paste0('& \\multicolumn{',nColTrt , '}{c|}{', toxDB@treatmentLabels, '}', collapse=''), '\\\\\n')
+    addtorow$command <- paste0("\\hline\n &",paste0('& \\multicolumn{',nColTrt , '}{c|}{', toxDB@treatmentLabels, " (n=", nPatients, ")", '}', collapse=''), '\\\\\n')
     return(print(xtab, add.to.row=addtorow, include.rownames=FALSE, hline.after = c(0,fullRow-1,nrow(xtab)), sanitize.text.function = force))
-    } else {
-      xtab = xtable(toxTable, digits = 0, align=align)
-      return(print(xtab,include.rownames=FALSE, hline.after = c(-1,0,fullRow-1,nrow(xtab)), sanitize.text.function = force))
-    }
   }
 }

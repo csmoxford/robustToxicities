@@ -20,14 +20,6 @@ Note that the shiny app is currently ignoring all the options there and just tak
 4. Write comprehensive help files
 5.  Ensure the shiny app works for all data types and input options
 
-## Contributing ##
-
-1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
-5. Submit a pull request :D
-
 ## History ##
 
 ### 1.0 shiny first version ###
