@@ -73,6 +73,7 @@ toxTable_cycle = function(toxDB , cycles){
       toxTable = toxTable_all(cleanDataSub, treats)
     }
 
+
     nPatients = rep(0, length(treats))
     # count and record number of patients having at least some of the required time period (saved in nPatients)
     for(treatment in 1:length(treats)){
@@ -98,9 +99,6 @@ toxTable_cycle = function(toxDB , cycles){
             cname = paste0("tox.", side, ".", composition[1])
             if(length(composition) > 1) {
               toxTableClean[, cname] = apply(toxTable[, cols], 1, function(x) {sum(as.numeric(x), na.rm = TRUE)})
-              if(!1 %in% composition) {
-                toxTableClean[1, cname] = NA
-              }
             } else {
               toxTableClean[, cname] = toxTable[, cols]
             }
@@ -112,9 +110,6 @@ toxTable_cycle = function(toxDB , cycles){
             cname = paste0("tox.", side, ".", paste0(composition, collapse = ""))
             if(length(composition) > 1) {
               toxTableClean[, cname] = apply(toxTable[, cols], 1, function(x) {sum(as.numeric(x), na.rm = TRUE)})
-              if(!1 %in% composition) {
-                toxTableClean[1, cname] = NA
-              }
             } else {
               toxTableClean[, cols] = toxTable[, cols]
             }
@@ -123,7 +118,6 @@ toxTable_cycle = function(toxDB , cycles){
       }
       toxTable = toxTableClean
     }
-
 
     # Order according to toxID (ensuring that the toxicities are ordered alphabetically first by category and then by toxicity)
     toxTable = toxTable[order(as.numeric(as.character(toxTable$toxID)), decreasing = FALSE), ]
