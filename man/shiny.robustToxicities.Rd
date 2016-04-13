@@ -6,9 +6,6 @@
 \usage{
 shiny.robustToxicities()
 }
-\arguments{
-\item{log.file}{The path and name to the log file to be created}
-}
 \description{
 Runs the shiny app to create customisable tables and graphs from toxicity data.
 }

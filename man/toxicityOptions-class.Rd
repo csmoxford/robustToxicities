@@ -2,12 +2,29 @@
 % Please edit documentation in R/class_0_toxicityOptions.R
 \docType{class}
 \name{toxicityOptions-class}
-\alias{.toxicityOptions}
+\alias{defaultToxicityOptions}
 \alias{toxicityOptions-class}
 \title{Toxicity Options}
+\usage{
+defaultToxicityOptions(trialName, folderPath = NULL, fileName = "",
+  timeType = "time")
+}
+\arguments{
+\item{trialName}{Trial or study Name}
+
+\item{folderPath}{Path to the folder containing the data}
+
+\item{fileName}{Name of the file containing the data}
+
+\item{timeType}{One of "Time" or "Cycle" to denote whether the data is primarily time based or only cycle / time period based}
+
+\item{outputFolder}{The folder to output the results to}
+}
 \description{
 An object containing all the key options for creating the toxicity tables.
 This is a key slot in the \code{\link{robustToxicities-class}}.
+
+Default toxicity options generator, requiring metadata only.
 }
 \section{Slots}{
 
@@ -49,7 +66,5 @@ This is a key slot in the \code{\link{robustToxicities-class}}.
 \item{\code{cycleColumnMerge}}{Grades to merge in the \code{\link{toxTable_cycle}}. Similar syntax to sumCycleMerge}
 
 \item{\code{cycleCategoryMerge}}{A list of categories to collapse down to one row in the \code{\link{toxTable_cycle}}.}
-
-\item{\code{outputFolder}}{The folder to output the results to}
 }}
 

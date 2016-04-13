@@ -7,6 +7,7 @@
 #' @slot cleanData The cleaned dataset
 #' @slot treatmentLabels A vector of treatment labels
 #' @slot cycleLabels A vector of cycle / time perior labels
+#' @slot queries A data.frame containing all the queries and note generated when loading the data
 #' @slot options An s4 object of class \code{\link{toxicityOptions}} containing options and metadata for the files.
 
 

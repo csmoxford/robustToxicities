@@ -2,18 +2,19 @@
 % Please edit documentation in R/print_toxTable_cycle.R
 \name{print_toxTable_cycle}
 \alias{print_toxTable_cycle}
-\title{Format the toxTable_cycle to an output medium}
+\title{Toxicity tables by cycle/s}
 \usage{
 print_toxTable_cycle(toxDB, cycles, printMethod = "table")
 }
 \arguments{
-\item{cycles}{The cycle or cycles to include toxicities from}
+\item{toxDB}{an object of class robustToxicities}
+
+\item{cycles}{The cycle number or numbers of the cycles to tabulate. May also be "all" to use all cycles}
 
 \item{printMethod}{One of "table" or "latex"}
 }
 \description{
-Returns a clean version of \code{\link{toxTable_cycle}}.
-Also includes an option to output a version for latex.
+Returns a toxicity table with the requested data according to the ass_TRUE column, for the cycles requested.
 }
 \details{
 The latex option details requires you to use the \code{array} and \code{multirow} packages in the .tex file using \code{\\usepackage{array, multirow}}.

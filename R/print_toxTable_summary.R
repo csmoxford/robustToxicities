@@ -1,11 +1,9 @@
 
-#' Format the toxTable_summary
+#' Toxicity table summary
 #'
-#' Returns a clean version of \code{\link{toxTable_summary}}.
-#' Also includes an option to output a version for latex.
+#' Returns a summary toxicity table with the requested data according to the ass_TRUE column.
 #'
-
-#' @inheritParams toxTable_summary
+#' @param toxDB an object of class robustToxicities
 #' @param printMethod One of "table" or "latex"
 #'
 #' @details
@@ -26,7 +24,6 @@ print_toxTable_summary = function(toxDB, printMethod = "table") {
   }
 
   toxTable = toxTable_summary(toxDB)
-
 
   treatment = as.integer(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][2]))
   grade     = suppressWarnings(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][3]))

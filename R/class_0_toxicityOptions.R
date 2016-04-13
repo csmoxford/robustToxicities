@@ -5,6 +5,8 @@
 #' An object containing all the key options for creating the toxicity tables.
 #' This is a key slot in the \code{\link{robustToxicities-class}}.
 #'
+#' @name toxicityOptions-class
+#' @rdname toxicityOptions-class
 #'
 #' @slot trialName Trial Name (character string)
 #' @slot folderPath Reference to the folder the data file is stored in (character string)
@@ -25,13 +27,11 @@
 #' @slot cycleCycleMerge Cycles to merge in the \code{\link{toxTable_cycle}}. Similar syntax to sumCycleMerge
 #' @slot cycleColumnMerge Grades to merge in the \code{\link{toxTable_cycle}}. Similar syntax to sumCycleMerge
 #' @slot cycleCategoryMerge A list of categories to collapse down to one row in the \code{\link{toxTable_cycle}}.
-#' @slot outputFolder The folder to output the results to
 #'
 #'
 
 #' @exportClass toxicityOptions
-
-.toxicityOptions = setClass("toxicityOptions", slots = c(
+setClass("toxicityOptions", slots = c(
   trialName = "character",
   folderPath = "character",
   fileName = "character",
@@ -50,8 +50,7 @@
   sumColumnMerge = "character",
   cycleCycleMerge = "character",
   cycleColumnMerge = "character",
-  cycleCategoryMerge = "character", # what is this supposed to be?
-  outputFolder = "character"
+  cycleCategoryMerge = "character" # what is this supposed to be?
 ),validity = function(object) {
 
   if(!object@timeType %in% c("time","cycle")) {
@@ -66,9 +65,20 @@
   return(TRUE)
 })
 
+#' Default toxicity options generator, requiring metadata only.
+#'
+#' @name defaultToxicityOptions
+#' @rdname toxicityOptions-class
+#'
+#' @param trialName Trial or study Name
+#' @param folderPath Path to the folder containing the data
+#' @param fileName Name of the file containing the data
+#' @param timeType One of "Time" or "Cycle" to denote whether the data is primarily time based or only cycle / time period based
+#' @param outputFolder The folder to output the results to
+#'
 #' @export defaultToxicityOptions
 
-defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", timeType="time", outputFolder = NULL) {
+defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", timeType="time") {
 
   if(!timeType %in% c("time", "cycle")){
     stop("timeType must be one of time or cycle")
@@ -94,7 +104,6 @@ defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", t
     sumColumnMerge = "total|1|2|3|4,5",
     cycleColumnMerge = "1|2|3|4,5",
     cycleCycleMerge = "",
-    cycleCategoryMerge = "", # collapse CTCAE categories in table
-    outputFolder = outputFolder
+    cycleCategoryMerge = "" # collapse CTCAE categories in table
   )
 }

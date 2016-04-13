@@ -7,6 +7,8 @@
 toxPlot_cycle(toxDB, patients = character(0), plot = TRUE)
 }
 \arguments{
+\item{toxDB}{an object of class robustToxicities}
+
 \item{patients}{Build in patient subsetting by a list if not ""}
 
 \item{plot}{TRUE/FALSE plot the graph.}

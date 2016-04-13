@@ -1,10 +1,10 @@
 
-#' Format the toxTable_cycle to an output medium
+#' Toxicity tables by cycle/s
 #'
-#' Returns a clean version of \code{\link{toxTable_cycle}}.
-#' Also includes an option to output a version for latex.
+#' Returns a toxicity table with the requested data according to the ass_TRUE column, for the cycles requested.
 #'
-#' @inheritParams toxTable_cycle
+#' @param toxDB an object of class robustToxicities
+#' @param cycles The cycle number or numbers of the cycles to tabulate. May also be "all" to use all cycles
 #' @param printMethod One of "table" or "latex"
 #'
 #' @details

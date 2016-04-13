@@ -2,16 +2,17 @@
 % Please edit documentation in R/print_toxTable_summary.R
 \name{print_toxTable_summary}
 \alias{print_toxTable_summary}
-\title{Format the toxTable_summary}
+\title{Toxicity table summary}
 \usage{
 print_toxTable_summary(toxDB, printMethod = "table")
 }
 \arguments{
+\item{toxDB}{an object of class robustToxicities}
+
 \item{printMethod}{One of "table" or "latex"}
 }
 \description{
-Returns a clean version of \code{\link{toxTable_summary}}.
-Also includes an option to output a version for latex.
+Returns a summary toxicity table with the requested data according to the ass_TRUE column.
 }
 \details{
 The latex option details requires you to use the \code{array} and \code{multirow} packages in the .tex file using \code{\\usepackage{array, multirow}}.

@@ -7,7 +7,6 @@
 #'
 #' Runs the shiny app to create customisable tables and graphs from toxicity data.
 #'
-#' @param log.file The path and name to the log file to be created
 #'
 #' @details
 #' The toxicity file should have the following column heading names in a csv file.
@@ -34,15 +33,6 @@
 shiny.robustToxicities=function(){
 shiny::runApp(file.path(system.file("Shiny/robustToxicities",package = "robustToxicities")))
 }
-
-#' @export shiny.robustToxicities.log
-shiny.robustToxicities.log=function(log.file){
-  library(TeachingDemos)
-  txtStart(paste0(log.file,".log"))
-  shiny::runApp(file.path(system.file("Shiny/robustToxicities",package = "robustToxicities")))
-  txtStop()
-}
-
 
 
 

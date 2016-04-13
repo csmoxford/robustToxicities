@@ -2,7 +2,7 @@
 #'
 #' This function plots all the toxicities provided over time
 #'
-#' @inheritParams prepareToxicity
+#' @param toxDB an object of class robustToxicities
 #' @param patients Build in patient subsetting by a list if not ""
 #' @param plot TRUE/FALSE plot the graph.
 #'
