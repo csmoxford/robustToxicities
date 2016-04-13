@@ -6,14 +6,14 @@ toxTable_all=function(toxDB,treatments){
   # create table to populate
   toxTable = .toxTableSetup(length(treatments))
 
-  i=1
+  i=0
   toxID=sort(unique(toxDB$ass_toxID))
   for (tox in toxID) {
     toxDB_2 = toxDB[toxDB$ass_toxID == tox, ]
     i = i + 1
     # ID, category and name of toxicity
     toxTable[i, 1:3] = c(tox, toxDB_2$ass_category[1], toxDB_2$ass_toxicity_disp[1])
-    toxTable[i, 4 + 1:length(treatments) * 5] = rep(0, length(treatments) * 5)
+    toxTable[i, 3 + 1:(length(treatments) * 5)] = 0
     # by treatment add data
     for (treatment in 1:length(treatments)) {
       toxDB_3 = toxDB_2[toxDB_2$treatment == treatments[treatment], ]
