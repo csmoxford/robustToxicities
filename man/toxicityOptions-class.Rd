@@ -2,6 +2,7 @@
 % Please edit documentation in R/class_0_toxicityOptions.R
 \docType{class}
 \name{toxicityOptions-class}
+\alias{.toxicityOptions}
 \alias{defaultToxicityOptions}
 \alias{toxicityOptions-class}
 \title{Toxicity Options}
@@ -38,6 +39,8 @@ Default toxicity options generator, requiring metadata only.
 \item{\code{displayNotes}}{A logical value used by \code{\link{robustToxicities}} to determine whether to print note or note}
 
 \item{\code{tabulationMethod}}{One of "worst" or "all" determining if all toxicity changes are counted or only the worst reported grade in a time period}
+
+\item{\code{tabulationPercent}}{A logical value used to determine if toxicity tables should report counts (FALSE) or percentages (TRUE)}
 
 \item{\code{cumulativeGrades}}{A logical value used to determine whether toxicity grades should be reported cumulatively or not}
 

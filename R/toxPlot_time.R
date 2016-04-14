@@ -61,7 +61,7 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   ud = 0.3
 
 
-  axis(1, label = 0:100 * 7, at = 0:100*7, pos = ylim[1])
+  axis(1, labels = 0:100 * 7, at = 0:100*7, pos = ylim[1])
   abline(v = 1:100*7, lty = 2, col = "grey")
   abline(h = 1:1000-0.5, lty = 2, col = "grey", lwd = 0.5)
   if (toxDB@options@plotCycleLength > 0) {
@@ -73,7 +73,7 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
     patid.lab[i] = (a[i] + a[i + 1]) / 2
   }
   abline(h = a,lwd = 2)
-  axis(2,label = unique(cleanDataSub$patid), at = patid.lab, tick = FALSE)
+  axis(2,labels = unique(cleanDataSub$patid), at = patid.lab, tick = FALSE)
 
 
 

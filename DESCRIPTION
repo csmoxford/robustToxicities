@@ -9,6 +9,7 @@ Description: Creates publication ready table and graphs from time based toxicity
     data. Performs some built in data cleaning actions.
 License: GPL-2
 Depends:
+	methods,
     shiny,
     stringr,
     rtf,

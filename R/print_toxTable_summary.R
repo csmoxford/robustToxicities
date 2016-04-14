@@ -4,7 +4,7 @@
 #' Returns a summary toxicity table with the requested data according to the ass_TRUE column.
 #'
 #' @param toxDB an object of class robustToxicities
-#' @param printMethod One of "table" or "latex"
+#' @param printMethod One of "print" "table" or "latex"
 #'
 #' @details
 #' The latex option details requires you to use the \code{array} and \code{multirow} packages in the .tex file using \code{\\usepackage{array, multirow}}.
@@ -19,11 +19,11 @@ print_toxTable_summary = function(toxDB, printMethod = "table") {
     stop("toxDB must be of class toxDB")
   }
 
-  if(!printMethod %in% c("table", "latex")) {
+  if(!printMethod %in% c("print","table", "latex")) {
     stop("Print method not defined for method: ",printMethod)
   }
 
-  toxTable = robustToxicities:::.toxTable_summary(toxDB)
+  toxTable = .toxTable_summary(toxDB)
 
   treatment = as.integer(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][2]))
   grade     = suppressWarnings(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][3]))
@@ -55,13 +55,28 @@ print_toxTable_summary = function(toxDB, printMethod = "table") {
     }
   }
 
+  nColTrt = (dim(toxTable)[2]-1)/length(toxDB@treatmentLabels)
+
   colnames(toxTable) = grade
 
-  if( printMethod == "table") {
+  # change to percentages
+  # change to percentages
+  if(toxDB@options@tabulationPercent) {
+    message("This table is based on percentages")
+    dm = dim(toxTable)
+    for(i in 1:length(toxDB@treatmentLabels)) {
+      for(j in 1:dm[1]){
+        toxTable[j,2 + 1:(nColTrt-1) + nColTrt*(i-1)] = round(100 * toxTable[j,2 + 1:(nColTrt-1) + nColTrt*(i-1)] / toxTable[j,2 + nColTrt*(i-1)], 0)
+      }
+    }
+  }
+
+  if( printMethod == "print") {
+    print(toxTable, row.names = FALSE)
+  } else if( printMethod == "table") {
     return(toxTable)
   } else if( printMethod == "latex") {
 
-    nColTrt = (dim(toxTable)[2]-1)/length(toxDB@treatmentLabels)
     align = c("l","|r|",rep(c(rep("c",nColTrt-1),"c|"),length(toxDB@treatmentLabels)))
 
     xtab = xtable(toxTable, digits = 0, align=align)

@@ -14,6 +14,7 @@
 #' @slot timeType One of "Time" or "Cycle" to denote whether the data is primarily time based or only cycle / time period based
 #' @slot displayNotes A logical value used by \code{\link{robustToxicities}} to determine whether to print note or note
 #' @slot tabulationMethod One of "worst" or "all" determining if all toxicity changes are counted or only the worst reported grade in a time period
+#' @slot tabulationPercent A logical value used to determine if toxicity tables should report counts (FALSE) or percentages (TRUE)
 #' @slot cumulativeGrades A logical value used to determine whether toxicity grades should be reported cumulatively or not
 #' @slot discardBaseline A logical value used to determine if toxicities reported at baseline should be reported or not
 #' @slot plotStartTreatment The column name of the treatment start date used in plotting (character string)
@@ -28,16 +29,16 @@
 #' @slot cycleColumnMerge Grades to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge
 #' @slot cycleCategoryMerge A list of categories to collapse down to one row in the \code{\link{print_toxTable_cycle}}.
 #'
-#'
-
+#' @import methods
 #' @exportClass toxicityOptions
-setClass("toxicityOptions", slots = c(
+.toxicityOptions = setClass("toxicityOptions", slots = c(
   trialName = "character",
   folderPath = "character",
   fileName = "character",
   timeType = "character",
   displayNotes = "logical",
   tabulationMethod = "character",
+  tabulationPercent = "logical",
   cumulativeGrades = "logical",
   discardBaseline = "logical",
   plotStartTreatment = "character",
@@ -91,6 +92,7 @@ defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", t
     timeType = timeType,
     displayNotes = TRUE,
     tabulationMethod = "worst",
+    tabulationPercent = FALSE,
     cumulativeGrades = TRUE,
     discardBaseline = FALSE,
     plotStartTreatment = "cycle_start_date_1",

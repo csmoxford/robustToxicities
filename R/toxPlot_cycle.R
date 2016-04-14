@@ -81,7 +81,7 @@ toxPlot_cycle = function(toxDB, patients = character(0), plot=TRUE) {
     patid.lab[i] = (a[i] + a[i + 1]) / 2
   }
   abline(h = a,lwd = 2)
-  axis(2,label = unique(cleanDataSub$patid), at = patid.lab, tick = FALSE)
+  axis(2,labels = unique(cleanDataSub$patid), at = patid.lab, tick = FALSE)
 
 
 
@@ -98,7 +98,7 @@ toxPlot_cycle = function(toxDB, patients = character(0), plot=TRUE) {
 
   print(cleanDataSub$rel_ent_trt)
 
-  text(toxDB@options@plotxMax,cleanDataSub$gid,labels=cleanDataSub$ass_toxicity_disp,pos = 2,offset=0.25)
+  text(toxDB@options@plotxMax,cleanDataSub$gid,labels = cleanDataSub$ass_toxicity_disp,pos = 2,offset=0.25)
   box()
   par(xpd=TRUE)
   xlow=xlim[1]+0.25*(xlim[2]-xlim[1])

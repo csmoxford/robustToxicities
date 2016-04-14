@@ -24,6 +24,8 @@
 #'  \item ass_TRUE
 #'  }
 #'
+#' @import shiny
+#' @import rtf
 #' @export shiny_robustToxicities
 shiny_robustToxicities=function(){
 shiny::runApp(file.path(system.file("Shiny/robustToxicities",package = "robustToxicities")))

@@ -10,6 +10,7 @@
 #' @details
 #' The latex option details requires you to use the \code{array} and \code{multirow} packages in the .tex file using \code{\\usepackage{array, multirow}}.
 #'
+#' @import xtable
 #' @export print_toxTable_cycle
 
 print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
@@ -24,7 +25,7 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
     stop("Print method not defined for method: ",printMethod)
   }
 
-  toxTableList = robustToxicities:::.toxTable_cycle(toxDB, cycles)
+  toxTableList = .toxTable_cycle(toxDB, cycles)
   toxTable  = toxTableList$toxTable
   nPatients = toxTableList$nPatients
 
@@ -56,15 +57,25 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
     }
   }
 
-
+  nColTrt = (dim(toxTable)[2]-2)/length(toxDB@treatmentLabels)
 
   colnames(toxTable) = grade
+
+  # change to percentages
+  if(toxDB@options@tabulationPercent) {
+    message("This table is based on percentages")
+    dm = dim(toxTable)
+    for(i in 1:length(toxDB@treatmentLabels)) {
+      toxTable[,2 + 1:nColTrt + nColTrt*(i-1)] = round(100 * toxTable[,2 + 1:nColTrt + nColTrt*(i-1)] / nPatients[i], 0)
+    }
+  }
+
 
   if( printMethod == "table") {
 
     toxTable = rbind(rep("",dim(toxTable)[1]),toxTable)
     toxTable[1,2] = "Number of patients"
-    nColTrt = (dim(toxTable)[2]-2)/length(toxDB@treatmentLabels)
+
     for(i in 1:length(toxDB@treatmentLabels)){
       toxTable[1,nColTrt*(i-1)+3] = nPatients[i]
     }
@@ -72,7 +83,6 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
     return(toxTable)
   } else if( printMethod == "latex") {
 
-    nColTrt = (dim(toxTable)[2]-2)/length(toxDB@treatmentLabels)
     align = c("l","|p{4cm}",">{\\raggedleft\\arraybackslash}p{5cm}|",rep(c(rep("c",nColTrt-1),"c|"),length(toxDB@treatmentLabels)))
 
     # define appearance of \multirow
