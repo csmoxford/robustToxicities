@@ -12,7 +12,7 @@
 #' @slot folderPath Reference to the folder the data file is stored in (character string)
 #' @slot fileName Reference to the stored data (character string)
 #' @slot timeType One of "Time" or "Cycle" to denote whether the data is primarily time based or only cycle / time period based
-#' @slot displayNotes A logical value used by \code{\link{prepareToxicity}} to determine whether to print note or note
+#' @slot displayNotes A logical value used by \code{\link{robustToxicities}} to determine whether to print note or note
 #' @slot tabulationMethod One of "worst" or "all" determining if all toxicity changes are counted or only the worst reported grade in a time period
 #' @slot cumulativeGrades A logical value used to determine whether toxicity grades should be reported cumulatively or not
 #' @slot discardBaseline A logical value used to determine if toxicities reported at baseline should be reported or not
@@ -22,11 +22,11 @@
 #' @slot plotCycleLength optional cycle length value
 #' @slot plotPxHeight Number of pixels to use to generate plot vertically
 #' @slot plotPxWidth Number of pixels to use to generate plot horizontally
-#' @slot sumCycleMerge Cycles to merge in the \code{\link{toxTable_summary}}. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.
-#' @slot sumColumnMerge Grades to merge in the \code{\link{toxTable_summary}}. Similar syntax to sumCycleMerge
-#' @slot cycleCycleMerge Cycles to merge in the \code{\link{toxTable_cycle}}. Similar syntax to sumCycleMerge
-#' @slot cycleColumnMerge Grades to merge in the \code{\link{toxTable_cycle}}. Similar syntax to sumCycleMerge
-#' @slot cycleCategoryMerge A list of categories to collapse down to one row in the \code{\link{toxTable_cycle}}.
+#' @slot sumCycleMerge Cycles to merge in the \code{\link{print_toxTable_summary}}. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.
+#' @slot sumColumnMerge Grades to merge in the \code{\link{print_toxTable_summary}}. Similar syntax to sumCycleMerge
+#' @slot cycleCycleMerge Cycles to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge
+#' @slot cycleColumnMerge Grades to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge
+#' @slot cycleCategoryMerge A list of categories to collapse down to one row in the \code{\link{print_toxTable_cycle}}.
 #'
 #'
 
@@ -74,7 +74,6 @@ setClass("toxicityOptions", slots = c(
 #' @param folderPath Path to the folder containing the data
 #' @param fileName Name of the file containing the data
 #' @param timeType One of "Time" or "Cycle" to denote whether the data is primarily time based or only cycle / time period based
-#' @param outputFolder The folder to output the results to
 #'
 #' @export defaultToxicityOptions
 

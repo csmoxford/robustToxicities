@@ -24,7 +24,7 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
     stop("Print method not defined for method: ",printMethod)
   }
 
-  toxTableList = toxTable_cycle(toxDB, cycles)
+  toxTableList = robustToxicities:::.toxTable_cycle(toxDB, cycles)
   toxTable  = toxTableList$toxTable
   nPatients = toxTableList$nPatients
 

@@ -23,7 +23,7 @@ print_toxTable_summary = function(toxDB, printMethod = "table") {
     stop("Print method not defined for method: ",printMethod)
   }
 
-  toxTable = toxTable_summary(toxDB)
+  toxTable = robustToxicities:::.toxTable_summary(toxDB)
 
   treatment = as.integer(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][2]))
   grade     = suppressWarnings(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][3]))

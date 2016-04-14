@@ -21,6 +21,6 @@ This is core object of this package. This object stores the original dataset as 
 
 \item{\code{queries}}{A data.frame containing all the queries and note generated when loading the data}
 
-\item{\code{options}}{An s4 object of class \code{\link{toxicityOptions}} containing options and metadata for the files.}
+\item{\code{options}}{An s4 object of class \code{\link{toxicityOptions-class}} containing options and metadata for the files.}
 }}
 

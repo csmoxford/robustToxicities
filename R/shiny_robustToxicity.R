@@ -1,8 +1,3 @@
-
-## Robust toxicities run file
-# Can be run with or without a log file
-
-
 #' Robust Toxicities
 #'
 #' Runs the shiny app to create customisable tables and graphs from toxicity data.
@@ -29,8 +24,8 @@
 #'  \item ass_TRUE
 #'  }
 #'
-#' @export shiny.robustToxicities
-shiny.robustToxicities=function(){
+#' @export shiny_robustToxicities
+shiny_robustToxicities=function(){
 shiny::runApp(file.path(system.file("Shiny/robustToxicities",package = "robustToxicities")))
 }
 

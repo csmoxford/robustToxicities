@@ -1,6 +1,4 @@
-#' @export toxTable_cycle
-
-toxTable_cycle = function(toxDB , cycles){
+.toxTable_cycle = function(toxDB , cycles){
 
   if(class(toxDB) != "robustToxicities") {
     stop("toxDB must be of class toxDB")
@@ -48,9 +46,9 @@ toxTable_cycle = function(toxDB , cycles){
 
     # generate initial table
     if(toxDB@options@tabulationMethod == "worst"){
-      toxTable = toxTable_worst(cleanDataSub, treats)
+      toxTable = .toxTable_worst(cleanDataSub, treats)
     } else if(toxDB@options@tabulationMethod == "all"){
-      toxTable = toxTable_all(cleanDataSub, treats)
+      toxTable = .toxTable_all(cleanDataSub, treats)
     }
 
 

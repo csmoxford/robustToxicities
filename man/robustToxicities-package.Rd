@@ -16,8 +16,7 @@ License: \tab GPL-3\cr
 This package contains a shiny application to create customised graphs and tables of trial toxicity data.
 
 List of user apps:\cr
-\code{\link{shiny_robustToxicities}}\cr
-\code{\link{shiny_robustToxicities.log}}
+\code{\link{shiny_robustToxicities}}
 }
 \author{
 Peter Dutton
@@ -28,7 +27,5 @@ Maintainer: Peter Dutton <dutton.peter@gmail.com>
 None
 }
 \keyword{ package}
-\seealso{
-}
 \examples{
 }

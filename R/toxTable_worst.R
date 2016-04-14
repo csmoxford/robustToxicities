@@ -1,6 +1,5 @@
-#' @export toxTable_worst
 
-toxTable_worst = function (toxDB, treatments) {
+.toxTable_worst = function (toxDB, treatments) {
 
 
   # create table to populate

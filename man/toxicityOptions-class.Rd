@@ -17,8 +17,6 @@ defaultToxicityOptions(trialName, folderPath = NULL, fileName = "",
 \item{fileName}{Name of the file containing the data}
 
 \item{timeType}{One of "Time" or "Cycle" to denote whether the data is primarily time based or only cycle / time period based}
-
-\item{outputFolder}{The folder to output the results to}
 }
 \description{
 An object containing all the key options for creating the toxicity tables.
@@ -37,7 +35,7 @@ Default toxicity options generator, requiring metadata only.
 
 \item{\code{timeType}}{One of "Time" or "Cycle" to denote whether the data is primarily time based or only cycle / time period based}
 
-\item{\code{displayNotes}}{A logical value used by \code{\link{prepareToxicity}} to determine whether to print note or note}
+\item{\code{displayNotes}}{A logical value used by \code{\link{robustToxicities}} to determine whether to print note or note}
 
 \item{\code{tabulationMethod}}{One of "worst" or "all" determining if all toxicity changes are counted or only the worst reported grade in a time period}
 
@@ -57,14 +55,14 @@ Default toxicity options generator, requiring metadata only.
 
 \item{\code{plotPxWidth}}{Number of pixels to use to generate plot horizontally}
 
-\item{\code{sumCycleMerge}}{Cycles to merge in the \code{\link{toxTable_summary}}. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.}
+\item{\code{sumCycleMerge}}{Cycles to merge in the \code{\link{print_toxTable_summary}}. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.}
 
-\item{\code{sumColumnMerge}}{Grades to merge in the \code{\link{toxTable_summary}}. Similar syntax to sumCycleMerge}
+\item{\code{sumColumnMerge}}{Grades to merge in the \code{\link{print_toxTable_summary}}. Similar syntax to sumCycleMerge}
 
-\item{\code{cycleCycleMerge}}{Cycles to merge in the \code{\link{toxTable_cycle}}. Similar syntax to sumCycleMerge}
+\item{\code{cycleCycleMerge}}{Cycles to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge}
 
-\item{\code{cycleColumnMerge}}{Grades to merge in the \code{\link{toxTable_cycle}}. Similar syntax to sumCycleMerge}
+\item{\code{cycleColumnMerge}}{Grades to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge}
 
-\item{\code{cycleCategoryMerge}}{A list of categories to collapse down to one row in the \code{\link{toxTable_cycle}}.}
+\item{\code{cycleCategoryMerge}}{A list of categories to collapse down to one row in the \code{\link{print_toxTable_cycle}}.}
 }}
 

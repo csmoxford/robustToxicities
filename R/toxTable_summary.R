@@ -1,6 +1,4 @@
-#' @export toxTable_summary
-
-toxTable_summary = function(toxDB) {
+.toxTable_summary = function(toxDB) {
 
   ################################################################################
   # checks and balances

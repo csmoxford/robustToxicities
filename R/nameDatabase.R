@@ -1,7 +1,27 @@
 
+#' Renaming function to generate the correct names for the robustToxicities class
+#'
+#' This function provides an efficient way of renaming the column names in the toxicity database to be compliant with the function \code{\link{robustToxicities}}.
+#'
+#'
+#' @param data The toxicity database
+#' @param patid Patient ID
+#' @param treatment Treatment arms
+#' @param ae_term The adverse event name / term
+#' @param ae_system The adverse event system
+#' @param ae_grade The adverse event grade
+#' @param ae_start_date The adverse event start date (time based only)
+#' @param ae_end_date The adverse event end date (time based only)
+#' @param ae_cont_end_study Was the adverse event coninuing at the end of the study (time based only)
+#' @param dateColumnNames The start date of each cycle / time period (time based only)
+#' @param date_stopped_treatment Date the patients stopped treatment (time based only)
+#' @param patientInCycle Was a patient enrolled for this cycle / time period (cycle based, can be auto genrated for time based data)
+#' @param occurInCycle Was the toxicity present for this cycle / time period (cycle based, can be auto genrated for time based data)
+#' @param ass_TRUE An indicator to determine if the toxicity should be counted in the analysis
+
 #' @export nameDatabase
 
-nameDatabase = function (data, patid = NULL, treatment = NULL, ae_term = NULL, ae_system = NULL, ae_grade = NULL, ae_start_date = NULL, ae_end_date = NULL, ae_cont_end_study = NULL, dateColumnNames = NULL, patientInCycle = NULL, occurInCycle = NULL, date_stopped_treatment = NULL, ass_TRUE = NULL) {
+nameDatabase = function (data, patid = NULL, treatment = NULL, ae_term = NULL, ae_system = NULL, ae_grade = NULL, ae_start_date = NULL, ae_end_date = NULL, ae_cont_end_study = NULL, date_stopped_treatment = NULL, dateColumnNames = NULL, patientInCycle = NULL, occurInCycle = NULL, ass_TRUE = NULL) {
 
 
   if(!is.null(patid)){

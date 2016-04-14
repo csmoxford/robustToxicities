@@ -1,6 +1,5 @@
-#' @export toxTable_all
 
-toxTable_all=function(toxDB,treatments){
+.toxTable_all=function(toxDB,treatments){
 
 
   # create table to populate
