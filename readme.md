@@ -4,9 +4,7 @@ TODO: Write a project description
 
 ## Installation ##
 
-1. Install the package from zip in RStudio (tools - install packages...)
-2. Load the package using `library(robustToxicites)`
-3. View the incomplete help files `?robustToxicities`
+1. In the R console: `devtools::install_github("finite2/robustToxicities")`. You may need to install the devtools package first
 
 ## Usage ##
 
