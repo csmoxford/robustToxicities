@@ -59,6 +59,11 @@ nameDatabase = function (data, patid = NULL, treatment = NULL, ae_term = NULL, a
     colnames(data)[id] = "ae_end_date"
   }
 
+  if(!is.null(ae_cont_end_study)){
+    id=which(colnames(data) == ae_cont_end_study)
+    colnames(data)[id] = "ae_cont_end_study"
+  }
+
   if(!is.null(dateColumnNames)) {
     for (i in 1:length(dateColumnNames)) {
       id=which(colnames(data) == dateColumnNames[i])

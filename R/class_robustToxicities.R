@@ -102,14 +102,19 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     cleanData$treatment = as.integer(sapply(cleanData$treatment, function(x) which(x == treatmentLabels)))
 
   }
+  print(cleanData$treatment)
 
   if(!is.integer(cleanData$treatment)) {
     treat = rep(0,length(cleanData$treatment))
     for(i in 1:length(treatmentLabels)) {
       treat[cleanData$treatment == treatmentLabels[i]] = i
     }
+    if(sum(treat == 0) > 0) {
+      stop("Not all treatments in treatmentLabels matched data in data$treatment")
+    }
     cleanData$treatment = treat
   }
+  print(cleanData$treatment)
 
   if(length(treatmentLabels) < max(cleanData$treatment)) {
     message("data$treatment must be integer valued and correspond to the labels in treatmentLabels")
@@ -118,6 +123,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   if(sum(is.na(cleanData$treatment))){
     stop("There must be no missing treatment allocations")
   }
+  print(cleanData$treatment)
 
   ################################################################################
   # time data only checks
@@ -351,6 +357,9 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
       if (all(is.na(test))) {
         test = as.numeric(as.Date(cleanData[, col], format="%d%b%Y", origin="1970-01-01"))
       }
+      if (all(is.na(test))) {
+        test = as.numeric(as.Date(cleanData[, col], format="%d/%m/%Y", origin="1970-01-01"))
+      }
       if(!all(is.na(test))){
         cleanData[,col] = test
       }
@@ -500,6 +509,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
 
   ################################################################################
   # number Toxicities
+  cleanData$order = 1:dm[1]
   cleanData = cleanData[order(cleanData$ass_category, cleanData$ass_toxicity_disp), ]
 
   cleanData$ass_toxID    = 0
@@ -511,8 +521,11 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     }
     cleanData$ass_toxID[i] = j
   }
+  cleanData = cleanData[cleanData$order,]
+  cleanData$order = NULL
   ################################################################################
   # Summarise the preparation
+
 
   message("\n#############################################################")
   message("# Summary of preparation")
