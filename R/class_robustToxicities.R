@@ -99,17 +99,25 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
       stop("There must be no missing treatment allocations")
     }
     treatmentLabels = levels(as.factor(cleanData$treatment))
-    cleanData$treatment = sapply(cleanData$treatment, function(x) which(x == treatmentLabels))
+    cleanData$treatment = as.integer(sapply(cleanData$treatment, function(x) which(x == treatmentLabels)))
 
   }
-  cleanData$treatment = as.integer(cleanData$treatment)
+
+  if(!is.integer(cleanData$treatment)) {
+    treat = rep(0,length(cleanData$treatment))
+    for(i in 1:length(treatmentLabels)) {
+      treat[cleanData$treatment == treatmentLabels[i]] = i
+    }
+    cleanData$treatment = treat
+  }
 
   if(length(treatmentLabels) < max(cleanData$treatment)) {
     message("data$treatment must be integer valued and correspond to the labels in treatmentLabels")
     stp = 1
   }
-
-
+  if(sum(is.na(cleanData$treatment))){
+    stop("There must be no missing treatment allocations")
+  }
 
   ################################################################################
   # time data only checks
