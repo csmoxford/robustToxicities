@@ -62,6 +62,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   }
 
   cleanData = data
+  dm = dim(cleanData)
 
   ################################################################################
   # Check fields are provided (all need these fields)
@@ -101,8 +102,8 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     cleanData$treatment = sapply(cleanData$treatment, function(x) which(x == treatmentLabels))
 
   }
-
   cleanData$treatment = as.integer(cleanData$treatment)
+
   if(length(treatmentLabels) < max(cleanData$treatment)) {
     message("data$treatment must be integer valued and correspond to the labels in treatmentLabels")
     stp = 1
@@ -225,8 +226,6 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   ################################################################################
   # set the data to cleanData keeping copy of the original!!
   # get the dimention for reference
-  cleanData = data
-  dm = dim(cleanData)
 
   ################################################################################
   msg = paste("Number of patients:", length(unique(cleanData$patid)), "in the provided database")
@@ -299,7 +298,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   for (i in 1:dm[1]) {
     if (cleanData$ass_TRUE[i]) {
       if (is.na(cleanData$ae_grade[i])) {
-        msg = paste("Patient", cleanData$patid[i], "is missing toxicity grade for",cleanData$ae_term , "line", i, "(currently set to zero)")
+        msg = paste("Patient", cleanData$patid[i], "is missing toxicity grade for",cleanData$ae_term[i] , "line", i, "(currently set to zero)")
         queries = query(cleanData, i, msg, "Missing data",notes)
       }
     }

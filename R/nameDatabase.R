@@ -40,7 +40,7 @@ nameDatabase = function (data, patid = NULL, treatment = NULL, ae_term = NULL, a
   }
 
   if(!is.null(ae_system)){
-    id=which(colnames(data) == ae_term)
+    id=which(colnames(data) == ae_system)
     colnames(data)[id] = "ae_system"
   }
 
