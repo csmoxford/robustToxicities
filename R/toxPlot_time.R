@@ -25,12 +25,15 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
     cleanDataSub = cleanDataSub[cleanDataSub$patid %in% patients, ]
   }
 
-  cleanDataSub             = cleanDataSub[cleanDataSub$ae_grade>0,]
+  cleanDataSub = cleanDataSub[cleanDataSub$ae_grade>0,]
+
+  ####################################################################
+  ## Convert dates to relative to start of treatment date
   cleanDataSub$rel_start   = cleanDataSub$ae_start_date - cleanDataSub[,toxDB@options@plotStartTreatment]
   cleanDataSub$rel_end     = cleanDataSub$ae_end_date   - cleanDataSub[,toxDB@options@plotStartTreatment]
   cleanDataSub$rel_ent_trt = cleanDataSub$date_stopped_treatment  - cleanDataSub[,toxDB@options@plotStartTreatment]
 
-  cleanDataSub = cleanDataSub[order(cleanDataSub$patid,cleanDataSub$ass_category,cleanDataSub$ass_toxicity_disp,cleanDataSub$ae_start_date),]
+  cleanDataSub = cleanDataSub[order(cleanDataSub$treatment,cleanDataSub$patid,cleanDataSub$ass_category,cleanDataSub$ass_toxicity_disp,cleanDataSub$ae_start_date),]
   un = unique(cleanDataSub[, c("patid", "ass_category", "ass_toxicity_disp")])
 
   cleanDataSub$gid = 0
@@ -56,26 +59,47 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   ylim = c(0.5, max(cleanDataSub$gid) + 0.5)
 
   par(mai = 0.25 * c(8,3,2,2), mfrow = c(1,1), cex = 1)
-  plot(0, 0, xlim = xlim, ylim = ylim, type = "n", axes = FALSE, xlab = "Days from start of treatment", ylab = "", xaxs = "i", yaxs = "i")
+  plot(0, 0, xlim = xlim, ylim = ylim, type = "n", axes = FALSE, xlab = "", ylab = "", xaxs = "i", yaxs = "i")
+
+  mtext("Days from start of treatment",side = 1, line = 2)
 
   ud = 0.3
 
 
-  axis(1, labels = 0:100 * 7, at = 0:100*7, pos = ylim[1])
-  abline(v = 1:100*7, lty = 2, col = "grey")
-  abline(h = 1:1000-0.5, lty = 2, col = "grey", lwd = 0.5)
+
+  axis(1, labels = -10:100 * 7, at = -10:100*7, pos = ylim[1])
+  abline(v = -10:100*7, lty = 2, col = "lightgrey")
+  abline(h = 1:1000-0.5, lty = 2, col = "lightgrey", lwd = 0.5)
   if (toxDB@options@plotCycleLength > 0) {
-    abline(v = 0:20 * toxDB@options@plotCycleLength)
+    abline(v = 0:toxDB@options@plotCycles * toxDB@options@plotCycleLength, col="grey")
   }
-  a = c(0, by(cleanDataSub$gid, cleanDataSub$patid, max)) + 0.5
+
+
+  #########################################################
+  ## get label positions for treatment and patid
+  a = sort(c(0, by(cleanDataSub$gid, cleanDataSub$patid, max)) + 0.5)
+  b = sort(c(0, by(cleanDataSub$gid, cleanDataSub$treatment, max)) + 0.5)
   patid.lab = rep(0, length(a) - 1)
+  treatment.lab = rep(0, length(b) - 1)
+  print(a)
+  print(b)
   for (i in 1:length(patid.lab)) {
     patid.lab[i] = (a[i] + a[i + 1]) / 2
   }
-  abline(h = a,lwd = 2)
-  axis(2,labels = unique(cleanDataSub$patid), at = patid.lab, tick = FALSE)
+  for(i in 1:length(treatment.lab)) {
+    treatment.lab[i] = (b[i] + b[i + 1]) / 2
+  }
+
+  print(treatment.lab)
+
+  abline(h = a,lwd = 2, col = "grey")
+  abline(h = b,lwd = 2)
 
 
+
+
+  #########################################################
+  ## add toxicities
 
   for (i in 1:length(cleanDataSub$col)) {
     if(!is.na(cleanDataSub$rel_start[i])) {
@@ -88,8 +112,26 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
     }
   }
 
+  #########################################################
+  ## LHS patid and or treatment
+  if(toxDB@options@plotLeftSideOption == "patid") {
+    axis(2,labels = unique(cleanDataSub$patid), at = patid.lab, tick = FALSE)
+  } else if(toxDB@options@plotLeftSideOption %in% c("treatment", "both")) {
+    axis(2,labels = toxDB@treatmentLabels, at = treatment.lab, tick = FALSE)
+
+    if(toxDB@options@plotLeftSideOption == "both") {
+      text(x = toxDB@options@plotxMin + 0.25 , y = patid.lab, labels = unique(cleanDataSub$patid), pos = 4)
+    }
+  }
+
+  #########################################################
+  ## RHS toxicity names
+
   text(toxDB@options@plotxMax,cleanDataSub$gid,labels=cleanDataSub$ass_toxicity_disp,pos = 2,offset=0.25)
-  box()
+  box(lwd=2)
+
+  #############################################################
+  ## legend
   par(xpd=TRUE)
   xlow=xlim[1]+0.25*(xlim[2]-xlim[1])
   xrange=0.5*(xlim[2]-xlim[1])

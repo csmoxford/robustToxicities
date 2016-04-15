@@ -9,7 +9,7 @@ print_toxTable_summary(toxDB, printMethod = "table")
 \arguments{
 \item{toxDB}{an object of class robustToxicities}
 
-\item{printMethod}{One of "table" or "latex"}
+\item{printMethod}{One of "print" "table" or "latex"}
 }
 \description{
 Returns a summary toxicity table with the requested data according to the ass_TRUE column.

@@ -102,9 +102,8 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     cleanData$treatment = as.integer(sapply(cleanData$treatment, function(x) which(x == treatmentLabels)))
 
   }
-  print(cleanData$treatment)
 
-  if(!is.integer(cleanData$treatment)) {
+  if(!is.numeric(cleanData$treatment)) {
     treat = rep(0,length(cleanData$treatment))
     for(i in 1:length(treatmentLabels)) {
       treat[cleanData$treatment == treatmentLabels[i]] = i
@@ -114,7 +113,6 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     }
     cleanData$treatment = treat
   }
-  print(cleanData$treatment)
 
   if(length(treatmentLabels) < max(cleanData$treatment)) {
     message("data$treatment must be integer valued and correspond to the labels in treatmentLabels")

@@ -19,6 +19,7 @@ print_toxTable_summary = function(toxDB, printMethod = "table") {
     stop("toxDB must be of class toxDB")
   }
 
+  printMethod = tolower(printMethod)
   if(!printMethod %in% c("print","table", "latex")) {
     stop("Print method not defined for method: ",printMethod)
   }
