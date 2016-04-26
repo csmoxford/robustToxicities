@@ -50,7 +50,7 @@
     } else if(toxDB@options@tabulationMethod == "all"){
       toxTable = .toxTable_all(cleanDataSub, treats)
     }
-print(toxTable)
+
 
     nPatients = rep(0, length(treats))
     # count and record number of patients having at least some of the required time period (saved in nPatients)
