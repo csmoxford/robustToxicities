@@ -48,11 +48,15 @@ Default toxicity options generator, requiring metadata only.
 
 \item{\code{plotStartTreatment}}{The column name of the treatment start date used in plotting (character string)}
 
+\item{\code{plotLeftSideOption}}{What should be displayed on the left hand side of the plot. One of "patid", "treatment" or "both"}
+
 \item{\code{plotxMin}}{minimum x axis limit}
 
 \item{\code{plotxMax}}{maximum x axis limit}
 
 \item{\code{plotCycleLength}}{optional cycle length value}
+
+\item{\code{plotCycles}}{optional number of cycles to plot}
 
 \item{\code{plotPxHeight}}{Number of pixels to use to generate plot vertically}
 

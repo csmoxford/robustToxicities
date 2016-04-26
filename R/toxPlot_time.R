@@ -62,9 +62,9 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   # get plot region size and split-screen
   size = dev.size("in")
 
-  sizeBase = ifelse(size[1] < 8, 2, 1)
+  sizeBase = ifelse(size[1] < 9, 1.5, 1)
   ratioBase = sizeBase/size[2]
-  par(mar=c(4,4,0.5,0.5))
+  par(mar=c(4,3,0.75,0.75))
   split.screen(figs = matrix(c(0,1,ratioBase,1,
                                0,1,0,ratioBase),ncol=4, byrow =TRUE))
   screen(1)
@@ -146,21 +146,21 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
 
   screen(2)
 
-  par(mar=c(0,4,0,0))
+  par(mar=c(0,4,0,0.75))
   plot(0,0,type="n",axes=FALSE,xlim=c(0,1),ylim=c(0,1),xlab="",ylab="", xaxs = "i", yaxs = "i")
 
   if(sizeBase == 1){
     xpos = c(0.25, 0.5, 0.75, 1) - 0.05
     ypos = c(0.5, 0.5, 0.5, 0.5)
     xsize = 0.03
-    xoffset = 0.02
+    xoffset = 0.03
     ysize = 0.2
   } else {
-    xpos = c(0.5, 1, 0.5, 1) - 0.15
-    ypos = c(0.33, 0.33, 0.67, 0.67)
+    xpos = c(0.5, 1, 0.5, 1) - 0.2
+    ypos = c(0.3, 0.3, 0.7, 0.7)
     xsize = 0.03
     xoffset = 0.03
-    ysize = 0.1
+    ysize = 0.13
   }
   label = c("Grade 1", "Grade 2", "Grade 3", "Grade 4 or 5")
 

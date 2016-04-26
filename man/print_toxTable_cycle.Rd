@@ -11,7 +11,7 @@ print_toxTable_cycle(toxDB, cycles, printMethod = "table")
 
 \item{cycles}{The cycle number or numbers of the cycles to tabulate. May also be "all" to use all cycles}
 
-\item{printMethod}{One of "table" or "latex"}
+\item{printMethod}{One of "print", "table" or "latex"}
 }
 \description{
 Returns a toxicity table with the requested data according to the ass_TRUE column, for the cycles requested.
