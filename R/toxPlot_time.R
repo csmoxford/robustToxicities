@@ -17,10 +17,6 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   cleanDataSub = toxDB@cleanData[toxDB@cleanData$ass_TRUE == TRUE, ]
 
 
-  # get plot region size
-  size = dev.size("in")
-  par(mai=c(2.5,1.5,0.2,0.2))
-
   if (class(toxDB) != "robustToxicities") {
     stop("toxDB must be of class robustToxicities")
   }
@@ -62,13 +58,23 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   xlim = c(toxDB@options@plotxMin, toxDB@options@plotxMax)
   ylim = c(0.5, max(cleanDataSub$gid) + 0.5)
 
-  par(mai = 0.25 * c(8,3,2,2), mfrow = c(1,1), cex = 1)
+
+  # get plot region size and split-screen
+  size = dev.size("in")
+
+  sizeBase = ifelse(size[1] < 8, 2, 1)
+  ratioBase = sizeBase/size[2]
+  par(mar=c(4,4,0.5,0.5))
+  split.screen(figs = matrix(c(0,1,ratioBase,1,
+                               0,1,0,ratioBase),ncol=4, byrow =TRUE))
+  screen(1)
+
+
   plot(0, 0, xlim = xlim, ylim = ylim, type = "n", axes = FALSE, xlab = "", ylab = "", xaxs = "i", yaxs = "i")
 
-  mtext("Days from start of treatment",side = 1, line = 2)
+  mtext("Days from start of treatment",side = 1, line = 2.5)
 
   ud = 0.3
-
 
 
   axis(1, labels = -10:100 * 7, at = -10:100*7, pos = ylim[1])
@@ -136,24 +142,34 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
 
   #############################################################
   ## legend
-  par(xpd=TRUE)
-  xlow=xlim[1]+0.25*(xlim[2]-xlim[1])
-  xrange=0.5*(xlim[2]-xlim[1])
-  ylow=-7
-  yrange=4
-  polygon(xlow+c(0,0,xrange,xrange),ylow+c(0,yrange,yrange,0),border=1)
 
-  text(xlow+xrange*0.2,ylow+yrange*0.75,labels="Grade 1")
-  text(xlow+xrange*0.7,ylow+yrange*0.75,labels="Grade 2")
-  text(xlow+xrange*0.2,ylow+yrange*0.25,labels="Grade 3")
-  text(xlow+xrange*0.7,ylow+yrange*0.25,labels="Grade 4 or 5")
 
-  polygon(xlow+xrange*c(0.3,0.3,0.4,0.4),ylow+yrange*c(0.65,0.85,0.85,0.65),col=cols[1],border=cols[1])
-  polygon(xlow+xrange*c(0.8,0.8,0.9,0.9),ylow+yrange*c(0.65,0.85,0.85,0.65),col=cols[2],border=cols[2])
-  polygon(xlow+xrange*c(0.3,0.3,0.4,0.4),ylow+yrange*c(0.15,0.35,0.35,0.15),col=cols[3],border=cols[3])
-  polygon(xlow+xrange*c(0.8,0.8,0.9,0.9),ylow+yrange*c(0.15,0.35,0.35,0.15),col=cols[4],border=cols[4])
+  screen(2)
 
-  par(xpd=FALSE)
+  par(mar=c(0,4,0,0))
+  plot(0,0,type="n",axes=FALSE,xlim=c(0,1),ylim=c(0,1),xlab="",ylab="", xaxs = "i", yaxs = "i")
+
+  if(sizeBase == 1){
+    xpos = c(0.25, 0.5, 0.75, 1) - 0.05
+    ypos = c(0.5, 0.5, 0.5, 0.5)
+    xsize = 0.03
+    xoffset = 0.02
+    ysize = 0.2
+  } else {
+    xpos = c(0.5, 1, 0.5, 1) - 0.15
+    ypos = c(0.33, 0.33, 0.67, 0.67)
+    xsize = 0.03
+    xoffset = 0.03
+    ysize = 0.1
+  }
+  label = c("Grade 1", "Grade 2", "Grade 3", "Grade 4 or 5")
+
+  for(i in 1:4){
+    text(xpos[i]-xoffset, ypos[i],labels=label[i],pos=2)
+    polygon(xpos[i]+xsize*c(-1,-1,1,1),ypos[i]+ysize*c(-1,1,1,-1),col=cols[i],border=cols[i])
+  }
+
+  close.screen(all.screens = TRUE)
 
   return(max(cleanDataSub$gid))
 }
