@@ -113,9 +113,8 @@ kable(print_toxTable_cycle(toxDB, cycles = "all"))
 
 ## Baseline table with counts
 ```{r, message = FALSE}
-toxDB@options@cumulativeGrades = FALSE
 toxDB@options@cumulativeGrades = TRUE
-toxDB@cycleLabels[1]
+cat("\n## ",toxDB@cycleLabels[1],"\n\n")
 kable(print_toxTable_cycle(toxDB, cycles = 1))
 ```
 
@@ -130,8 +129,10 @@ for(i in 1:length(toxDB@cycleLabels)) {
 
 ## All toxicity changes in all cycles after time period
 ```{r, message = FALSE, results = "asis"}
-toxDB@options@discardBaseline = TRUE
+toxDB@options@discardBaseline = FALSE
 toxDB@options@tabulationMethod = "all"
+toxDB@treatmentLabels
+toxDB@options@tabulationMethod = "worst"
 cat("\n## ",toxDB@cycleLabels[3],"\n\n")
 print(kable(print_toxTable_cycle(toxDB, cycles = "all")))
 ```
