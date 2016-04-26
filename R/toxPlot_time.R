@@ -58,23 +58,25 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   xlim = c(toxDB@options@plotxMin, toxDB@options@plotxMax)
   ylim = c(0.5, max(cleanDataSub$gid) + 0.5)
 
-
+  ##############################################################
   # get plot region size and split-screen
   size = dev.size("in")
 
-  sizeBase = ifelse(size[1] < 9, 1.5, 1)
+  sizeBase = ifelse(size[1] < 9, 1, 0.6)
   ratioBase = sizeBase/size[2]
-  par(mar=c(4,3,0.75,0.75))
+  par(mar=c(3.5,3,0.75,0.75))
   split.screen(figs = matrix(c(0,1,ratioBase,1,
                                0,1,0,ratioBase),ncol=4, byrow =TRUE))
+
+
+
+  ##############################################################
+  # Main plot
   screen(1)
-
-
   plot(0, 0, xlim = xlim, ylim = ylim, type = "n", axes = FALSE, xlab = "", ylab = "", xaxs = "i", yaxs = "i")
-
   mtext("Days from start of treatment",side = 1, line = 2.5)
 
-  ud = 0.3
+
 
 
   axis(1, labels = -10:100 * 7, at = -10:100*7, pos = ylim[1])
@@ -91,16 +93,12 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   b = sort(c(0, by(cleanDataSub$gid, cleanDataSub$treatment, max)) + 0.5)
   patid.lab = rep(0, length(a) - 1)
   treatment.lab = rep(0, length(b) - 1)
-  print(a)
-  print(b)
   for (i in 1:length(patid.lab)) {
     patid.lab[i] = (a[i] + a[i + 1]) / 2
   }
   for(i in 1:length(treatment.lab)) {
     treatment.lab[i] = (b[i] + b[i + 1]) / 2
   }
-
-  print(treatment.lab)
 
   abline(h = a,lwd = 2, col = "grey")
   abline(h = b,lwd = 2)
@@ -110,6 +108,7 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
 
   #########################################################
   ## add toxicities
+  ud = 0.3 # up down size of polygons 0.5 would fill the rows
 
   for (i in 1:length(cleanDataSub$col)) {
     if(!is.na(cleanDataSub$rel_start[i])) {
@@ -142,14 +141,12 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
 
   #############################################################
   ## legend
-
-
   screen(2)
 
-  par(mar=c(0,4,0,0.75))
+  par(mar=c(0,3,0,0.75))
   plot(0,0,type="n",axes=FALSE,xlim=c(0,1),ylim=c(0,1),xlab="",ylab="", xaxs = "i", yaxs = "i")
 
-  if(sizeBase == 1){
+  if(sizeBase == 0.6){
     xpos = c(0.25, 0.5, 0.75, 1) - 0.05
     ypos = c(0.5, 0.5, 0.5, 0.5)
     xsize = 0.03
