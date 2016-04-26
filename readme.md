@@ -12,16 +12,10 @@ See the help files
 
 ## To-do list ##
 
-Note that the shiny app is currently ignoring all the options there and just taking them from the default
-
-3. Comprehensive checks and balances for input data type and options.
-4. Write comprehensive help files
-5.  Ensure the shiny app works for all data types and input options
-
-## History ##
-
-### 1.0 shiny first version ###
-Shiny application for producing tables sent to csv and plots saved by right clicking. Some basic data query functionality. Only support for time based toxicity data. 
+1. Remove shiny app, concentrate effort in two examples. One for each timeType, and a lyx based example.
+2. Plots to output efficiently to latex, png and the screen. Might take some cues from d3 to do this. Could try to impliment a d3 solution later?
+3. Tidy up help files.
+4. Link the examples properly.
 
 ## Credits ##
 
