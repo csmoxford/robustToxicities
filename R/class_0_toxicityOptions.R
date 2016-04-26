@@ -18,9 +18,11 @@
 #' @slot cumulativeGrades A logical value used to determine whether toxicity grades should be reported cumulatively or not
 #' @slot discardBaseline A logical value used to determine if toxicities reported at baseline should be reported or not
 #' @slot plotStartTreatment The column name of the treatment start date used in plotting (character string)
+#' @slot plotLeftSideOption What should be displayed on the left hand side of the plot. One of "patid", "treatment" or "both"
 #' @slot plotxMin minimum x axis limit
 #' @slot plotxMax maximum x axis limit
 #' @slot plotCycleLength optional cycle length value
+#' @slot plotCycles optional number of cycles to plot
 #' @slot plotPxHeight Number of pixels to use to generate plot vertically
 #' @slot plotPxWidth Number of pixels to use to generate plot horizontally
 #' @slot sumCycleMerge Cycles to merge in the \code{\link{print_toxTable_summary}}. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.
@@ -42,9 +44,11 @@
   cumulativeGrades = "logical",
   discardBaseline = "logical",
   plotStartTreatment = "character",
+  plotLeftSideOption = "character",
   plotxMin = "numeric",
   plotxMax = "numeric",
   plotCycleLength = "numeric",
+  plotCycles = "numeric",
   plotPxHeight = "numeric",
   plotPxWidth = "numeric",
   sumCycleMerge = "character",
@@ -76,8 +80,8 @@
 #' @param fileName Name of the file containing the data
 #' @param timeType One of "Time" or "Cycle" to denote whether the data is primarily time based or only cycle / time period based
 #'
+#'
 #' @export defaultToxicityOptions
-
 defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", timeType="time") {
 
   if(!timeType %in% c("time", "cycle")){
@@ -96,9 +100,11 @@ defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", t
     cumulativeGrades = TRUE,
     discardBaseline = FALSE,
     plotStartTreatment = "cycle_start_date_1",
+    plotLeftSideOption = "treatment",
     plotxMin = -7,
     plotxMax = 60,
     plotCycleLength = 21,
+    plotCycles = 6,
     plotPxHeight = 0,
     plotPxWidth = 1100,
     sumCycleMerge = "",

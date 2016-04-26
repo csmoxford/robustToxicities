@@ -4,7 +4,7 @@
 #' Returns a summary toxicity table with the requested data according to the ass_TRUE column.
 #'
 #' @param toxDB an object of class robustToxicities
-#' @param printMethod One of "print" "table" or "latex"
+#' @param printMethod One of "print", "table" or "latex"
 #'
 #' @details
 #' The latex option details requires you to use the \code{array} and \code{multirow} packages in the .tex file using \code{\\usepackage{array, multirow}}.

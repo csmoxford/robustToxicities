@@ -38,7 +38,7 @@
     }
   }
 
-  if(length(treatmentLabels) < max(object@cleanData$treatment)) {
+  if(length(object@treatmentLabels) < max(object@cleanData$treatment)) {
     return(paste0("Number of treatments is fewer than the highest value in cleanData$treatment"))
   }
 

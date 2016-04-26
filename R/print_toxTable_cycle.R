@@ -5,7 +5,7 @@
 #'
 #' @param toxDB an object of class robustToxicities
 #' @param cycles The cycle number or numbers of the cycles to tabulate. May also be "all" to use all cycles
-#' @param printMethod One of "table" or "latex"
+#' @param printMethod One of "print", "table" or "latex"
 #'
 #' @details
 #' The latex option details requires you to use the \code{array} and \code{multirow} packages in the .tex file using \code{\\usepackage{array, multirow}}.
@@ -71,15 +71,17 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
   }
 
 
-  if( printMethod == "table") {
+  toxTable = rbind(rep("",dim(toxTable)[1]),toxTable)
+  toxTable[1,] = ""
+  toxTable[1,1:2] = c("","Number of patients")
 
-    toxTable = rbind(rep("",dim(toxTable)[1]),toxTable)
-    toxTable[1,2] = "Number of patients"
+  for(i in 1:length(toxDB@treatmentLabels)){
+    toxTable[1,nColTrt*(i-1)+3] = nPatients[i]
+  }
 
-    for(i in 1:length(toxDB@treatmentLabels)){
-      toxTable[1,nColTrt*(i-1)+3] = nPatients[i]
-    }
-
+  if( printMethod == "print") {
+    print(toxTable, row.names = FALSE)
+  } else if( printMethod == "table") {
     return(toxTable)
   } else if( printMethod == "latex") {
 

@@ -1,0 +1,177 @@
+---
+output: word_document
+Author: Peter Dutton
+Title: robustToxicities Example
+---
+
+# robustToxicities Example
+
+This document goes through using this package. The example data is computer generated and does not come from a trial or study. The data for this example is time based data. This means that each toxicity has a start date and end date. The data must also provide start dates for each cycle or time period. This package can also deal with cycle based data. This data simply details what cycles a patient was on trial and what toxicities were present in each cycle (Hopefully I will add another example).
+
+This document is generated directly from r markdown. Markdown is a lightweight markup language which uses plain text formatting syntax designed so that it can be principally converted to HTML. This approach allows for a fully automated document whereby if the underlying data is changed the report will generate using this new data. Because markdown is lightweight there are a some significant limitations.
+
+We use the `knitr` package to format our tables in markdown. The `knitr` package also supports latex (and lyx) which is a heavyweight markup language used to create pdfs. A latex based approach may be considerably more time consuming but is much more flexible.
+
+```{r, warning = FALSE}
+library(robustToxicities)
+library(knitr)
+data = read.csv("Fake_data.csv", stringsAsFactors = FALSE)
+str(data, vec.len = 2)
+```
+
+## Format data
+The `nameDatabase` function does a simple renaming of the column names for our data to make it compatible for the rest of the package.
+
+```{r, warning = FALSE}
+data = nameDatabase(
+  data,
+  patid = "patientNo",
+  treatment = "Treatment",
+  ae_term = "toxicity",
+  ae_system = "category",
+  ae_grade = "grade",
+  ae_start_date = "ae_onset_date",
+  ae_end_date = "ae_resolve_date",
+  ae_cont_end_study = "ae_cont_end",
+  date_stopped_treatment = "end_of_treatment_date",
+  dateColumnNames = c("Registration_date", "Randomisation_date", "Cycle_1_date", "Cycle_2_date", "Cycle_3_date", "Cycle_4_date", "Cycle_5_date", "Cycle_6_date")
+)
+```
+
+## Options
+We need to specify the initial options for our tables. The default function `defaultToxicityOptions` simply asks for the metadata to be stored. Other options can be changed directly by accessing their slot using the @ operator.
+```{r, warning = FALSE}
+options=defaultToxicityOptions(trialName="FAKEtrial", folderPath="", fileName = "Fake_data.csv")
+```
+
+
+## Load data into the s4 class
+We now define cycle and treatment labels for the output tables and run the initialize function. This function does considerable data cleaning and checking tasks to make sure the provided data is suitable for the other functions.
+```{r, warning = FALSE}
+cycleLabels = c("Registration", "Randomisation", "Cycle 1", "Cycle 2", "Cycle 3", "Cycle 4", "Cycle 5", "Cycle 6")
+treatmentLabels = c("Placebo", "Fake Drug")
+
+toxDB = robustToxicities(data, cycleLabels, options, treatmentLabels)
+```
+
+## Queries and notes
+Assuming there were no major issues from the initialisation we may want to look at the generated notes and queries to see what changes and problems the data cleaning step encountered.
+
+```{r, warning = FALSE}
+kable(toxDB@queries)
+```
+
+# Tables
+
+This package can generate two types of tables:
+
+* A summary table detailing the toxicity grade by cycle (`print_toxTable_summary`)
+* A cycle or time period table, detailing what the toxicities were and what grade they were in a specified cycle or cycles (`print_toxTable_cycle`)
+
+You should not that due to the limitations of markdown these tables output via a markdown file do not contain treatment labels. If there is more than one treatment then these will have to be added by hand. Alternatively you can obtain these labels automatically using a latex based solution.
+
+There are a number of options for both tables:
+
+* `discardBaseline` A logical value used to determine if toxicities reported at baseline should be reported or not. The default is FALSE.
+* `tabulationMethod` One of "worst" or "all" determining if all toxicity changes are counted or only the worst reported grade in a time period. The default is worst.
+* `tabulationPercent` A logical value used to determine if toxicity tables should report counts (FALSE) or percentages (TRUE). The default is FALSE.
+* `cumulativeGrades` A logical value used to determine whether toxicity grades should be reported cumulatively or not. Defaut is TRUE.
+
+There are also some options specific to each table.
+
+### Summary:
+
+* `sumCycleMerge` Cycles to merge in the `print_toxTable_summary`. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.
+* `sumColumnMerge` Grades to merge in the print_toxTable_summary. Similar syntax to sumCycleMerge.
+
+### Cycle:
+
+* `cycleCycleMerge` Cycles to merge in the print_toxTable_cycle. Similar syntax to sumCycleMerge.
+* `cycleColumnMerge` Grades to merge in the print_toxTable_cycle. Similar syntax to sumCycleMerge.
+* `cycleCategoryMerge` A vector of categories to collapse down to one row in the print_toxTable_cycle.
+
+This section shows off some of the table options.
+
+## Summary table by cycle with percentages
+```{r, message = FALSE}
+toxDB@options@tabulationPercent = TRUE
+kable(print_toxTable_summary(toxDB, printMethod = "table"))
+```
+
+## Summary table by cycle with counts, not cumulative
+```{r, message = FALSE}
+toxDB@options@tabulationPercent = FALSE
+toxDB@options@cumulativeGrades = FALSE
+kable(print_toxTable_summary(toxDB, printMethod = "table"))
+```
+
+
+## All toxicities (worst grade by patient)
+```{r, message = FALSE}
+kable(print_toxTable_cycle(toxDB, cycles = "all"))
+```
+
+## Baseline table with counts
+```{r, message = FALSE}
+toxDB@options@cumulativeGrades = FALSE
+toxDB@options@cumulativeGrades = TRUE
+toxDB@cycleLabels[1]
+kable(print_toxTable_cycle(toxDB, cycles = 1))
+```
+
+
+## All cycles in a for loop
+```{r, message = FALSE, results = "asis"}
+for(i in 1:length(toxDB@cycleLabels)) {
+  cat("\n## ",toxDB@cycleLabels[i],"\n\n")
+  print(kable(print_toxTable_cycle(toxDB, cycles = i)))
+}
+```
+
+## All toxicity changes in all cycles after time period
+```{r, message = FALSE, results = "asis"}
+toxDB@options@discardBaseline = TRUE
+toxDB@options@tabulationMethod = "all"
+cat("\n## ",toxDB@cycleLabels[3],"\n\n")
+print(kable(print_toxTable_cycle(toxDB, cycles = "all")))
+```
+
+
+## Merge differently
+```{r, message = FALSE}
+toxDB@options@cycleColumnMerge = "1,2|3,4,5"
+toxDB@options@tabulationMethod = "worst"
+kable(print_toxTable_cycle(toxDB, cycles = "all"))
+```
+
+## Merge the Respiratory category
+
+```{r, message = FALSE}
+toxDB@options@cycleCategoryMerge = "Respiratory, thoracic and mediastinal disorders"
+kable(print_toxTable_cycle(toxDB, cycles = "all"))
+```
+
+## Latex output
+
+To output to latex simply change the printMethod to latex
+
+```{r, message = FALSE, results = "asis"}
+print_toxTable_summary(toxDB, printMethod = "latex")
+```
+
+
+# Plots
+
+This section needs more work after I have finalised the plotting functions allowing well formatted graph output to word and pdf based mediums.
+
+
+```{r, results = FALSE}
+toxDB@options@plotLeftSideOption = "patid"
+toxDB@options@plotStartTreatment = "cycle_start_date_3"
+toxDB@options@plotCycleLength = 7
+toxDB@options@plotxMin = -21
+toxDB@options@plotxMax = 70
+toxDB@options@plotLeftSideOption = "both"
+toxPlot_time(toxDB)
+```
+
