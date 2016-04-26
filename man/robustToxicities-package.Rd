@@ -13,11 +13,7 @@ Version: \tab 1.01\cr
 Date: \tab 2016-03-11\cr
 License: \tab GPL-3\cr
 }
-This package contains a shiny application to create customised graphs and tables of trial toxicity data.
 
-List of user apps:\cr
-\code{\link{shiny_robustToxicities}}
-}
 \author{
 Peter Dutton
 

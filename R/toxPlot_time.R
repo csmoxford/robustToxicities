@@ -17,6 +17,10 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   cleanDataSub = toxDB@cleanData[toxDB@cleanData$ass_TRUE == TRUE, ]
 
 
+  # get plot region size
+  size = dev.size("in")
+  par(mai=c(2.5,1.5,0.2,0.2))
+
   if (class(toxDB) != "robustToxicities") {
     stop("toxDB must be of class robustToxicities")
   }

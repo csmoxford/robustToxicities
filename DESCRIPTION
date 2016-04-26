@@ -10,8 +10,6 @@ Description: Creates publication ready table and graphs from time based toxicity
 License: GPL-2
 Depends:
 	methods,
-    shiny,
     stringr,
-    rtf,
     xtable
 RoxygenNote: 5.0.1
