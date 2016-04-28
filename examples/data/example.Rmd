@@ -24,7 +24,7 @@ Lets load packages we will be using today. knitr is available on CRAN and you ca
 ```{r, warning = FALSE}
 library(robustToxicities)
 library(knitr)
-data = read.csv("Fake_data.csv", stringsAsFactors = FALSE)
+data = read.csv("Fake_data_time.csv", stringsAsFactors = FALSE)
 str(data, vec.len = 2)
 ```
 
@@ -173,10 +173,9 @@ print_toxTable_summary(toxDB, printMethod = "latex")
 
 # Plots
 
-This section needs more work after I have finalised the plotting functions allowing well formatted graph output to word and pdf based mediums.
+Plots can be output directly into your word document using a code chunk like below:
 
-
-```{r, results = FALSE}
+```{r, results = FALSE, fig.width = 9, fig.height = 6}
 toxDB@options@plotLeftSideOption = "patid"
 toxDB@options@plotStartTreatment = "cycle_start_date_3"
 toxDB@options@plotCycleLength = 7
@@ -185,4 +184,16 @@ toxDB@options@plotxMax = 70
 toxDB@options@plotLeftSideOption = "both"
 toxPlot(toxDB)
 ```
+
+Toxicity data may require a large number of rows. For this reason it may be impractical to have all the data on a single graph output. To aid you here there is a function to output in pages to pdf and png (`toxPlot_output`). Additionally if you set the plot option to FALSE then `toxPlot` will return the number of rows of data. This will allow you to decide how much data to plot on each graph and the rowID_range allows you to define what to plot on each graph.
+
+```{r, fig.width = 9, fig.height = 4}
+toxPlot(toxDB,plot = FALSE)
+
+toxPlot(toxDB, rowID_range = c(1,8))
+
+toxPlot(toxDB, rowID_range = c(9,16))
+```
+
+
 

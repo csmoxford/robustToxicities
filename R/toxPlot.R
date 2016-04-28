@@ -17,10 +17,16 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
     stop("toxDB must be of class robustToxicities")
   }
 
+  # subset to specific stuff if required
+  cleanDataSub = toxDB@cleanData[toxDB@cleanData$ass_TRUE == TRUE, ]
+
+  cols = c("#00CC00","#FF9900","red","black","black")
+
+  # switch between time and cycle run
   if(toxDB@options@timeType == "time") {
-    val = .toxPlot_time(toxDB, rowID_range, plot)
+    val = .toxPlot_time(toxDB,cleanDataSub, rowID_range, plot, cols = cols)
   } else if(toxDB@options@timeType == "cycle") {
-    val = .toxPlot_cycle(toxDB, rowID_range, plot)
+    val = .toxPlot_cycle(toxDB, rowID_range, plot, cols = cols)
   } else {
     stop("time type must be one of 'time' or 'cycle'")
   }
@@ -33,7 +39,7 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
   ## legend
   screen(2)
 
-  cols = c("#00CC00","#FF9900","red","black","black")
+
   size = dev.size("in")
   sizeBase = ifelse(size[1] < 9, 1, 0.6)
 
@@ -64,9 +70,8 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
 }
 
 
-.toxPlot_time = function(toxDB, rowID_range = NULL, plot = TRUE) {
-  # subset to specific patient if required
-  cleanDataSub = toxDB@cleanData[toxDB@cleanData$ass_TRUE == TRUE, ]
+.toxPlot_time = function(toxDB, cleanDataSub, rowID_range = NULL, plot = TRUE, cols) {
+
 
   ####################################################################
   ## Convert dates to relative to start of treatment date
@@ -86,7 +91,6 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
   }
 
   if(!plot) {
-    print(cleanDataSub$gid)
     return(max(cleanDataSub$gid))
   }
 
@@ -96,10 +100,7 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
   }
 
   #####################################################################
-
   # colouring
-  cols = c("#00CC00","#FF9900","red","black","black")
-  print(dim(cleanDataSub))
   cleanDataSub$col = ""
   for (i in 1:length(cleanDataSub$col)) {
     if (cleanDataSub$ae_grade[i]>0) {
@@ -199,12 +200,7 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
 }
 
 
-.toxPlot_cycle = function(toxDB, rowID_range = NULL, plot = TRUE) {
-
-
-  # subset to specific stuff if required
-  cleanDataSub = toxDB@cleanData[toxDB@cleanData$ass_TRUE == TRUE, ]
-
+.toxPlot_cycle = function(toxDB, cleanDataSub, rowID_range = NULL, plot = TRUE, cols) {
 
   names_cycle = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "occur_in_cycle_")]
   names_present = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "present_in_cycle_")]
@@ -213,7 +209,6 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
   cleanDataSub$rel_start   = apply(cleanDataSub[,names_cycle], 1, function(x) min(which(x > 0)) - 1)
   cleanDataSub$rel_end     = apply(cleanDataSub[,names_cycle], 1, function(x) max(which(x > 0)))
   cleanDataSub$rel_ent_trt = apply(cleanDataSub[,names_present], 1, function(x) max(which(x > 0)))
-  print(cleanDataSub[,c("patid",names_present)])
   cleanDataSub = cleanDataSub[order(cleanDataSub$treatment,cleanDataSub$patid,cleanDataSub$ass_category,cleanDataSub$ass_toxicity_disp,cleanDataSub$ae_start_date),]
   un = unique(cleanDataSub[, c("patid", "ass_category", "ass_toxicity_disp")])
 
@@ -234,14 +229,12 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
 
   ######################################################
   # colouring
-  cols = c("#00CC00","#FF9900","red","black","black")
   cleanDataSub$col = ""
   for (i in 1:length(cleanDataSub$col)) {
     if(cleanDataSub$ae_grade[i] > 0){
       cleanDataSub$col[i]=cols[cleanDataSub$ae_grade[i]]
     }
   }
-
 
   xlim = c(toxDB@options@plotxMin, toxDB@options@plotxMax)
   ylim = c(min(cleanDataSub$gid)-0.5, max(cleanDataSub$gid) + 0.5)
@@ -255,8 +248,6 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
   par(mar=c(3.5,3,0.75,0.75))
   split.screen(figs = matrix(c(0,1,ratioBase,1,
                                0,1,0,ratioBase),ncol=4, byrow =TRUE))
-
-
 
   ##############################################################
   # Main plot
@@ -305,8 +296,6 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
     }
     segments(cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]-0.5,cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]+0.5,lwd=3,col=1)
   }
-
-  print(cleanDataSub[,c("patid","rel_ent_trt")])
 
   #########################################################
   ## LHS patid and or treatment
