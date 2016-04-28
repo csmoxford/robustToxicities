@@ -1,19 +1,25 @@
 ---
 Author: "Peter Dutton"
-Title: "robustToxicities Example"
+Title: "robustToxicities"
 output:
   word_document:
     fig_width: 12
     fig_height: 9
 ---
 
-# robustToxicities Example
+# robustToxicities
 
 This document goes through using this package. The example data is computer generated and does not come from a trial or study. The data for this example is time based data. This means that each toxicity has a start date and end date. The data must also provide start dates for each cycle or time period. This package can also deal with cycle based data. This data simply details what cycles a patient was on trial and what toxicities were present in each cycle (Hopefully I will add another example).
 
-This document is generated directly from r markdown. Markdown is a lightweight markup language which uses plain text formatting syntax designed so that it can be principally converted to HTML. This approach allows for a fully automated document whereby if the underlying data is changed the report will generate using this new data. Because markdown is lightweight there are a some significant limitations.
+This document is generated directly from r markdown. Markdown is a lightweight markup language which uses plain text formatting syntax designed so that it can be principally converted to HTML. An r markdown file is a combination of markdown and code chunks which generate output to add to the report. Output includes generated markdown, code, tables and plots. This approach allows for a fully automated document whereby if the underlying data is changed the report will generate using this new data. Because markdown is lightweight it is fast and easy to use but comes with some significant limitations for complex output.
 
 We use the `knitr` package to format our tables in markdown. The `knitr` package also supports latex (and lyx) which is a heavyweight markup language used to create pdfs. A latex based approach may be considerably more time consuming but is much more flexible.
+
+# Time based data example
+
+The following example is based on time data. The data set consists of toxicities with a start and stop date. Further information is provided about the cycle or time period start dates. This means tables can be produced by cycle and graphs can be produced using the toxicity durations.
+
+Lets load packages we will be using today. knitr is available on CRAN and you can install robustToxicities from github directly: `devtools::install_github("finite2/robustToxicities")`. Note than you may need to install the devtools package first. We then load the example data and have a look.
 
 ```{r, warning = FALSE}
 library(robustToxicities)
@@ -43,13 +49,13 @@ data = nameDatabase(
 ```
 
 ## Options
-We need to specify the initial options for our tables. The default function `defaultToxicityOptions` simply asks for the metadata to be stored. Other options can be changed directly by accessing their slot using the @ operator.
+We need to specify the initial options for our tables. The default function `defaultToxicityOptions` simply asks for the metadata to be stored. Other options can be changed directly by accessing their slots using the @ operator for `s4` classes.
 ```{r, warning = FALSE}
 options=defaultToxicityOptions(trialName="FAKEtrial", folderPath="", fileName = "Fake_data.csv")
 ```
 
 
-## Load data into the s4 class
+## Load data into the `robustToxicities` `s4` class
 We now define cycle and treatment labels for the output tables and run the initialize function. This function does considerable data cleaning and checking tasks to make sure the provided data is suitable for the other functions.
 ```{r, warning = FALSE}
 cycleLabels = c("Registration", "Randomisation", "Cycle 1", "Cycle 2", "Cycle 3", "Cycle 4", "Cycle 5", "Cycle 6")
@@ -59,7 +65,7 @@ toxDB = robustToxicities(data, cycleLabels, options, treatmentLabels)
 ```
 
 ## Queries and notes
-Assuming there were no major issues from the initialisation we may want to look at the generated notes and queries to see what changes and problems the data cleaning step encountered.
+Assuming there were no major issues from the initialisation we may want to look at the generated notes and queries to see what changes and problems the data cleaning step picked up on.
 
 ```{r, warning = FALSE}
 kable(toxDB@queries)
@@ -72,7 +78,7 @@ This package can generate two types of tables:
 * A summary table detailing the toxicity grade by cycle (`print_toxTable_summary`)
 * A cycle or time period table, detailing what the toxicities were and what grade they were in a specified cycle or cycles (`print_toxTable_cycle`)
 
-You should not that due to the limitations of markdown these tables output via a markdown file do not contain treatment labels. If there is more than one treatment then these will have to be added by hand. Alternatively you can obtain these labels automatically using a latex based solution.
+You should note that due to the limitations of markdown these tables output via a markdown file do not contain treatment labels. If there is more than one treatment then these will have to be added by hand. Alternatively you can obtain these labels automatically using a latex based solution.
 
 There are a number of options for both tables:
 

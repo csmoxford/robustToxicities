@@ -1,8 +1,5 @@
 .toxPlot_cycle = function(toxDB, rowID_range = NULL, plot = TRUE) {
 
-  if (class(toxDB) != "robustToxicities") {
-    stop("toxDB must be of class robustToxicities")
-  }
 
   # subset to specific stuff if required
   cleanDataSub = toxDB@cleanData[toxDB@cleanData$ass_TRUE == TRUE, ]
@@ -26,10 +23,15 @@ print(cleanDataSub[,c("patid",names_present)])
   }
 
   if (!plot) {
-    return(max(cleanDataSub$gid[i]))
+    return(max(cleanDataSub$gid))
   }
 
+  # reduce to only the rows needed this time
+  if(!is.null(rowID_range)){
+    cleanDataSub = cleanDataSub[cleanDataSub$gid %in% rowID_range[1]:rowID_range[2],]
+  }
 
+  ######################################################
   # colouring
   cols = c("#00CC00","#FF9900","red","black","black")
   cleanDataSub$col = ""
@@ -41,12 +43,7 @@ print(cleanDataSub[,c("patid",names_present)])
 
 
   xlim = c(toxDB@options@plotxMin, toxDB@options@plotxMax)
-  # set limit based on rowID_range
-  if(!is.null(rowID_range)){
-    ylim = c(rowID_range[1] - 0.5, rowID_range[2] + 0.5)
-  } else {
-    ylim = c(0.5, max(cleanDataSub$gid) + 0.5)
-  }
+  ylim = c(min(cleanDataSub$gid)-0.5, max(cleanDataSub$gid) + 0.5)
 
   ##############################################################
   # get plot region size and split-screen
@@ -64,7 +61,7 @@ print(cleanDataSub[,c("patid",names_present)])
   # Main plot
   screen(1)
   plot(0, 0, xlim = xlim, ylim = ylim, type = "n", axes = FALSE, xlab = "", ylab = "", xaxs = "i", yaxs = "i")
-  mtext("Cycle",side = 1, line = 2.5)
+  mtext("Cycle",side = 1, line = 2.5, cex = par("cex"))
 
 
 
@@ -81,8 +78,8 @@ print(cleanDataSub[,c("patid",names_present)])
 
   #########################################################
   ## get label positions for treatment and patid
-  a = sort(c(0, by(cleanDataSub$gid, cleanDataSub$patid, max)) + 0.5)
-  b = sort(c(0, by(cleanDataSub$gid, cleanDataSub$treatment, max)) + 0.5)
+  a = sort(c(min(cleanDataSub$gid)-1, by(cleanDataSub$gid, cleanDataSub$patid, max)) + 0.5)
+  b = sort(c(min(cleanDataSub$gid)-1, by(cleanDataSub$gid, cleanDataSub$treatment, max)) + 0.5)
   patid.lab = rep(0, length(a) - 1)
   treatment.lab = rep(0, length(b) - 1)
   for (i in 1:length(patid.lab)) {
@@ -99,9 +96,7 @@ print(cleanDataSub[,c("patid",names_present)])
   ## add toxicities
   ud = 0.3 # up down size of polygons 0.5 would fill the rows
 
-  if(!is.null(rowID_range)){
-    cleanDataSub = cleanDataSub[cleanDataSub$gid %in% rowID_range[1]:rowID_range[2],]
-  }
+
 
   for (i in 1:dim(cleanDataSub)[1]) {
     if(!is.na(cleanDataSub$rel_start[i]) & !is.na(cleanDataSub$rel_end[i]) & cleanDataSub$col[i] !="") {
@@ -130,34 +125,5 @@ print(cleanDataSub[,c("patid",names_present)])
   text(toxDB@options@plotxMax,cleanDataSub$gid,labels=cleanDataSub$ass_toxicity_disp,pos = 2,offset=0.25)
   box(lwd=2)
 
-  #############################################################
-  ## legend
-  screen(2)
 
-  par(mar=c(0,3,0,0.75))
-  plot(0,0,type="n",axes=FALSE,xlim=c(0,1),ylim=c(0,1),xlab="",ylab="", xaxs = "i", yaxs = "i")
-
-  if(sizeBase == 0.6){
-    xpos = c(0.25, 0.5, 0.75, 1) - 0.05
-    ypos = c(0.5, 0.5, 0.5, 0.5)
-    xsize = 0.03
-    xoffset = 0.03
-    ysize = 0.2
-  } else {
-    xpos = c(0.5, 1, 0.5, 1) - 0.2
-    ypos = c(0.3, 0.3, 0.7, 0.7)
-    xsize = 0.03
-    xoffset = 0.03
-    ysize = 0.13
-  }
-  label = c("Grade 1", "Grade 2", "Grade 3", "Grade 4 or 5")
-
-  for(i in 1:4){
-    text(xpos[i]-xoffset, ypos[i],labels=label[i],pos=2)
-    polygon(xpos[i]+xsize*c(-1,-1,1,1),ypos[i]+ysize*c(-1,1,1,-1),col=cols[i],border=cols[i])
-  }
-
-  close.screen(all.screens = TRUE)
-
-  return(max(cleanDataSub$gid))
 }
