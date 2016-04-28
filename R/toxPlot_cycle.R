@@ -4,23 +4,14 @@
     stop("toxDB must be of class robustToxicities")
   }
 
-  # subset to specific patient if required
+  # subset to specific stuff if required
   cleanDataSub = toxDB@cleanData[toxDB@cleanData$ass_TRUE == TRUE, ]
 
-
-
-
-  if (length(patients)) {
-    cleanDataSub = cleanDataSub[cleanDataSub$patid %in% patients, ]
-  }
 
   names_cycle = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "occur_in_cycle_")]
   names_present = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "present_in_cycle_")]
   names_cycle_stub = as.numeric(sub("occur_in_cycle_", "", names_cycle))
 
-
-
-  cleanDataSub             = cleanDataSub[cleanDataSub$ae_grade > 0, ]
   cleanDataSub$rel_start   = apply(cleanDataSub[,names_cycle], 1, function(x) min(which(x > 0)) - 1)
   cleanDataSub$rel_end     = apply(cleanDataSub[,names_cycle], 1, function(x) max(which(x > 0)))
   cleanDataSub$rel_ent_trt = apply(cleanDataSub[,names_present], 1, function(x) max(which(x > 0)))
@@ -43,7 +34,9 @@ print(cleanDataSub[,c("patid",names_present)])
   cols = c("#00CC00","#FF9900","red","black","black")
   cleanDataSub$col = ""
   for (i in 1:length(cleanDataSub$col)) {
-    cleanDataSub$col[i]=cols[cleanDataSub$ae_grade[i]]
+    if(cleanDataSub$ae_grade[i] > 0){
+      cleanDataSub$col[i]=cols[cleanDataSub$ae_grade[i]]
+    }
   }
 
 
@@ -111,7 +104,7 @@ print(cleanDataSub[,c("patid",names_present)])
   }
 
   for (i in 1:dim(cleanDataSub)[1]) {
-    if(!is.na(cleanDataSub$rel_start[i]) & !is.na(cleanDataSub$rel_end[i])) {
+    if(!is.na(cleanDataSub$rel_start[i]) & !is.na(cleanDataSub$rel_end[i]) & cleanDataSub$col[i] !="") {
       polygon(c(cleanDataSub$rel_start[i],cleanDataSub$rel_start[i],cleanDataSub$rel_end[i],cleanDataSub$rel_end[i]),cleanDataSub$gid[i]+c(-ud,ud,ud,-ud),col = max(cleanDataSub$col[cleanDataSub$gid == cleanDataSub$gid[i]]),border = max(cleanDataSub$col[cleanDataSub$gid == cleanDataSub$gid[i]]))
     }
     segments(cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]-0.5,cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]+0.5,lwd=3,col=1)

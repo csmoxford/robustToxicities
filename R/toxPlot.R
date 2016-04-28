@@ -16,7 +16,7 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
   if(toxDB@options@timeType == "time") {
     .toxPlot_time(toxDB, rowID_range, plot)
   } else if(toxDB@options@timeType == "cycle") {
-
+    .toxPlot_cycle(toxDB, rowID_range, plot)
   } else {
     stop("time type must be one of 'time' or 'cycle'")
   }

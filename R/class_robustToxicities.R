@@ -42,10 +42,6 @@
     return(paste0("Number of treatments is fewer than the highest value in cleanData$treatment"))
   }
 
-  if (sum(object@cleanData$ass_TRUE) == 0) {
-    return(paste0("cleanData$ass_TRUE cannot all be zero / FALSE"))
-  }
-
   return(TRUE)
 })
 
@@ -78,10 +74,9 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   }
 
   ################################################################################
-  # warn about missing ass_TRUE
+  # add ass_TRUE if missing
   if(!"ass_TRUE" %in% name){
     cleanData$ass_TRUE = TRUE
-    message("ass_TRUE not in database assume true for all entries (note this is used for patients with no toxicities and subsetting data)")
   }
 
   ################################################################################
@@ -243,18 +238,20 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   msg = paste("Number of patients:", length(unique(cleanData$patid)), "in the provided database")
   queries = query(cleanData, i, msg, "Affirmation",notes ,TRUE)
 
-  noToxicities = 0
   for (i in 1:dm[1]) {
-    if (!cleanData$ass_TRUE[i]) {
-      # toxicity free patient counter
-      if (sum(cleanData$patid == cleanData$patid[i]) == 1 & (cleanData$ae_term[i] == "" | is.na(cleanData$ae_term[i]))) {
-        noToxicities = noToxicities + 1
-        cleanData$ae_grade[i] = 0
-        cleanData$ae_term[i] = ""
-        cleanData$ae_start_date[i] = 0
-      }
+    if (is.na(cleanData$ae_grade[i])) {
+      cleanData$ae_grade[i] = 0
     }
   }
+
+  pats = c()
+  for (i in 1:dm[1]) {
+    if (cleanData$ae_grade[i] == 0) {
+      pats = append(pats, cleanData$patid[i])
+    }
+  }
+  noToxicities = length(unique(pats))
+
   # number of patients without toxicities
   if (noToxicities > 0) {
     msg = paste("There were", noToxicities, "patients with no eligible toxicities")
@@ -308,18 +305,16 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   ############################################################################################
   # set ctcae grade to zero if missing
   for (i in 1:dm[1]) {
-    if (cleanData$ass_TRUE[i]) {
-      if (is.na(cleanData$ae_grade[i])) {
-        msg = paste("Patient", cleanData$patid[i], "is missing toxicity grade for",cleanData$ae_term[i] , "line", i, "(currently set to zero)")
-        queries = query(cleanData, i, msg, "Missing data",notes)
-      }
+    if (is.na(cleanData$ae_grade[i])) {
+      msg = paste("Patient", cleanData$patid[i], "is missing toxicity grade for",cleanData$ae_term[i] , "line", i, "(currently set to zero)")
+      queries = query(cleanData, i, msg, "Missing data",notes)
     }
   }
 
   ############################################################################################
   # missing ae_term
   for (i in 1:dm[1]) {
-    if (cleanData$ass_TRUE[i]) {
+    if (cleanData$ae_grade[i] > 0) {
       if (is.na(cleanData$ae_term[i])) {
         msg = paste("Patient", cleanData$patid[i], "is missing ae_term (toxicity term), line", i)
         queries = query(cleanData, i, msg, "Missing data",notes)
@@ -330,7 +325,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   ############################################################################################
   # missing ae_system
   for (i in 1:dm[1]) {
-    if (cleanData$ass_TRUE[i]) {
+    if (cleanData$ae_grade[i] > 0) {
       if (is.na(cleanData$ae_system[i])) {
         msg = paste("Patient", cleanData$patid[i], "is missing ae_system (ctcae category), line", i)
         queries = query(cleanData, i, msg, "Missing data",notes)
@@ -383,7 +378,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     ############################################################################################
     # If baseline toxicity without start date assign registration date -7. Tell user.
     for(i in 1:dm[1]){
-      if(cleanData$ass_TRUE[i]){
+      if(cleanData$ae_grade[i] > 0){
         if(is.na(cleanData$ae_start_date[i])){
           msg = paste("Patient", cleanData$patid[i], "is missing the date of start of toxicity for:", cleanData$ae_term[i], "line", i, "(setting to 7 days prior to earlist known date)")
           queries = query(cleanData, i, msg, "Missing data",notes)
@@ -424,7 +419,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     noEndTreatment=0
     noEndTreatmentPatid=c()
     for(i in 1:dm[1]){
-      if(cleanData$ass_TRUE[i]){
+      if(cleanData$ae_grade[i] > 0){
         if(is.na(cleanData$date_stopped_treatment[i])){
           if(!cleanData$patid[i] %in% noEndTreatmentPatid){
             noEndTreatmentPatid = c(noEndTreatmentPatid, cleanData$patid[i])
@@ -441,7 +436,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     ############################################################################################
     # if missing end date and continuing at end of study assign end of treatment date + 30
     for(i in 1:dm[1]){
-      if(cleanData$ass_TRUE[i]){
+      if(cleanData$ae_grade[i] > 0){
         if(cleanData$ae_cont_end_study[i]=="yes" & is.na(cleanData$ae_end_date[i])){
           if(!is.na(cleanData$date_stopped_treatment[i])){
             cleanData$ae_end_date[i]=cleanData$date_stopped_treatment[i] + 30
@@ -469,7 +464,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     ############################################################################################
     # Missing ae_end_date
     for(i in 1:dm[1]){
-      if(cleanData$ass_TRUE[i]){
+      if(cleanData$ae_grade[i] > 0){
         if(cleanData$ae_cont_end_study[i]=="no" & is.na(cleanData$ae_end_date[i])){
           msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "is missing the date_stopped_treatment (setting ae_end_date to a large value)")
           queries = query(cleanData, i, msg, "Missing data",notes)
@@ -486,7 +481,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
       occur=paste0("occur_in_cycle_",names_cycle_stub[j])
       cleanData[,occur]=0
       for (i in 1:dm[1]) {
-        if (cleanData$ass_TRUE[i]) {
+        if (cleanData$ae_grade[i] > 0) {
           if (!is.na(cleanData[i,c_sd]) & !is.na(cleanData[i,c_ed])) {
             if (cleanData[i,c_sd] <= cleanData$ae_start_date[i] & cleanData$ae_start_date[i] < cleanData[i,c_ed] |
                 cleanData[i,c_sd]<=cleanData$ae_end_date[i]   & cleanData$ae_end_date[i]<cleanData[i,c_ed]   |

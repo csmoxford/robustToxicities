@@ -7,8 +7,9 @@
 nameDatabase(data, patid = NULL, treatment = NULL, ae_term = NULL,
   ae_system = NULL, ae_grade = NULL, ae_start_date = NULL,
   ae_end_date = NULL, ae_cont_end_study = NULL,
-  date_stopped_treatment = NULL, dateColumnNames = NULL,
-  patientInCycle = NULL, occurInCycle = NULL, ass_TRUE = NULL)
+  date_stopped_treatment = NULL, date_end_assessment = NULL,
+  dateColumnNames = NULL, patientInCycle = NULL, occurInCycle = NULL,
+  ass_TRUE = NULL)
 }
 \arguments{
 \item{data}{The toxicity database}
@@ -30,6 +31,8 @@ nameDatabase(data, patid = NULL, treatment = NULL, ae_term = NULL,
 \item{ae_cont_end_study}{Was the adverse event coninuing at the end of the study (time based only)}
 
 \item{date_stopped_treatment}{Date the patients stopped treatment (time based only)}
+
+\item{date_end_assessment}{Date the patients stop being assessed for toxicity (time based only)}
 
 \item{dateColumnNames}{The start date of each cycle / time period (time based only)}
 

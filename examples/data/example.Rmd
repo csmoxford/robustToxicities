@@ -1,7 +1,10 @@
 ---
-output: word_document
-Author: Peter Dutton
-Title: robustToxicities Example
+Author: "Peter Dutton"
+Title: "robustToxicities Example"
+output:
+  word_document:
+    fig_width: 12
+    fig_height: 9
 ---
 
 # robustToxicities Example
@@ -174,6 +177,6 @@ toxDB@options@plotCycleLength = 7
 toxDB@options@plotxMin = -21
 toxDB@options@plotxMax = 70
 toxDB@options@plotLeftSideOption = "both"
-toxPlot_time(toxDB)
+toxPlot(toxDB)
 ```
 
