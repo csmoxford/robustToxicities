@@ -1,4 +1,15 @@
 
+#' Toxixicity plot output to png and pdf
+#'
+#' This function acts as a wrapper to output png and pdf plots for toxPlot.
+#'
+#'
+#' @param toxDB The robustToxicities object to plot
+#' @param pageLimit The max number of row to add per page
+#' @param type One of "pdf" or "png"
+#' @param width The width of the plot output. It is recommended to use 9 for pdf and 1100 for png
+#' @param height The height of the plot output. If se to NULL this is automatically calculated based on the pageSize.
+#'
 #' @export toxPlot_output
 
 toxPlot_output = function(toxDB, pageLimit = 20, type = "pdf", width = 9, height = NULL) {
