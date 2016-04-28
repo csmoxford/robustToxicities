@@ -15,13 +15,14 @@
 #' @param ae_cont_end_study Was the adverse event coninuing at the end of the study (time based only)
 #' @param dateColumnNames The start date of each cycle / time period (time based only)
 #' @param date_stopped_treatment Date the patients stopped treatment (time based only)
+#' @param date_end_assessment Date the patients stop being assessed for toxicity (time based only)
 #' @param patientInCycle Was a patient enrolled for this cycle / time period (cycle based, can be auto genrated for time based data)
 #' @param occurInCycle Was the toxicity present for this cycle / time period (cycle based, can be auto genrated for time based data)
 #' @param ass_TRUE An indicator to determine if the toxicity should be counted in the analysis
 
 #' @export nameDatabase
 
-nameDatabase = function (data, patid = NULL, treatment = NULL, ae_term = NULL, ae_system = NULL, ae_grade = NULL, ae_start_date = NULL, ae_end_date = NULL, ae_cont_end_study = NULL, date_stopped_treatment = NULL, dateColumnNames = NULL, patientInCycle = NULL, occurInCycle = NULL, ass_TRUE = NULL) {
+nameDatabase = function (data, patid = NULL, treatment = NULL, ae_term = NULL, ae_system = NULL, ae_grade = NULL, ae_start_date = NULL, ae_end_date = NULL, ae_cont_end_study = NULL, date_stopped_treatment = NULL, date_end_assessment = NULL, dateColumnNames = NULL, patientInCycle = NULL, occurInCycle = NULL, ass_TRUE = NULL) {
 
 
   if(!is.null(patid)){
@@ -90,6 +91,11 @@ nameDatabase = function (data, patid = NULL, treatment = NULL, ae_term = NULL, a
     colnames(data)[id] = "date_stopped_treatment"
   }
 
+  if(!is.null(date_end_assessment)){
+    id=which(colnames(data) == date_end_assessment)
+    colnames(data)[id] = "date_end_assessment"
+  }
+
   if(!is.null(ass_TRUE)){
     id=which(colnames(data) == ass_TRUE)
     colnames(data)[id] = "ass_TRUE"
@@ -99,9 +105,3 @@ nameDatabase = function (data, patid = NULL, treatment = NULL, ae_term = NULL, a
 
   return(data)
 }
-
-#names(data)
-
-#dta=nameDatabase(data, ae_grade = "ae_ctcae_grade", dateColumnNames = c("registration_date", "cycle_start_date1", "cycle_start_date2", "cycle_start_date3"))
-
-#names(dta)

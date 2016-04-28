@@ -24,7 +24,7 @@
                       paste0("cycle_start_date_",1:length(object@cycleLabels)),
                       paste0("occur_in_cycle_",1:length(object@cycleLabels)),
                       paste0("present_in_cycle_",1:length(object@cycleLabels)),
-                      "date_stopped_treatment", "ass_TRUE")
+                      "date_stopped_treatment", "date_end_assessment", "ass_TRUE")
   } else if (object@options@timeType == "cycle") {
     required_list = c("patid", "treatment", "ae_term", "ae_system", "ae_grade",
                       paste0("occur_in_cycle_",1:length(object@cycleLabels)),
@@ -452,10 +452,16 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
             queries = query(cleanData, i, msg, "Missing data",notes)
             cleanData$ae_end_date[i]=30000
           }
-        } else if(is.na(cleanData$ae_end_date[i])){
-          msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "has no end date for toxicity (setting ae_end_date to a large value)")
-          queries = query(cleanData, i, msg, "Missing data",notes)
-          cleanData$ae_end_date[i] = 30000
+        } else if (is.na(cleanData$ae_end_date[i])) {
+          if (cleanData$ae_cont_end_study[i]) {
+            msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "was continuing at end of study, setting this value to date_end_assessment")
+            queries = query(cleanData, i, msg, "Note",notes)
+            cleanData$ae_end_date[i] = cleanData$date_end_assessment[i]
+          } else {
+            msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "was missing end date but not continueing at end of study, setting to a large value")
+            queries = query(cleanData, i, msg, "Missing data",notes)
+            cleanData$ae_end_date[i] = 30000
+          }
         }
       }
     }

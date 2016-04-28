@@ -1,18 +1,4 @@
-#' Plot toxicities by cycle
-#'
-#' This function plots all the toxicities provided over time
-#'
-#' @param toxDB an object of class robustToxicities
-#' @param patients Build in patient subsetting by a list if not ""
-#' @param plot TRUE/FALSE plot the graph.
-#'
-#'
-#' @return
-#' This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
-
-#' @export toxPlot_cycle
-
-toxPlot_cycle = function(toxDB, patients = character(0), plot=TRUE) {
+.toxPlot_cycle = function(toxDB, rowID_range = NULL, plot = TRUE) {
 
   if (class(toxDB) != "robustToxicities") {
     stop("toxDB must be of class robustToxicities")
@@ -62,7 +48,12 @@ print(cleanDataSub[,c("patid",names_present)])
 
 
   xlim = c(toxDB@options@plotxMin, toxDB@options@plotxMax)
-  ylim = c(0.5, max(cleanDataSub$gid) + 0.5)
+  # set limit based on rowID_range
+  if(!is.null(rowID_range)){
+    ylim = c(rowID_range[1] - 0.5, rowID_range[2] + 0.5)
+  } else {
+    ylim = c(0.5, max(cleanDataSub$gid) + 0.5)
+  }
 
   ##############################################################
   # get plot region size and split-screen
@@ -86,7 +77,7 @@ print(cleanDataSub[,c("patid",names_present)])
 
 
   axis(1, labels = toxDB@cycleLabels, at = 1:length(toxDB@cycleLabels)-0.5, pos = ylim[1])
-  abline(v = -10:100*7, lty = 2, col = "lightgrey")
+  abline(v = -10:100, lty = 2, col = "lightgrey")
   abline(h = 1:1000-0.5, lty = 2, col = "lightgrey", lwd = 0.5)
   if (toxDB@options@plotCycleLength > 0) {
     abline(v = 0:toxDB@options@plotCycles * toxDB@options@plotCycleLength, col="grey")
@@ -115,11 +106,13 @@ print(cleanDataSub[,c("patid",names_present)])
   ## add toxicities
   ud = 0.3 # up down size of polygons 0.5 would fill the rows
 
+  if(!is.null(rowID_range)){
+    cleanDataSub = cleanDataSub[cleanDataSub$gid %in% rowID_range[1]:rowID_range[2],]
+  }
 
-
-  for (i in 1:length(cleanDataSub$col)) {
+  for (i in 1:dim(cleanDataSub)[1]) {
     if(!is.na(cleanDataSub$rel_start[i]) & !is.na(cleanDataSub$rel_end[i])) {
-      polygon(c(cleanDataSub$rel_start[i],cleanDataSub$rel_start[i],cleanDataSub$rel_end[i],cleanDataSub$rel_end[i]),cleanDataSub$gid[i]+c(-ud,ud,ud,-ud),col = max(cleanDataSub$col[cleanDataSub$gid == cleanDataSub$gid[i]]))
+      polygon(c(cleanDataSub$rel_start[i],cleanDataSub$rel_start[i],cleanDataSub$rel_end[i],cleanDataSub$rel_end[i]),cleanDataSub$gid[i]+c(-ud,ud,ud,-ud),col = max(cleanDataSub$col[cleanDataSub$gid == cleanDataSub$gid[i]]),border = max(cleanDataSub$col[cleanDataSub$gid == cleanDataSub$gid[i]]))
     }
     segments(cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]-0.5,cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]+0.5,lwd=3,col=1)
   }

@@ -1,18 +1,30 @@
-#' Plot toxicities over time
+#' Plot toxicities
 #'
 #' This function plots all the toxicities provided over time
 #'
 #' @param toxDB an object of class robustToxicities
-#' @param patients Build in patient subsetting by a list if not ""
-#' @param plot TRUE/FALSE plot the graph.
-#'
+#' @param rowID_range optional, a length 2 vector detailing the minimum and maximum row to plot
+#' @param plot whether to plot the graph or return the number of rows to plot
 #'
 #' @return
 #' This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
 
-#' @export toxPlot_time
+#' @export toxPlot
 
-toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
+toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
+
+  if(toxDB@options@timeType == "time") {
+    .toxPlot_time(toxDB, rowID_range, plot)
+  } else if(toxDB@options@timeType == "cycle") {
+
+  } else {
+    stop("time type must be one of 'time' or 'cycle'")
+  }
+
+}
+
+
+.toxPlot_time = function(toxDB, rowID_range = NULL, plot = TRUE) {
   # subset to specific patient if required
   cleanDataSub = toxDB@cleanData[toxDB@cleanData$ass_TRUE == TRUE, ]
 
@@ -21,42 +33,46 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
     stop("toxDB must be of class robustToxicities")
   }
 
-  if (length(patients)) {
-    cleanDataSub = cleanDataSub[cleanDataSub$patid %in% patients, ]
-  }
-
-  cleanDataSub = cleanDataSub[cleanDataSub$ae_grade>0,]
-
   ####################################################################
   ## Convert dates to relative to start of treatment date
   cleanDataSub$rel_start   = cleanDataSub$ae_start_date - cleanDataSub[,toxDB@options@plotStartTreatment]
   cleanDataSub$rel_end     = cleanDataSub$ae_end_date   - cleanDataSub[,toxDB@options@plotStartTreatment]
   cleanDataSub$rel_ent_trt = cleanDataSub$date_stopped_treatment  - cleanDataSub[,toxDB@options@plotStartTreatment]
+  cleanDataSub$rel_end_assessment = cleanDataSub$date_end_assessment - cleanDataSub[,toxDB@options@plotStartTreatment]
 
   cleanDataSub = cleanDataSub[order(cleanDataSub$treatment,cleanDataSub$patid,cleanDataSub$ass_category,cleanDataSub$ass_toxicity_disp,cleanDataSub$ae_start_date),]
   un = unique(cleanDataSub[, c("patid", "ass_category", "ass_toxicity_disp")])
 
+  # give each item a row id for all common toxicities
   cleanDataSub$gid = 0
   for (i in 1:length(cleanDataSub$gid)) {
     st = which(cleanDataSub$patid[i]==un$patid & cleanDataSub$ass_category[i]==un$ass_category & cleanDataSub$ass_toxicity_disp[i]==un$ass_toxicity_disp)
     cleanDataSub$gid[i]=which(cleanDataSub$patid[i]==un$patid & cleanDataSub$ass_category[i]==un$ass_category & cleanDataSub$ass_toxicity_disp[i]==un$ass_toxicity_disp)
   }
 
-  if (!plot) {
-    return(max(cleanDataSub$gid[i]))
+  if(!plot) {
+    return(max(cleanDataSub$gid))
   }
-
+  #####################################################################
 
   # colouring
   cols = c("#00CC00","#FF9900","red","black","black")
   cleanDataSub$col = ""
   for (i in 1:length(cleanDataSub$col)) {
-    cleanDataSub$col[i]=cols[cleanDataSub$ae_grade[i]]
+    if (cleanDataSub$ae_grade[i]>0) {
+      cleanDataSub$col[i] = cols[cleanDataSub$ae_grade[i]]
+    }
   }
 
 
   xlim = c(toxDB@options@plotxMin, toxDB@options@plotxMax)
-  ylim = c(0.5, max(cleanDataSub$gid) + 0.5)
+  # set limit based on rowID_range
+  if(!is.null(rowID_range)){
+    ylim = c(rowID_range[1] - 0.5, rowID_range[2] + 0.5)
+  } else {
+    ylim = c(0.5, max(cleanDataSub$gid) + 0.5)
+  }
+
 
   ##############################################################
   # get plot region size and split-screen
@@ -65,8 +81,11 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   sizeBase = ifelse(size[1] < 9, 1, 0.6)
   ratioBase = sizeBase/size[2]
   par(mar=c(3.5,3,0.75,0.75))
-  split.screen(figs = matrix(c(0,1,ratioBase,1,
-                               0,1,0,ratioBase),ncol=4, byrow =TRUE))
+  split.screen(
+    figs = matrix(c(
+      0,1,ratioBase,1,
+      0,1,0,ratioBase
+    ),ncol=4, byrow =TRUE))
 
 
 
@@ -103,21 +122,27 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
   abline(h = a,lwd = 2, col = "grey")
   abline(h = b,lwd = 2)
 
-
-
-
   #########################################################
   ## add toxicities
   ud = 0.3 # up down size of polygons 0.5 would fill the rows
 
-  for (i in 1:length(cleanDataSub$col)) {
-    if(!is.na(cleanDataSub$rel_start[i])) {
+  if(!is.null(rowID_range)){
+    cleanDataSub = cleanDataSub[cleanDataSub$gid %in% rowID_range[1]:rowID_range[2],]
+  }
+
+  for (i in 1:dim(cleanDataSub)[1]) {
+    if(!is.na(cleanDataSub$rel_start[i]) & cleanDataSub$col[i] != "") {
       if (cleanDataSub$rel_end[i]-cleanDataSub$rel_start[i]<1) {
         points(cleanDataSub$rel_start[i],cleanDataSub$gid[i],pch=19,col=cleanDataSub$col[i],cex=2.5)
       } else {
         polygon(c(cleanDataSub$rel_start[i],cleanDataSub$rel_start[i],cleanDataSub$rel_end[i],cleanDataSub$rel_end[i]),cleanDataSub$gid[i]+c(-ud,ud,ud,-ud),col=cleanDataSub$col[i],border =cleanDataSub$col[i])
       }
+
+      # end of assessment vertical line
+      segments(cleanDataSub$rel_end_assessment[i],cleanDataSub$gid[i]-0.5,cleanDataSub$rel_end_assessment[i],cleanDataSub$gid[i]+0.5,lwd=3,col="grey")
+      # end of treatment vertical line
       segments(cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]-0.5,cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]+0.5,lwd=3,col=1)
+
     }
   }
 
@@ -168,5 +193,4 @@ toxPlot_time = function(toxDB, patients = character(0), plot=TRUE) {
 
   close.screen(all.screens = TRUE)
 
-  return(max(cleanDataSub$gid))
 }

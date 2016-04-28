@@ -34,6 +34,7 @@ data = nameDatabase(
   ae_end_date = "ae_resolve_date",
   ae_cont_end_study = "ae_cont_end",
   date_stopped_treatment = "end_of_treatment_date",
+  date_end_assessment = "end_of_assessment_date",
   dateColumnNames = c("Registration_date", "Randomisation_date", "Cycle_1_date", "Cycle_2_date", "Cycle_3_date", "Cycle_4_date", "Cycle_5_date", "Cycle_6_date")
 )
 ```
