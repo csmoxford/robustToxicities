@@ -255,13 +255,13 @@ toxDB = robustToxicities(data, cycleLabels, options, treatmentLabels)
 
 The table outputs rely on identical code for both time and cycle based data. This is because for time based data the `patientInCycle` and `occurInCycle` columns are generated from the date data. The plots do have independent code but share plot options.
 
-```{r, results = "asis", fig.width = 9, fig.height = 4}
+```{r, results = "asis", fig.width = 9, fig.height = 6}
 
-print("## Toxicity summary")
+cat("\n\n## Toxicity summary")
 kable(print_toxTable_summary(toxDB))
 
 for(i in 1:length(toxDB@cycleLabels)) {
-  print(paste0("## ",toxDB@cycleLabels[i]))
+  cat(paste0("\n\n## ",toxDB@cycleLabels[i]))
   print(kable(print_toxTable_cycle(toxDB, cycles = i)))
   
 }
@@ -270,5 +270,5 @@ toxDB@options@plotxMin = 0
 toxDB@options@plotxMax = 10
 toxDB@options@plotCycles = 0
 toxDB@options@plotLeftSideOption = "both"
-# toxPlot(toxDB)
+toxPlot(toxDB)
 ```
