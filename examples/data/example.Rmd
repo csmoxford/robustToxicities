@@ -166,7 +166,7 @@ kable(print_toxTable_cycle(toxDB, cycles = "all"))
 
 To output to latex simply change the printMethod to latex
 
-```{r, message = FALSE, results = "asis"}
+```{r, message = FALSE}
 print_toxTable_summary(toxDB, printMethod = "latex")
 ```
 
@@ -190,9 +190,9 @@ Toxicity data may require a large number of rows. For this reason it may be impr
 ```{r, fig.width = 9, fig.height = 4}
 toxPlot(toxDB,plot = FALSE)
 
-toxPlot(toxDB, rowID_range = c(1,8))
+toxPlot(toxDB, rowID_range = c(1,7))
 
-toxPlot(toxDB, rowID_range = c(9,16))
+toxPlot(toxDB, rowID_range = c(8,16))
 ```
 
 
