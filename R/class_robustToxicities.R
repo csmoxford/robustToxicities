@@ -116,7 +116,6 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   if(sum(is.na(cleanData$treatment))){
     stop("There must be no missing treatment allocations")
   }
-  print(cleanData$treatment)
 
   ################################################################################
   # time data only checks

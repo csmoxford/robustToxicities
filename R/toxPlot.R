@@ -26,7 +26,7 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
   if(toxDB@options@timeType == "time") {
     val = .toxPlot_time(toxDB,cleanDataSub, rowID_range, plot, cols = cols)
   } else if(toxDB@options@timeType == "cycle") {
-    val = .toxPlot_cycle(toxDB, rowID_range, plot, cols = cols)
+    val = .toxPlot_cycle(toxDB,cleanDataSub, rowID_range, plot, cols = cols)
   } else {
     stop("time type must be one of 'time' or 'cycle'")
   }
@@ -205,10 +205,10 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
   names_cycle = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "occur_in_cycle_")]
   names_present = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "present_in_cycle_")]
   names_cycle_stub = as.numeric(sub("occur_in_cycle_", "", names_cycle))
+  xoffset = which(toxDB@options@plotStartTreatment == names_present)
 
-  cleanDataSub$rel_start   = apply(cleanDataSub[,names_cycle], 1, function(x) min(which(x > 0)) - 1)
-  cleanDataSub$rel_end     = apply(cleanDataSub[,names_cycle], 1, function(x) max(which(x > 0)))
-  cleanDataSub$rel_ent_trt = apply(cleanDataSub[,names_present], 1, function(x) max(which(x > 0)))
+
+  cleanDataSub$rel_ent_trt = apply(cleanDataSub[,names_present], 1, function(x) min(which(!x),100000) - 1)
   cleanDataSub = cleanDataSub[order(cleanDataSub$treatment,cleanDataSub$patid,cleanDataSub$ass_category,cleanDataSub$ass_toxicity_disp,cleanDataSub$ae_start_date),]
   un = unique(cleanDataSub[, c("patid", "ass_category", "ass_toxicity_disp")])
 
@@ -225,15 +225,6 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
   # reduce to only the rows needed this time
   if(!is.null(rowID_range)){
     cleanDataSub = cleanDataSub[cleanDataSub$gid %in% rowID_range[1]:rowID_range[2],]
-  }
-
-  ######################################################
-  # colouring
-  cleanDataSub$col = ""
-  for (i in 1:length(cleanDataSub$col)) {
-    if(cleanDataSub$ae_grade[i] > 0){
-      cleanDataSub$col[i]=cols[cleanDataSub$ae_grade[i]]
-    }
   }
 
   xlim = c(toxDB@options@plotxMin, toxDB@options@plotxMax)
@@ -291,9 +282,15 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
 
 
   for (i in 1:dim(cleanDataSub)[1]) {
-    if(!is.na(cleanDataSub$rel_start[i]) & !is.na(cleanDataSub$rel_end[i]) & cleanDataSub$col[i] !="") {
-      polygon(c(cleanDataSub$rel_start[i],cleanDataSub$rel_start[i],cleanDataSub$rel_end[i],cleanDataSub$rel_end[i]),cleanDataSub$gid[i]+c(-ud,ud,ud,-ud),col = max(cleanDataSub$col[cleanDataSub$gid == cleanDataSub$gid[i]]),border = max(cleanDataSub$col[cleanDataSub$gid == cleanDataSub$gid[i]]))
+
+    for(visit in 1:length(names_cycle))
+
+      if(cleanDataSub[i,names_cycle[visit]] > 0) {
+        color = cols[cleanDataSub[i,names_cycle[visit]]]
+
+        polygon(c(visit-1,visit-1,visit,visit),cleanDataSub$gid[i]+c(-ud,ud,ud,-ud), col = color, border = color)
     }
+
     segments(cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]-0.5,cleanDataSub$rel_ent_trt[i],cleanDataSub$gid[i]+0.5,lwd=3,col=1)
   }
 
