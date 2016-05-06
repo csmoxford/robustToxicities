@@ -17,11 +17,17 @@ We use the `knitr` package to format our tables in markdown. The `knitr` package
 
 # Setup
 
-Lets load packages we will be using today. knitr is available on CRAN and you can install robustToxicities from github directly: `devtools::install_github("finite2/robustToxicities")`. Note than you may need to install the devtools package first. We then load the example data and have a look.
+Lets load packages we will be using today:
+
+1. If necessary install devtools from CRAN `install.packages('devtools')`. This allows you to install pacakges from non-CRAN sources such as github.
+2. Install the pachage from github `devtools::install_github("finite2/robustToxicities")`.
+3. load the packages we will be using, robustToxicities `library(robustToxicities)` and knitr `library(knitr)` (to install from CRAN `install.packages('knitr')`).
+
 
 ```{r, warning = FALSE}
+devtools::install_github("finite2/robustToxicities")
 library(robustToxicities)
-library(knitr)
+library(knitr) # for outputting tables to word or latex
 ```
 
 # Time based data example
@@ -29,7 +35,12 @@ library(knitr)
 The following example is based on time data. The data set consists of toxicities with a start and stop date. Further information is provided about the cycle or time period start dates. This means tables can be produced by cycle and graphs can be produced using the toxicity durations.
 
 ```{r, warning = FALSE}
-data = read.csv("Fake_data_time.csv", stringsAsFactors = FALSE)
+## The standard way to read in data
+## data = read.csv("data.csv", stringsAsFactors = FALSE)
+
+# Data from this pacakge
+data(toxicityDataTime)
+data = toxicityDataTime
 str(data, vec.len = 2)
 ```
 
