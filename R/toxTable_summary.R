@@ -2,14 +2,6 @@
 
 .toxTable_summary = function(toxDB) {
 
-  ################################################################################
-  # checks and balances
-  if (class(toxDB) != "robustToxicities") {
-    stop("toxDB must be of class toxDB")
-  }
-
-
-
   no_cycles = sum(str_detect(names(toxDB@cleanData), "present_in_cycle_"))
   names_cycle = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "present_in_cycle_")]
 
@@ -18,7 +10,7 @@
   # create table to populate
   toxTable = data.frame(cycle.number = cycle.lists, stringsAsFactors = FALSE)
   # for each treatment generate space to count these.
-  treats = unique(toxDB@cleanData$treatment)
+  treats = sort(unique(toxDB@cleanData$treatment))
   for (treatment in treats) {
     toxTable[paste0("tox.", treatment,".total", sep = "")]= 0
     toxTable[paste0("tox.", treatment,".0", sep = "")]= 0

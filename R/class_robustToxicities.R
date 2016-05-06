@@ -19,14 +19,14 @@
   cnames = colnames(object@cleanData)
 
   if (object@options@timeType == "time") {
-    required_list = c("patid", "treatment", "ae_term", "ae_system", "ae_grade",
+    required_list = c("patid", "treatment", "ae_term", "ae_system",
                       "ae_start_date", "ae_end_date", "ae_cont_end_study",
                       paste0("cycle_start_date_",1:length(object@cycleLabels)),
                       paste0("occur_in_cycle_",1:length(object@cycleLabels)),
                       paste0("present_in_cycle_",1:length(object@cycleLabels)),
                       "date_stopped_treatment", "date_end_assessment", "ass_TRUE")
   } else if (object@options@timeType == "cycle") {
-    required_list = c("patid", "treatment", "ae_term", "ae_system", "ae_grade",
+    required_list = c("patid", "treatment", "ae_term", "ae_system",
                       paste0("occur_in_cycle_",1:length(object@cycleLabels)),
                       paste0("present_in_cycle_",1:length(object@cycleLabels)),
                       "ass_TRUE")

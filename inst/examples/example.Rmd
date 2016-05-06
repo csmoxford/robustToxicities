@@ -24,7 +24,7 @@ Lets load packages we will be using today:
 3. load the packages we will be using, robustToxicities `library(robustToxicities)` and knitr `library(knitr)` (to install from CRAN `install.packages('knitr')`).
 
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, message = FALSE}
 devtools::install_github("finite2/robustToxicities")
 library(robustToxicities)
 library(knitr) # for outputting tables to word or latex
@@ -244,9 +244,11 @@ For cycle based data slightly different data is required. The data should be in 
 Because some of the names are already correct we don't need `nameDatabase` to rename these for us.
 
 ```{r}
-data = read.csv(file = "fake_data_cycle.csv")
+data(toxicityDataCycle)
+str(data)
+
 data = nameDatabase(
-  data,
+  data = toxicityDataCycle,
   ae_term = "toxicity",
   ae_system = "category",
   ae_grade = "grade",

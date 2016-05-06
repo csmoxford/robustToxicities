@@ -9,7 +9,7 @@
 #' @param treatment Treatment arms
 #' @param ae_term The adverse event name / term
 #' @param ae_system The adverse event system
-#' @param ae_grade The adverse event grade
+#' @param ae_grade The adverse event grade (time based only)
 #' @param ae_start_date The adverse event start date (time based only)
 #' @param ae_end_date The adverse event end date (time based only)
 #' @param ae_cont_end_study Was the adverse event coninuing at the end of the study (time based only)
