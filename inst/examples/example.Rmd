@@ -251,7 +251,6 @@ data = nameDatabase(
   data = toxicityDataCycle,
   ae_term = "toxicity",
   ae_system = "category",
-  ae_grade = "grade",
   patientInCycle = c("active_registration", "active_randomisation", "active_cycle_1", "active_cycle_2", "active_cycle_3", "active_cycle_4", "active_cycle_5", "active_cycle_6", "active_end_cycle_6", "active_post_treatment"),
   occurInCycle = c("tox_registration", "tox_randomisation", "tox_cycle_1", "tox_cycle_2", "tox_cycle_3", "tox_cycle_4", "tox_cycle_5", "tox_cycle_6", "tox_end_cycle_6", "tox_post_treatment")
 )

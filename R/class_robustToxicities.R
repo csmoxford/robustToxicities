@@ -19,7 +19,7 @@
   cnames = colnames(object@cleanData)
 
   if (object@options@timeType == "time") {
-    required_list = c("patid", "treatment", "ae_term", "ae_system",
+    required_list = c("patid", "treatment", "ae_term", "ae_system", "ae_grade",
                       "ae_start_date", "ae_end_date", "ae_cont_end_study",
                       paste0("cycle_start_date_",1:length(object@cycleLabels)),
                       paste0("occur_in_cycle_",1:length(object@cycleLabels)),
@@ -62,7 +62,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
 
   ################################################################################
   # Check fields are provided (all need these fields)
-  requiredData = c("patid", "ae_term", "ae_system", "ae_grade")
+  requiredData = c("patid", "ae_term", "ae_system")
   name = names(cleanData)
   # generic names
   stp = 0
@@ -233,29 +233,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   # set the data to cleanData keeping copy of the original!!
   # get the dimention for reference
 
-  ################################################################################
-  msg = paste("Number of patients:", length(unique(cleanData$patid)), "in the provided database")
-  queries = query(cleanData, i, msg, "Affirmation",notes ,TRUE)
 
-  for (i in 1:dm[1]) {
-    if (is.na(cleanData$ae_grade[i])) {
-      cleanData$ae_grade[i] = 0
-    }
-  }
-
-  pats = c()
-  for (i in 1:dm[1]) {
-    if (cleanData$ae_grade[i] == 0) {
-      pats = append(pats, cleanData$patid[i])
-    }
-  }
-  noToxicities = length(unique(pats))
-
-  # number of patients without toxicities
-  if (noToxicities > 0) {
-    msg = paste("There were", noToxicities, "patients with no eligible toxicities")
-    queries = query(cleanData, i, msg, "Affirmation",notes , TRUE)
-  }
 
   ############################################################################################
   # if missing ae_cycle_occured, generate this
@@ -301,37 +279,6 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     }
   }
 
-  ############################################################################################
-  # set ctcae grade to zero if missing
-  for (i in 1:dm[1]) {
-    if (is.na(cleanData$ae_grade[i])) {
-      msg = paste("Patient", cleanData$patid[i], "is missing toxicity grade for",cleanData$ae_term[i] , "line", i, "(currently set to zero)")
-      queries = query(cleanData, i, msg, "Missing data",notes)
-    }
-  }
-
-  ############################################################################################
-  # missing ae_term
-  for (i in 1:dm[1]) {
-    if (cleanData$ae_grade[i] > 0) {
-      if (is.na(cleanData$ae_term[i])) {
-        msg = paste("Patient", cleanData$patid[i], "is missing ae_term (toxicity term), line", i)
-        queries = query(cleanData, i, msg, "Missing data",notes)
-      }
-    }
-  }
-
-  ############################################################################################
-  # missing ae_system
-  for (i in 1:dm[1]) {
-    if (cleanData$ae_grade[i] > 0) {
-      if (is.na(cleanData$ae_system[i])) {
-        msg = paste("Patient", cleanData$patid[i], "is missing ae_system (ctcae category), line", i)
-        queries = query(cleanData, i, msg, "Missing data",notes)
-      }
-    }
-  }
-
   # time based stuff now
   if (options@timeType == "time") {
 
@@ -373,6 +320,14 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
       }
     }
 
+    ############################################################################################
+    # set ctcae grade to zero if missing
+    for (i in 1:dm[1]) {
+      if (is.na(cleanData$ae_grade[i])) {
+        msg = paste("Patient", cleanData$patid[i], "is missing toxicity grade for",cleanData$ae_term[i] , "line", i, "(currently set to zero)")
+        queries = query(cleanData, i, msg, "Missing data",notes)
+      }
+    }
 
     ############################################################################################
     # If baseline toxicity without start date assign registration date -7. Tell user.
@@ -500,6 +455,60 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
             cleanData[i,occur] = cleanData$ae_grade[i]
           }
         }
+      }
+    }
+  }
+
+  length(cycleLabels)
+  ################################################################################
+  msg = paste("Number of patients:", length(unique(cleanData$patid)), "in the provided database")
+  queries = query(cleanData, i, msg, "Affirmation",notes ,TRUE)
+
+  if(is.null(cleanData$ae_grade)){
+    cleanData$ae_grade = apply(cleanData[,paste0("occur_in_cycle_",1:length(cycleLabels))],1,function(x) max(x))
+  }
+
+  print(cleanData[,c("patid","ae_grade")])
+
+  for (i in 1:dm[1]) {
+    if (is.na(cleanData$ae_grade[i])) {
+      cleanData$ae_grade[i] = 0
+    }
+  }
+
+  pats = c()
+  for (p in unique(cleanData$patid)) {
+    grde = max(cleanData$ae_grade[p == cleanData$patid])
+    if (grde == 0) {
+      pats = append(pats, p)
+    }
+  }
+  noToxicities = length(unique(pats))
+
+  # number of patients without toxicities
+  if (noToxicities > 0) {
+    msg = paste("There were", noToxicities, "patients with no eligible toxicities")
+    queries = query(cleanData, i, msg, "Affirmation",notes , TRUE)
+  }
+
+  ############################################################################################
+  # missing ae_term
+  for (i in 1:dm[1]) {
+    if (cleanData$ae_grade[i] > 0) {
+      if (is.na(cleanData$ae_term[i])) {
+        msg = paste("Patient", cleanData$patid[i], "is missing ae_term (toxicity term), line", i)
+        queries = query(cleanData, i, msg, "Missing data",notes)
+      }
+    }
+  }
+
+  ############################################################################################
+  # missing ae_system
+  for (i in 1:dm[1]) {
+    if (cleanData$ae_grade[i] > 0) {
+      if (is.na(cleanData$ae_system[i])) {
+        msg = paste("Patient", cleanData$patid[i], "is missing ae_system (ctcae category), line", i)
+        queries = query(cleanData, i, msg, "Missing data",notes)
       }
     }
   }
