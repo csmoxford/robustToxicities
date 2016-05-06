@@ -85,7 +85,7 @@ options=defaultToxicityOptions(trialName="FAKEtrial", folderPath="", fileName = 
 ```
 
 
-## Load data into the `robustToxicities` `s4` class
+## Load data into the `robustToxicities` s4 class
 We now define cycle and treatment labels for the output tables and run the initialize function. This function does considerable data cleaning and checking tasks to make sure the provided data is suitable for the other functions.
 ```{r, warning = FALSE}
 cycleLabels = c("Registration", "Randomisation", "Cycle 1", "Cycle 2", "Cycle 3", "Cycle 4", "Cycle 5", "Cycle 6")
