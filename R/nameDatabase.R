@@ -3,6 +3,8 @@
 #'
 #' This function provides an efficient way of renaming the column names in the toxicity database to be compliant with the function \code{\link{robustToxicities}}.
 #'
+#' For cycle based data \code{\link{robustToxicities}} requires wide formatted data.
+#'
 #'
 #' @param data The toxicity database
 #' @param patid Patient ID

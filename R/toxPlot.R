@@ -209,7 +209,7 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
 
 
   cleanDataSub$rel_ent_trt = apply(cleanDataSub[,names_present], 1, function(x) min(which(!x),100000) - 1)
-  cleanDataSub = cleanDataSub[order(cleanDataSub$treatment,cleanDataSub$patid,cleanDataSub$ass_category,cleanDataSub$ass_toxicity_disp,cleanDataSub$ae_start_date),]
+  cleanDataSub = cleanDataSub[order(cleanDataSub$treatment,cleanDataSub$patid,cleanDataSub$ass_category,cleanDataSub$ass_toxicity_disp),]
   un = unique(cleanDataSub[, c("patid", "ass_category", "ass_toxicity_disp")])
 
   cleanDataSub$gid = 0

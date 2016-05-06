@@ -237,9 +237,8 @@ For cycle based data slightly different data is required. The data should be in 
 * treatment (unless only one treatment arm)
 * ae_term, name of the toxicity
 * ae_system, category the toxicity belongs
-* ae_grade, the toxicities grade
 * patientInCycle, whether a patients was on trial for this cycle
-* occurInCycle, the grade a patient experienced for this cycle
+* occurInCycle, the grade a patient experienced for this cycle. Should be zero if they didn't experience this toxicity.
 
 Because some of the names are already correct we don't need `nameDatabase` to rename these for us.
 
