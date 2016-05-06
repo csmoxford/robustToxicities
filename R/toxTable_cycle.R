@@ -4,7 +4,7 @@
     toxDB@cleanData = toxDB@cleanData[toxDB@cleanData$occur_in_cycle_1 == 0, ]
   }
 
-  # print all permitted data
+  # use all data
   if(cycles == "all") {
     cycles = 1:length(toxDB@cycleLabels)
   }
@@ -163,7 +163,6 @@
 
   # create table to populate
   toxTable = .toxTableSetup(length(treatments))
-  print(toxTable)
   i=0
   toxID=sort(unique(toxDB$ass_toxID))
   for (tox in toxID) {

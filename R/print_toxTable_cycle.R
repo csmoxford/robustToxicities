@@ -28,7 +28,7 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
   toxTableList = .toxTable_cycle(toxDB, cycles)
   toxTable  = toxTableList$toxTable
   nPatients = toxTableList$nPatients
-print(toxTable)
+
   treatment = as.integer(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][2]))
   grade     = suppressWarnings(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][3]))
   grade[1:2] = c("Category", "Event Term")
