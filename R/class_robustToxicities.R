@@ -138,12 +138,6 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
 
 
   } else if(options@timeType  == "cycle") {
-    ################################################################################
-    # require either ae_cycle_occured or occur_in_cycle_
-    if (!"ae_cycle_occured" %in% name & sum(grepl("occur_in_cycle_", name)) == 0) {
-      message("Column with name ", colName, " was not found in the data and is required.")
-      stp = 1
-    }
 
     ################################################################################
     # Must provide present in cycle
@@ -167,7 +161,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   notes = options@displayNotes
   ################################################################################
   # Create the empty query database
-  queryNames = c("patid", "ae", "ae_cycle_occured", "problem_type", "message")
+  queryNames = c("patid", "ae", "problem_type", "message")
   queries = data.frame(matrix("",nrow = 0,ncol = length(queryNames)),stringsAsFactors = FALSE)
   names(queries) = queryNames
 
@@ -190,9 +184,9 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
       message(msg)
     }
     if(!aff){
-      queries[dim(queries)[1]+1,]=c(cleanData$patid[i], cleanData$ae_term[i], cleanData$ae_cycle_occured[i], problem_type, msg)
+      queries[dim(queries)[1]+1,]=c(cleanData$patid[i], cleanData$ae_term[i], problem_type, msg)
     } else {
-      queries[dim(queries)[1]+1,]=c("", "", "", problem_type, msg)
+      queries[dim(queries)[1]+1,]=c("", "", problem_type, msg)
     }
     return(queries)
   }
@@ -325,7 +319,8 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     for (i in 1:dm[1]) {
       if (is.na(cleanData$ae_grade[i])) {
         msg = paste("Patient", cleanData$patid[i], "is missing toxicity grade for",cleanData$ae_term[i] , "line", i, "(currently set to zero)")
-        queries = query(cleanData, i, msg, "Missing data",notes)
+        cleanData$ae_grade[i] = 0
+        queries = query(cleanData, i, msg, "Note",notes)
       }
     }
 
@@ -467,8 +462,6 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   if(is.null(cleanData$ae_grade)){
     cleanData$ae_grade = apply(cleanData[,paste0("occur_in_cycle_",1:length(cycleLabels))],1,function(x) max(x))
   }
-
-  print(cleanData[,c("patid","ae_grade")])
 
   for (i in 1:dm[1]) {
     if (is.na(cleanData$ae_grade[i])) {
