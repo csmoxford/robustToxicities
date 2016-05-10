@@ -1,0 +1,284 @@
+---
+Author: Peter Dutton
+Title: robustToxicities
+output:
+  pdf_document: default
+---
+
+
+# robustToxicities
+
+This document goes through using this package. The example data is computer generated and does not come from a trial or study. The data for this example is time based data. This means that each toxicity has a start date and end date. The data must also provide start dates for each cycle or time period. This package can also deal with cycle based data. This data simply details what cycles a patient was on trial and what toxicities were present in each cycle (Hopefully I will add another example).
+
+This document is generated directly from r markdown. Markdown is a lightweight markup language which uses plain text formatting syntax designed so that it can be principally converted to HTML. An r markdown file is a combination of markdown and code chunks which generate output to add to the report. Output includes generated markdown, code, tables and plots. This approach allows for a fully automated document whereby if the underlying data is changed the report will generate using this new data. Because markdown is lightweight it is fast and easy to use but comes with some significant limitations for complex output.
+
+We use the `knitr` package to format our tables in markdown. The `knitr` package also supports latex (and lyx) which is a heavyweight markup language used to create pdfs. A latex based approach may be considerably more time consuming but is much more flexible.
+
+# Setup
+
+Lets load packages we will be using today:
+
+1. If necessary install devtools from CRAN `install.packages('devtools')`. This allows you to install pacakges from non-CRAN sources such as github.
+2. Install the pachage from github `devtools::install_github("finite2/robustToxicities")`.
+3. load the packages we will be using, robustToxicities `library(robustToxicities)` and knitr `library(knitr)` (to install from CRAN `install.packages('knitr')`).
+
+
+```{r, warning = FALSE, message = FALSE}
+devtools::install_github("finite2/robustToxicities")
+library(robustToxicities)
+library(knitr) # for outputting tables to word or latex
+```
+
+# Time based data example
+
+The following example is based on time data. The data set consists of toxicities with a start and stop date. Further information is provided about the cycle or time period start dates. This means tables can be produced by cycle and graphs can be produced using the toxicity durations.
+
+```{r, warning = FALSE}
+## The standard way to read in data
+## data = read.csv("data.csv", stringsAsFactors = FALSE)
+
+# Data from this pacakge
+data(toxicityDataTime)
+data = toxicityDataTime
+str(data, vec.len = 2)
+```
+
+## Format data
+
+The `nameDatabase` function does a simple renaming of the column names for our data to make it compatible for the rest of the package. We need to provide the following data for time based data:
+
+* patid
+* treatment (unless only one treatment arm)
+* ae_term, name of the toxicity
+* ae_system, category the toxicity belongs
+* ae_grade, the toxicities grade
+* ae_start_date, the date of first onset of this grade of the toxicity
+* ae_end_date, the date this toxicity changed grade
+* ae_cont_end_study, if the end date was after the patient is no longer assessed as part of the study
+* date_stopped_treatment, the date a patient withdraw from treatment
+* date_end_assessment, the date the patient is no longer assessable
+* start dates, the starting dates for time periods or cycles for this patient on trial. E.g. registration date, cycle 1 start date, etc.
+
+
+```{r, warning = FALSE}
+data = nameDatabase(
+  data,
+  patid = "patientNo",
+  treatment = "Treatment",
+  ae_term = "toxicity",
+  ae_system = "category",
+  ae_grade = "grade",
+  ae_start_date = "ae_onset_date",
+  ae_end_date = "ae_resolve_date",
+  ae_cont_end_study = "ae_cont_end",
+  date_stopped_treatment = "end_of_treatment_date",
+  date_end_assessment = "end_of_assessment_date",
+  dateColumnNames = c("Registration_date", "Randomisation_date", "Cycle_1_date", "Cycle_2_date", "Cycle_3_date", "Cycle_4_date", "Cycle_5_date", "Cycle_6_date")
+)
+```
+
+## Options
+We need to specify the initial options for our tables. The default function `defaultToxicityOptions` simply asks for the metadata to be stored. Other options can be changed directly by accessing their slots using the @ operator for `s4` classes.
+```{r, warning = FALSE}
+options=defaultToxicityOptions(trialName="FAKEtrial", folderPath="", fileName = "Fake_data.csv")
+```
+
+
+## Load data into the `robustToxicities` s4 class
+We now define cycle and treatment labels for the output tables and run the initialize function. This function does considerable data cleaning and checking tasks to make sure the provided data is suitable for the other functions.
+```{r, warning = FALSE}
+cycleLabels = c("Registration", "Randomisation", "Cycle 1", "Cycle 2", "Cycle 3", "Cycle 4", "Cycle 5", "Cycle 6")
+treatmentLabels = c("Placebo", "Fake Drug")
+
+toxDB = robustToxicities(data, cycleLabels, options, treatmentLabels)
+```
+
+## Queries and notes
+Assuming there were no major issues from the initialisation we may want to look at the generated notes and queries to see what changes and problems the data cleaning step picked up on.
+
+```{r, warning = FALSE}
+kable(toxDB@queries)
+```
+
+# Tables
+
+This package can generate two types of tables:
+
+* A summary table detailing the toxicity grade by cycle (`print_toxTable_summary`)
+* A cycle or time period table, detailing what the toxicities were and what grade they were in a specified cycle or cycles (`print_toxTable_cycle`)
+
+You should note that due to the limitations of markdown these tables output via a markdown file do not contain treatment labels. If there is more than one treatment then these will have to be added by hand. Alternatively you can obtain these labels automatically using a latex based solution.
+
+There are a number of options for both tables:
+
+* `discardBaseline` A logical value used to determine if toxicities reported at baseline should be reported or not. The default is FALSE.
+* `tabulationMethod` One of "worst" or "all" determining if all toxicity changes are counted or only the worst reported grade in a time period. The default is worst.
+* `tabulationPercent` A logical value used to determine if toxicity tables should report counts (FALSE) or percentages (TRUE). The default is FALSE.
+* `cumulativeGrades` A logical value used to determine whether toxicity grades should be reported cumulatively or not. Defaut is TRUE.
+
+There are also some options specific to each table.
+
+### Summary:
+
+* `sumCycleMerge` Cycles to merge in the `print_toxTable_summary`. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.
+* `sumColumnMerge` Grades to merge in the print_toxTable_summary. Similar syntax to sumCycleMerge.
+
+### Cycle:
+
+* `cycleCycleMerge` Cycles to merge in the print_toxTable_cycle. Similar syntax to sumCycleMerge.
+* `cycleColumnMerge` Grades to merge in the print_toxTable_cycle. Similar syntax to sumCycleMerge.
+* `cycleCategoryMerge` A vector of categories to collapse down to one row in the print_toxTable_cycle.
+
+This section shows off some of the table options.
+
+## Summary table by cycle with percentages
+```{r, message = FALSE, results = "asis"}
+toxDB@options@tabulationPercent = TRUE
+print_toxTable_summary(toxDB, printMethod = "latex")
+```
+
+## Summary table by cycle with counts, not cumulative
+```{r, message = FALSE, results = "asis"}
+toxDB@options@tabulationPercent = FALSE
+toxDB@options@cumulativeGrades = FALSE
+print_toxTable_summary(toxDB, printMethod = "latex")
+```
+
+
+## All toxicities (worst grade by patient)
+```{r, message = FALSE, results = "asis"}
+print_toxTable_cycle(toxDB, cycles = "all", printMethod = "latex")
+```
+
+## Baseline table with counts
+```{r, message = FALSE, results = "asis"}
+toxDB@options@cumulativeGrades = TRUE
+cat("\n## ",toxDB@cycleLabels[1],"\n\n")
+print_toxTable_cycle(toxDB, cycles = 1, printMethod = "latex")
+```
+
+
+## All cycles in a for loop
+```{r, message = FALSE, results = "asis"}
+for(i in 1:length(toxDB@cycleLabels)) {
+  cat("\n## ",toxDB@cycleLabels[i],"\n\n")
+  print_toxTable_cycle(toxDB, cycles = i, printMethod = "latex")
+}
+```
+
+## All toxicity changes in all cycles after time period
+```{r, message = FALSE, results = "asis"}
+toxDB@options@discardBaseline = FALSE
+toxDB@options@tabulationMethod = "all"
+toxDB@treatmentLabels
+toxDB@options@tabulationMethod = "worst"
+cat("\n## ",toxDB@cycleLabels[3],"\n\n")
+print_toxTable_cycle(toxDB, cycles = "all", printMethod = "latex")
+```
+
+
+## Merge differently
+```{r, message = FALSE, results = "asis"}
+toxDB@options@cycleColumnMerge = "1,2|3,4,5"
+toxDB@options@tabulationMethod = "worst"
+print_toxTable_cycle(toxDB, cycles = "all", printMethod = "latex")
+```
+
+## Merge the Respiratory category
+
+```{r, message = FALSE, results = "asis"}
+toxDB@options@cycleCategoryMerge = "Respiratory, thoracic and mediastinal disorders"
+print_toxTable_cycle(toxDB, cycles = "all", printMethod = "latex")
+```
+
+## Latex output
+
+To output to latex simply change the printMethod to latex
+
+```{r, message = FALSE, results = "asis"}
+print_toxTable_summary(toxDB, printMethod = "latex")
+```
+
+
+# Plots
+
+Plots can be output directly into your word document using a code chunk like below:
+
+```{r, results = FALSE, fig.width = 9, fig.height = 6}
+toxDB@options@plotLeftSideOption = "patid"
+toxDB@options@plotStartTreatment = "cycle_start_date_3"
+toxDB@options@plotCycleLength = 7
+toxDB@options@plotxMin = -21
+toxDB@options@plotxMax = 70
+toxDB@options@plotLeftSideOption = "both"
+toxPlot(toxDB)
+```
+
+Toxicity data may require a large number of rows. For this reason it may be impractical to have all the data on a single graph output. To aid you here there is a function to output in pages to pdf and png (`toxPlot_output`). Additionally if you set the plot option to FALSE then `toxPlot` will return the number of rows of data. This will allow you to decide how much data to plot on each graph and the rowID_range allows you to define what to plot on each graph.
+
+```{r, fig.width = 9, fig.height = 6}
+toxPlot(toxDB,plot = FALSE)
+```
+
+```{r, fig.width = 9, fig.height = 4}
+toxPlot(toxDB, rowID_range = c(1,7))
+
+toxPlot(toxDB, rowID_range = c(8,16))
+```
+
+
+# Cycle based data example
+
+
+For cycle based data slightly different data is required. The data should be in a wide format by cycle / time period. We need to provide the following data for cycle based data:
+
+* patid
+* treatment (unless only one treatment arm)
+* ae_term, name of the toxicity
+* ae_system, category the toxicity belongs
+* patientInCycle, whether a patients was on trial for this cycle
+* occurInCycle, the grade a patient experienced for this cycle. Should be zero if they didn't experience this toxicity.
+
+Because some of the names are already correct we don't need `nameDatabase` to rename these for us.
+
+```{r}
+data(toxicityDataCycle)
+str(data)
+
+data = nameDatabase(
+  data = toxicityDataCycle,
+  ae_term = "toxicity",
+  ae_system = "category",
+  patientInCycle = c("active_registration", "active_randomisation", "active_cycle_1", "active_cycle_2", "active_cycle_3", "active_cycle_4", "active_cycle_5", "active_cycle_6", "active_end_cycle_6", "active_post_treatment"),
+  occurInCycle = c("tox_registration", "tox_randomisation", "tox_cycle_1", "tox_cycle_2", "tox_cycle_3", "tox_cycle_4", "tox_cycle_5", "tox_cycle_6", "tox_end_cycle_6", "tox_post_treatment")
+)
+
+options=defaultToxicityOptions(trialName="FAKEtrial", folderPath="", fileName = "Fake_data_cycle.csv", timeType = "cycle")
+
+cycleLabels = c("Registration", "Randomisation", "Cycle 1", "Cycle 2", "Cycle 3", "Cycle 4", "Cycle 5", "Cycle 6", "End of Cycle 6", "30 days")
+treatmentLabels = c("Placebo", "Fake Drug")
+
+toxDB = robustToxicities(data, cycleLabels, options, treatmentLabels)
+```
+
+## Tables and plots
+
+The table outputs rely on identical code for both time and cycle based data. This is because for time based data the `patientInCycle` and `occurInCycle` columns are generated from the date data. The plots do have independent code but share plot options.
+
+```{r, results = "asis", fig.width = 9, fig.height = 6}
+
+cat("\n\n## Toxicity summary")
+kable(print_toxTable_summary(toxDB))
+
+for(i in 1:length(toxDB@cycleLabels)) {
+  cat(paste0("\n\n## ",toxDB@cycleLabels[i]))
+  print(kable(print_toxTable_cycle(toxDB, cycles = i)))
+  
+}
+
+toxDB@options@plotxMin = 0
+toxDB@options@plotxMax = 10
+toxDB@options@plotCycles = 0
+toxDB@options@plotLeftSideOption = "both"
+toxPlot(toxDB)
+```

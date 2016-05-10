@@ -89,10 +89,12 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
 
     # define appearance of \multirow
     fullRow = which(toxTable[[1]] != "")
-    row.lengths = c(fullRow[2:length(fullRow)],nrow(toxTable)+1)-fullRow[1:(length(fullRow))]
-    for(i in 1:length(fullRow)){
-      if(row.lengths[i]>1){
-        toxTable[[1]][fullRow[i]] = paste0("\\multirow{", row.lengths[i], "}{*}{\\parbox{4cm}{", toxTable[[1]][fullRow[i]], "}}")
+    if(length(fullRow) > 0){
+      row.lengths = c(fullRow[2:length(fullRow)],nrow(toxTable)+1)-fullRow[1:(length(fullRow))]
+      for(i in 1:length(fullRow)){
+        if(row.lengths[i]>1){
+          toxTable[[1]][fullRow[i]] = paste0("\\multirow{", row.lengths[i], "}{*}{\\parbox{4cm}{", toxTable[[1]][fullRow[i]], "}}")
+        }
       }
     }
 
