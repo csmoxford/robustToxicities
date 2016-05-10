@@ -103,6 +103,6 @@ print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
     addtorow <- list()
     addtorow$pos <- list(-1)
     addtorow$command <- paste0("\\hline\n &",paste0('& \\multicolumn{',nColTrt , '}{c|}{', toxDB@treatmentLabels, " (n=", nPatients, ")", '}', collapse=''), '\\\\\n')
-    return(print(xtab, add.to.row=addtorow, include.rownames=FALSE, hline.after = c(0,fullRow-1,nrow(xtab)), sanitize.text.function = force))
+    return(print(xtab, add.to.row=addtorow, include.rownames=FALSE, hline.after = c(0,fullRow-1,nrow(xtab)), sanitize.text.function = force, comment = FALSE))
   }
 }

@@ -84,7 +84,7 @@ print_toxTable_summary = function(toxDB, printMethod = "table") {
     addtorow <- list()
     addtorow$pos <- list(-1)
     addtorow$command <- paste0("\\hline\n",paste0('& \\multicolumn{',nColTrt , '}{c|}{', toxDB@treatmentLabels, '}', collapse=''), '\\\\\n')
-    return(print(xtab, add.to.row=addtorow, include.rownames=FALSE, hline.after = c(0,nrow(xtab))))
+    return(print(xtab, add.to.row=addtorow, include.rownames=FALSE, hline.after = c(0,nrow(xtab)), comment = FALSE))
   }
 
 }
