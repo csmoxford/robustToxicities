@@ -1,10 +1,13 @@
 ---
 Author: Peter Dutton
 Title: robustToxicities
+header-includes:
+   \usepackage{array}
+   \usepackage{multirow}
 output:
+  
   pdf_document: default
 ---
-
 
 # robustToxicities
 
@@ -33,7 +36,7 @@ library(knitr) # for outputting tables to word or latex
 
 The following example is based on time data. The data set consists of toxicities with a start and stop date. Further information is provided about the cycle or time period start dates. This means tables can be produced by cycle and graphs can be produced using the toxicity durations.
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, tidy=TRUE}
 ## The standard way to read in data
 ## data = read.csv("data.csv", stringsAsFactors = FALSE)
 
@@ -86,7 +89,7 @@ options=defaultToxicityOptions(trialName="FAKEtrial", folderPath="", fileName = 
 
 ## Load data into the `robustToxicities` s4 class
 We now define cycle and treatment labels for the output tables and run the initialize function. This function does considerable data cleaning and checking tasks to make sure the provided data is suitable for the other functions.
-```{r, warning = FALSE}
+```{r, warning = FALSE, tidy = TRUE}
 cycleLabels = c("Registration", "Randomisation", "Cycle 1", "Cycle 2", "Cycle 3", "Cycle 4", "Cycle 5", "Cycle 6")
 treatmentLabels = c("Placebo", "Fake Drug")
 
@@ -96,8 +99,8 @@ toxDB = robustToxicities(data, cycleLabels, options, treatmentLabels)
 ## Queries and notes
 Assuming there were no major issues from the initialisation we may want to look at the generated notes and queries to see what changes and problems the data cleaning step picked up on.
 
-```{r, warning = FALSE}
-kable(toxDB@queries)
+```{r, warning = FALSE, results = "asis"}
+xtable(toxDB@queries, align="llllp{8cm}")
 ```
 
 # Tables
@@ -203,7 +206,7 @@ print_toxTable_summary(toxDB, printMethod = "latex")
 # Plots
 
 Plots can be output directly into your word document using a code chunk like below:
-
+  
 ```{r, results = FALSE, fig.width = 9, fig.height = 6}
 toxDB@options@plotLeftSideOption = "patid"
 toxDB@options@plotStartTreatment = "cycle_start_date_3"
@@ -231,8 +234,8 @@ toxPlot(toxDB, rowID_range = c(8,16))
 
 
 For cycle based data slightly different data is required. The data should be in a wide format by cycle / time period. We need to provide the following data for cycle based data:
-
-* patid
+  
+  * patid
 * treatment (unless only one treatment arm)
 * ae_term, name of the toxicity
 * ae_system, category the toxicity belongs

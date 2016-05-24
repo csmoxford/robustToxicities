@@ -49,7 +49,13 @@
 
 
 
-
+#' The robustToxicities generator
+#'
+#' @param data The data set to use
+#' @param cycleLabels Labels for each cycle or time period to using in tables
+#' @param options A set of options to use when tabulating and plotting
+#' @param treatmentLabels What each treatment arm should be called in plots and tables
+#'
 #' @export robustToxicities
 robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) {
 
@@ -398,10 +404,12 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
           }
         } else if (is.na(cleanData$ae_end_date[i])) {
           if (cleanData$ae_cont_end_study[i]) {
+
             msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "was continuing at end of study, setting this value to date_end_assessment")
             queries = query(cleanData, i, msg, "Note",notes)
             cleanData$ae_end_date[i] = cleanData$date_end_assessment[i]
-          } else {
+          }
+          if (is.na(cleanData$ae_end_date[i])) {
             msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "was missing end date but not continueing at end of study, setting to a large value")
             queries = query(cleanData, i, msg, "Missing data",notes)
             cleanData$ae_end_date[i] = 30000

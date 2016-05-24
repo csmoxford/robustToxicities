@@ -22,7 +22,7 @@ nameDatabase(data, patid = NULL, treatment = NULL, ae_term = NULL,
 
 \item{ae_system}{The adverse event system}
 
-\item{ae_grade}{The adverse event grade}
+\item{ae_grade}{The adverse event grade (time based only)}
 
 \item{ae_start_date}{The adverse event start date (time based only)}
 
@@ -44,5 +44,8 @@ nameDatabase(data, patid = NULL, treatment = NULL, ae_term = NULL,
 }
 \description{
 This function provides an efficient way of renaming the column names in the toxicity database to be compliant with the function \code{\link{robustToxicities}}.
+}
+\details{
+For cycle based data \code{\link{robustToxicities}} requires wide formatted data.
 }
 
