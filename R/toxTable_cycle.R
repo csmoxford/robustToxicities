@@ -5,7 +5,7 @@
   }
 
   # use all data
-  if(cycles == "all") {
+  if(cycles[1] == "all") {
     cycles = 1:length(toxDB@cycleLabels)
   }
 
