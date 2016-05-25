@@ -392,28 +392,24 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     # if missing end date and continuing at end of study assign end of treatment date + 30
     for(i in 1:dm[1]){
       if(cleanData$ae_grade[i] > 0){
-        if(cleanData$ae_cont_end_study[i]=="yes" & is.na(cleanData$ae_end_date[i])){
-          if(!is.na(cleanData$date_stopped_treatment[i])){
-            cleanData$ae_end_date[i]=cleanData$date_stopped_treatment[i] + 30
-            msg = paste("Note: Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "is continueing at end of study, setting the ae_end_date to 30 days after date_stopped_treatment")
+        if((cleanData$ae_cont_end_study[i]=="yes" | cleanData$ae_cont_end_study[i] == TRUE) & is.na(cleanData$ae_end_date[i])){
+          if(!is.na(cleanData$date_end_assessment[i])){
+            cleanData$ae_end_date[i]=cleanData$date_end_assessment[i]
+            msg = paste("Note: Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "is continueing at end of study, setting the ae_end_date to date_end_assessment")
             queries = query(cleanData, i, msg, "Note",notes)
-          } else {
-            msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "is continueing at end of study but the date_stopped_treatment is missing (setting ae_end_date to a large value)")
-            queries = query(cleanData, i, msg, "Missing data",notes)
+          } else if(!is.na(cleanData$date_stopped_treatment[i])){
+            cleanData$ae_end_date[i]=cleanData$date_stopped_treatment[i] + 30
+            msg = paste("Note: Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "is continueing at end of study, setting the ae_end_date to date_stopped_treatment + 30 days")
+            queries = query(cleanData, i, msg, "Note", notes)
+            } else {
+            msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "is continueing at end of study but the date_end_assessment and date_stopped_treatment is missing (setting ae_end_date to a large value)")
+            queries = query(cleanData, i, msg, "Missing data", notes)
             cleanData$ae_end_date[i]=30000
           }
         } else if (is.na(cleanData$ae_end_date[i])) {
-          if (cleanData$ae_cont_end_study[i]) {
-
-            msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "was continuing at end of study, setting this value to date_end_assessment")
-            queries = query(cleanData, i, msg, "Note",notes)
-            cleanData$ae_end_date[i] = cleanData$date_end_assessment[i]
-          }
-          if (is.na(cleanData$ae_end_date[i])) {
             msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "was missing end date but not continueing at end of study, setting to a large value")
             queries = query(cleanData, i, msg, "Missing data",notes)
             cleanData$ae_end_date[i] = 30000
-          }
         }
       }
     }
