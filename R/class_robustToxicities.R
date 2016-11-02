@@ -311,7 +311,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     no_cycles = sum(str_detect(names(cleanData), "cycle_start_date_"))
     ############################################################################################
     # location of the dates for those cycles
-    names_cycle = names(cleanData)[str_detect(names(cleanData), "cycle_start_date_")]
+    names_cycle = sort(names(cleanData)[str_detect(names(cleanData), "cycle_start_date_")])
     names_cycle_stub = sub("cycle_start_date_", "", names_cycle)
 
     # generate present_for_cycle if not provided:

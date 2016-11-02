@@ -1,5 +1,19 @@
 .toxTable_cycle = function(toxDB , cycles){
 
+
+  treats = sort(unique(toxDB@cleanData$treatment))
+  nPatients = rep(0, length(treats))
+  # count and record number of patients having at least some of the required time period (saved in nPatients)
+  for(treatment in 1:length(treats)){
+    # number of patients at this cycle
+    tox_s = toxDB@cleanData[toxDB@cleanData$treatment == treats[treatment], ]
+    if(length(cycles)>1){
+      nPatients[treatment] = length(unique(tox_s$patid[apply(tox_s[, paste0("present_in_cycle_", cycles)], 1, function(x) sum(x) > 0)]))
+    } else {
+      nPatients[treatment] = length(unique(tox_s$patid[tox_s[, paste0("present_in_cycle_", cycles)]]))
+    }
+  }
+
   if (toxDB@options@discardBaseline) {
     toxDB@cleanData = toxDB@cleanData[toxDB@cleanData$occur_in_cycle_1 == 0, ]
   }
@@ -20,7 +34,7 @@
   names_occur = names(cleanDataSub)[str_detect(names(cleanDataSub), "occur_in_cycle_")]
 
 
-  treats = sort(unique(toxDB@cleanData$treatment))
+
 
 
   # generate initial table
@@ -31,20 +45,8 @@
   }
 
 
-  nPatients = rep(0, length(treats))
-  # count and record number of patients having at least some of the required time period (saved in nPatients)
 
 
-
-  for(treatment in 1:length(treats)){
-    # number of patients at this cycle
-    tox_s = toxDB@cleanData[toxDB@cleanData$treatment == treats[treatment], ]
-    if(length(cycles)>1){
-      nPatients[treatment] = length(unique(tox_s$patid[apply(tox_s[, paste0("present_in_cycle_", cycles)], 1, function(x) sum(x) > 0)]))
-    } else {
-      nPatients[treatment] = length(unique(tox_s$patid[tox_s[, paste0("present_in_cycle_", cycles)]]))
-    }
-  }
 
   # Perform the column merge for toxicities
   if(is.null(toxDB@options@cycleColumnMerge) == FALSE){
