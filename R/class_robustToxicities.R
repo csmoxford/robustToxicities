@@ -348,23 +348,26 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     ############################################################################################
     # Check date ordering and missing internal dates
     # dates = grep("cycle_start_date_",names(cleanData))
+
+    singleLineData = cleanData[sapply(unique(cleanData$patid), function(x) which(x == cleanData$patid)[1]),]
+
     for (j in 2:length(names_cycle)) {
-      for (i in 1:dm[1]) {
-        d1 = cleanData[i,names_cycle[j - 1]]
-        d2 = cleanData[i,names_cycle[j]]
+      for (i in 1:dim(singleLineData)[1]) {
+        d1 = singleLineData[i,names_cycle[j - 1]]
+        d2 = singleLineData[i,names_cycle[j]]
         if(!is.na(d2)) {
           # second date exists
           if(!is.na(d1)) {
             # first date exists
             if( d1 > d2) {
               # first date before second date
-              msg = paste0("Patient ", cleanData$patid[i], " date for cycle named ", cycleLabels[names_cycle_stub[j - 1]], " (", d1, ") is before date for ", cycleLabels[names_cycle_stub[j]], " (", d2, ")")
-              queries = query(cleanData, i, msg, "Wrong data", notes)
+              msg = paste0("Patient ", singleLineData$patid[i], " date for cycle named ", cycleLabels[names_cycle_stub[j - 1]], " (", d1, ") is before date for ", cycleLabels[names_cycle_stub[j]], " (", d2, ")")
+              queries = query(singleLineData, i, msg, "Wrong data", notes)
             }
           } else {
             # first date missing by second date available
-            msg = paste0("Patient ", cleanData$patid[i], " date for ", cycleLabels[names_cycle_stub[j - 1]], " is missing but the future date for",  cycleLabels[names_cycle_stub[j]], "  (", d2, ") is not")
-            queries = query(cleanData, i, msg, "Missing data", notes)
+            msg = paste0("Patient ", singleLineData$patid[i], " date for ", cycleLabels[names_cycle_stub[j - 1]], " is missing but the future date for",  cycleLabels[names_cycle_stub[j]], "  (", d2, ") is not")
+            queries = query(singleLineData, i, msg, "Missing data", notes)
           }
         }
       }
