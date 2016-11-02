@@ -312,7 +312,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     ############################################################################################
     # location of the dates for those cycles
     names_cycle = sort(names(cleanData)[str_detect(names(cleanData), "cycle_start_date_")])
-    names_cycle_stub = sub("cycle_start_date_", "", names_cycle)
+    names_cycle_stub = sort(as.numeric(sub("cycle_start_date_", "", names_cycle)))
 
     # generate present_for_cycle if not provided:
     no_present = sum(str_detect(names(cleanData), "present_in_cycle_"))
@@ -347,23 +347,23 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
 
     ############################################################################################
     # Check date ordering and missing internal dates
-    dates = grep("cycle_start_date_",names(cleanData))
-    for (j in 2:length(dates)) {
+    # dates = grep("cycle_start_date_",names(cleanData))
+    for (j in 2:length(names_cycle)) {
       for (i in 1:dm[1]) {
-        d1 = cleanData[i,dates[j - 1]]
-        d2 = cleanData[i,dates[j]]
+        d1 = cleanData[i,names_cycle[j - 1]]
+        d2 = cleanData[i,names_cycle[j]]
         if(!is.na(d2)) {
           # second date exists
           if(!is.na(d1)) {
             # first date exists
             if( d1 > d2) {
               # first date before second date
-              msg = paste0("Patient ", cleanData$patid[i], " date for cycle ", dates[j - 1], "(", d1, ") is before date for ", dates[j], "(", d2, ")")
+              msg = paste0("Patient ", cleanData$patid[i], " date for cycle named ", cycleLabels[names_cycle_stub[j - 1]], " (", d1, ") is before date for ", cycleLabels[names_cycle_stub[j]], " (", d2, ")")
               queries = query(cleanData, i, msg, "Wrong data", notes)
             }
           } else {
             # first date missing by second date available
-            msg = paste0("Patient ", cleanData$patid[i], " date for ", dates[j - 1], " is missing but the future date for",  dates[j], "(", d2, ") is not")
+            msg = paste0("Patient ", cleanData$patid[i], " date for ", cycleLabels[names_cycle_stub[j - 1]], " is missing but the future date for",  cycleLabels[names_cycle_stub[j]], "  (", d2, ") is not")
             queries = query(cleanData, i, msg, "Missing data", notes)
           }
         }
