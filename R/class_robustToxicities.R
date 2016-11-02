@@ -292,15 +292,17 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     ############################################################################################
     # format dates
     for (col in grep("date",names(cleanData))) {
-      test = as.numeric(as.Date(cleanData[, col], format="%Y-%m-%d", origin="1970-01-01"))
-      if (all(is.na(test))) {
-        test = as.numeric(as.Date(cleanData[, col], format="%d%b%Y", origin="1970-01-01"))
-      }
-      if (all(is.na(test))) {
-        test = as.numeric(as.Date(cleanData[, col], format="%d/%m/%Y", origin="1970-01-01"))
-      }
-      if(!all(is.na(test))){
-        cleanData[,col] = test
+      if(class(cleanData[, col]) != "Date"){
+        test = as.numeric(as.Date(cleanData[, col], format="%Y-%m-%d", origin="1970-01-01"))
+        if (all(is.na(test))) {
+          test = as.numeric(as.Date(cleanData[, col], format="%d%b%Y", origin="1970-01-01"))
+        }
+        if (all(is.na(test))) {
+          test = as.numeric(as.Date(cleanData[, col], format="%d/%m/%Y", origin="1970-01-01"))
+        }
+        if(!all(is.na(test))){
+          cleanData[,col] = test
+        }
       }
     }
 
@@ -338,7 +340,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
           msg = paste("Patient", cleanData$patid[i], "is missing the date of start of toxicity for:", cleanData$ae_term[i], "line", i, "(setting to 7 days prior to earlist known date)")
           queries = query(cleanData, i, msg, "Missing data",notes)
           cycle_dates=names(cleanData)[grepl("cycle_start_date_", names(cleanData))]
-          cleanData$ae_start_date[i]=min(as.numeric(cleanData[i,cycle_dates]), na.rm = TRUE) - 7
+          cleanData$ae_start_date[i]=as.Date(min(as.numeric(cleanData[i,cycle_dates], origin = "1970-01-01"), na.rm = TRUE) - 7, origin = "1970-01-01")
         }
       }
     }
@@ -404,12 +406,12 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
             } else {
             msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "is continueing at end of study but the date_end_assessment and date_stopped_treatment is missing (setting ae_end_date to a large value)")
             queries = query(cleanData, i, msg, "Missing data", notes)
-            cleanData$ae_end_date[i]=30000
+            cleanData$ae_end_date[i] = as.Date(30000, origin = "1970-01-01")
           }
         } else if (is.na(cleanData$ae_end_date[i])) {
             msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "was missing end date but not continueing at end of study, setting to a large value")
             queries = query(cleanData, i, msg, "Missing data",notes)
-            cleanData$ae_end_date[i] = 30000
+            cleanData$ae_end_date[i] = as.Date(30000, origin = "1970-01-01")
         }
       }
     }
@@ -421,7 +423,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
         if(cleanData$ae_cont_end_study[i]=="no" & is.na(cleanData$ae_end_date[i])){
           msg = paste("Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "is missing the date_stopped_treatment (setting ae_end_date to a large value)")
           queries = query(cleanData, i, msg, "Missing data",notes)
-          cleanData$ae_end_date[i]=30000
+          cleanData$ae_end_date[i] = as.Date(30000, origin = "1970-01-01")
         }
       }
     }
