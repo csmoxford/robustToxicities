@@ -130,13 +130,22 @@ toxPlot = function(toxDB, rowID_range = NULL, plot = TRUE) {
   # Main plot
   screen(1)
   plot(0, 0, xlim = xlim, ylim = ylim, type = "n", axes = FALSE, xlab = "", ylab = "", xaxs = "i", yaxs = "i")
-  mtext("Days from start of treatment",side = 1, line = 2.5, cex = par("cex"))
 
 
 
 
-  axis(1, labels = -10:100 * 7, at = -10:100*7, pos = ylim[1])
-  abline(v = -10:100*7, lty = 2, col = "lightgrey")
+  if(toxDB@options@plotXLegendScale == "days"){
+    axis(1, labels = -10:500 * 7, at = -10:500*7, pos = ylim[1])
+    mtext("Days from start of treatment",side = 1, line = 2.5, cex = par("cex"))
+  } else if(toxDB@options@plotXLegendScale == "weeks"){
+    axis(1, labels = -10:500, at = -10:500*7, pos = ylim[1])
+    mtext("Weeks from start of treatment", side = 1, line = 2.5, cex = par("cex"))
+  } else {
+    axis(1, labels = -10:500, at = -10:500*as.numeric(toxDB@options@plotXLegendScale), pos = ylim[1])
+    mtext("Cycles from start of treatment", side = 1, line = 2.5, cex = par("cex"))
+  }
+
+  abline(v = -10:500*7, lty = 2, col = "lightgrey")
   abline(h = 1:1000-0.5, lty = 2, col = "lightgrey", lwd = 0.5)
   if (toxDB@options@plotCycleLength > 0) {
     abline(v = 0:toxDB@options@plotCycles * toxDB@options@plotCycleLength, col="grey")

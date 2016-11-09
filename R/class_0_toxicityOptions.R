@@ -25,6 +25,7 @@
 #' @slot plotCycles optional number of cycles to plot
 #' @slot plotPxHeight Number of pixels to use to generate plot vertically
 #' @slot plotPxWidth Number of pixels to use to generate plot horizontally
+#' @slot plotXLegendScale "days", "weeks", or a number entered as a string
 #' @slot sumCycleMerge Cycles to merge in the \code{\link{print_toxTable_summary}}. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.
 #' @slot sumColumnMerge Grades to merge in the \code{\link{print_toxTable_summary}}. Similar syntax to sumCycleMerge
 #' @slot cycleCycleMerge Cycles to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge
@@ -51,6 +52,7 @@
   plotCycles = "numeric",
   plotPxHeight = "numeric",
   plotPxWidth = "numeric",
+  plotXLegendScale = "character"
   sumCycleMerge = "character",
   sumColumnMerge = "character",
   cycleCycleMerge = "character",
@@ -107,6 +109,7 @@ defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", t
     plotCycles = 6,
     plotPxHeight = 0,
     plotPxWidth = 1100,
+    plotXLegendScale = "days"
     sumCycleMerge = "",
     sumColumnMerge = "total|1|2|3|4,5",
     cycleColumnMerge = "1|2|3|4,5",
