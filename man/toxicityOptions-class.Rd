@@ -62,6 +62,8 @@ Default toxicity options generator, requiring metadata only.
 
 \item{\code{plotPxWidth}}{Number of pixels to use to generate plot horizontally}
 
+\item{\code{plotXLegendScale}}{"days", "weeks", or a number entered as a string}
+
 \item{\code{sumCycleMerge}}{Cycles to merge in the \code{\link{print_toxTable_summary}}. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.}
 
 \item{\code{sumColumnMerge}}{Grades to merge in the \code{\link{print_toxTable_summary}}. Similar syntax to sumCycleMerge}

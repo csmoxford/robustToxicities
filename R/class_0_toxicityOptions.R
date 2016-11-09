@@ -52,7 +52,7 @@
   plotCycles = "numeric",
   plotPxHeight = "numeric",
   plotPxWidth = "numeric",
-  plotXLegendScale = "character"
+  plotXLegendScale = "character",
   sumCycleMerge = "character",
   sumColumnMerge = "character",
   cycleCycleMerge = "character",
@@ -109,7 +109,7 @@ defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", t
     plotCycles = 6,
     plotPxHeight = 0,
     plotPxWidth = 1100,
-    plotXLegendScale = "days"
+    plotXLegendScale = "days",
     sumCycleMerge = "",
     sumColumnMerge = "total|1|2|3|4,5",
     cycleColumnMerge = "1|2|3|4,5",
