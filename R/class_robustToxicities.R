@@ -16,7 +16,7 @@
 
   validObject(object@options)
 
-  cnames = colnames(object@cleanData)
+  cnames = names(object@cleanData)
 
   if (object@options@timeType == "time") {
     required_list = c("patid", "treatment", "ae_term", "ae_system", "ae_grade",
@@ -63,9 +63,10 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     stop("data must be of class data.frame")
   }
 
+
+
   cleanData = data
   dm = dim(cleanData)
-
   ################################################################################
   # Check fields are provided (all need these fields)
   requiredData = c("patid", "ae_term", "ae_system")
@@ -132,7 +133,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
 
 
 
-    requiredData = c("ae_start_date", "ae_end_date", "ae_cont_end_study", "date_stopped_treatment", paste0("cycle_start_date_",1:length(cycleLabels)))
+    requiredData = c("ae_start_date", "ae_end_date", "ae_cont_end_study", "date_stopped_treatment")
     # time data names
     for (colName in requiredData) {
       if (!colName %in% name) {
@@ -141,7 +142,14 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
       }
     }
 
-
+    requiredData = paste0("cycle_start_date_",1:length(cycleLabels))
+    # time data names
+    for (colName in requiredData) {
+      if (!colName %in% name) {
+        message("There are more cycle labels than cycle_start_date_ columns.")
+        stp = 1
+      }
+    }
 
   } else if(options@timeType  == "cycle") {
 
@@ -161,7 +169,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   }
 
   if(stp){
-    message("Something is broken")
+    stop("Something is broken")
   }
 
   notes = options@displayNotes
@@ -350,24 +358,25 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     # dates = grep("cycle_start_date_",names(cleanData))
 
     singleLineData = cleanData[sapply(unique(cleanData$patid), function(x) which(x == cleanData$patid)[1]),]
-
-    for (j in 2:length(names_cycle)) {
-      for (i in 1:dim(singleLineData)[1]) {
-        d1 = singleLineData[i,names_cycle[j - 1]]
-        d2 = singleLineData[i,names_cycle[j]]
-        if(!is.na(d2)) {
-          # second date exists
-          if(!is.na(d1)) {
-            # first date exists
-            if( d1 > d2) {
-              # first date before second date
-              msg = paste0("Patient ", singleLineData$patid[i], " date for cycle named ", cycleLabels[names_cycle_stub[j - 1]], " (", d1, ") is before date for ", cycleLabels[names_cycle_stub[j]], " (", d2, ")")
-              queries = query(singleLineData, i, msg, "Wrong data", notes)
+    if(length(names_cycle) > 1){
+      for (j in 2:length(names_cycle)) {
+        for (i in 1:dim(singleLineData)[1]) {
+          d1 = singleLineData[i,names_cycle[j - 1]]
+          d2 = singleLineData[i,names_cycle[j]]
+          if(!is.na(d2)) {
+            # second date exists
+            if(!is.na(d1)) {
+              # first date exists
+              if( d1 > d2) {
+                # first date before second date
+                msg = paste0("Patient ", singleLineData$patid[i], " date for cycle named ", cycleLabels[names_cycle_stub[j - 1]], " (", d1, ") is before date for ", cycleLabels[names_cycle_stub[j]], " (", d2, ")")
+                queries = query(singleLineData, i, msg, "Wrong data", notes)
+              }
+            } else {
+              # first date missing by second date available
+              msg = paste0("Patient ", singleLineData$patid[i], " date for ", cycleLabels[names_cycle_stub[j - 1]], " is missing but the future date for",  cycleLabels[names_cycle_stub[j]], "  (", d2, ") is not")
+              queries = query(singleLineData, i, msg, "Missing data", notes)
             }
-          } else {
-            # first date missing by second date available
-            msg = paste0("Patient ", singleLineData$patid[i], " date for ", cycleLabels[names_cycle_stub[j - 1]], " is missing but the future date for",  cycleLabels[names_cycle_stub[j]], "  (", d2, ") is not")
-            queries = query(singleLineData, i, msg, "Missing data", notes)
           }
         }
       }
@@ -397,7 +406,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     # if missing end date and continuing at end of study assign end of treatment date + 30
     for(i in 1:dm[1]){
       if(cleanData$ae_grade[i] > 0){
-        if((cleanData$ae_cont_end_study[i]=="yes" | cleanData$ae_cont_end_study[i] == TRUE) & is.na(cleanData$ae_end_date[i])){
+        if((isTRUE(cleanData$ae_cont_end_study[i]=="yes") | isTRUE(cleanData$ae_cont_end_study[i])) & is.na(cleanData$ae_end_date[i])){
           if(!is.na(cleanData$date_end_assessment[i])){
             cleanData$ae_end_date[i]=cleanData$date_end_assessment[i]
             msg = paste("Note: Patient:", cleanData$patid[i], "toxicity:", cleanData$ae_term[i], "line:", i, "is continueing at end of study, setting the ae_end_date to date_end_assessment")
@@ -508,13 +517,12 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   # missing ae_system
   for (i in 1:dm[1]) {
     if (cleanData$ae_grade[i] > 0) {
-      if (is.na(cleanData$ae_system[i])) {
+      if (cleanData$ass_category[i] == "") {
         msg = paste("Patient", cleanData$patid[i], "is missing ae_system (ctcae category), line", i)
         queries = query(cleanData, i, msg, "Missing data",notes)
       }
     }
   }
-
 
   ################################################################################
   # number Toxicities
@@ -524,6 +532,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   cleanData$ass_toxID    = 0
   cleanData$ass_toxID[1] = 1
   j=1
+
   for (i in 2:length( cleanData$ass_toxID)) {
     if (cleanData$ass_toxicity_disp[i] != cleanData$ass_toxicity_disp[i-1]) {
       j = j + 1
@@ -534,8 +543,6 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   cleanData$order = NULL
   ################################################################################
   # Summarise the preparation
-
-
   message("\n#############################################################")
   message("# Summary of preparation")
   message("Number of patients: ", length(unique(cleanData$patid)))
@@ -546,6 +553,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   message("Number of notes: ", sum(queries$problem_type == "Note"))
   message("Number of missing data problems: ", sum(queries$problem_type == "Missing data"))
   message("Number of incorrect data problems: ", sum(queries$problem_type == "Wrong data"))
+
 
   return(.robustToxicities(data = data, queries = queries, treatmentLabels = treatmentLabels, cycleLabels = cycleLabels, cleanData = cleanData, options = options))
 }

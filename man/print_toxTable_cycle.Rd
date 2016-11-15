@@ -4,7 +4,7 @@
 \alias{print_toxTable_cycle}
 \title{Toxicity tables by cycle/s}
 \usage{
-print_toxTable_cycle(toxDB, cycles, printMethod = "table")
+print_toxTable_cycle(toxDB, cycles = 1, printMethod = "table")
 }
 \arguments{
 \item{toxDB}{an object of class robustToxicities}

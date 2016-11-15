@@ -13,7 +13,7 @@
 #' @import xtable
 #' @export print_toxTable_cycle
 
-print_toxTable_cycle = function(toxDB, cycles, printMethod = "table") {
+print_toxTable_cycle = function(toxDB, cycles = 1, printMethod = "table") {
 
   validObject(toxDB)
 
