@@ -446,6 +446,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
       c_sd=dates[j]
       c_ed=dates[j+1]
       occur=paste0("occur_in_cycle_",names_cycle_stub[j])
+      present = paste0("present_in_cycle_",names_cycle_stub[j])
       cleanData[,occur]=0
       for (i in 1:dm[1]) {
         if (cleanData$ae_grade[i] > 0) {
@@ -454,18 +455,18 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
                 cleanData[i,c_sd]<=cleanData$ae_end_date[i]   & cleanData$ae_end_date[i]<cleanData[i,c_ed]   |
                 cleanData$ae_start_date[i]<=cleanData[i,c_sd] & cleanData[i,c_sd]<=cleanData$ae_end_date[i]   |
                 cleanData$ae_start_date[i]<cleanData[i,c_ed] & cleanData[i,c_ed]<cleanData$ae_start_date[i] ){
-              cleanData[i,occur]=cleanData$ae_grade[i]
+              cleanData[i,occur]=cleanData$ae_grade[i] * cleanData[i,present]
             }
           } else if(!is.na(cleanData[i,c_sd]) & is.na(cleanData[i,c_ed]) & !is.na(cleanData[i,"date_stopped_treatment"])){
             if(cleanData[i,c_sd] <= cleanData$ae_start_date[i] & cleanData$ae_start_date[i] < cleanData[i,"date_stopped_treatment"] |
                cleanData[i,c_sd] <= cleanData$ae_end_date[i]   & cleanData$ae_end_date[i] < cleanData[i,"date_stopped_treatment"]   |
                cleanData$ae_start_date[i] <= cleanData[i, c_sd] & cleanData[i, c_sd] <= cleanData$ae_end_date[i]   |
                cleanData$ae_start_date[i] < cleanData[i, "date_stopped_treatment"] & cleanData[i, "date_stopped_treatment"] < cleanData$ae_start_date[i] ){
-              cleanData[i, occur] = cleanData$ae_grade[i]
+              cleanData[i, occur] = cleanData$ae_grade[i] * cleanData[i,present]
             }
           } else if(!is.na(cleanData[i,c_sd]) & is.na(cleanData[i,c_ed]) & is.na(cleanData[i,"date_stopped_treatment"])){
             #if the cycle start date is the last recorded date it must be in this cycle
-            cleanData[i,occur] = cleanData$ae_grade[i]
+            cleanData[i,occur] = cleanData$ae_grade[i] * cleanData[i,present]
           }
         }
       }

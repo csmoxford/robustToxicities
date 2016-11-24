@@ -38,7 +38,6 @@
         toxTable[cycle.no, 7 * treatment - 5 ] = length(unique(cleanDataAll$patid[cleanDataAll[, paste0("present_in_cycle_", cycles)]]))
         x=aggregate(cleanDataSub[,paste0("occur_in_cycle_",cycles)],by=list(cleanDataSub$patid),FUN=max)$x
       }
-
       toxTable[cycle.no,3:8 + (treatment - 1) * 7] = c(sum(x == 0),sum(x == 1),sum(x == 2),sum(x == 3),sum(x == 4),sum(x == 5))
     }
   }

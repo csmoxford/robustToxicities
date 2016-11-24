@@ -25,6 +25,10 @@ print_toxTable_cycle = function(toxDB, cycles = 1, printMethod = "table") {
     stop("Print method not defined for method: ",printMethod)
   }
 
+  if(cycles == "all"){
+    cycles = 1:length(toxDB@cycleLabels)
+  }
+
   toxTableList = .toxTable_cycle(toxDB, cycles)
   toxTable  = toxTableList$toxTable
   nPatients = toxTableList$nPatients
