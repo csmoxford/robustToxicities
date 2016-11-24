@@ -226,7 +226,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     "Nervous system disorders",
     "Pregnancy, puerperium and perinatal conditions",
     "Psychiatric disorders",
-    "Renal and urinary disorder",
+    "Renal and urinary disorders",
     "Reproductive system and breast disorders",
     "Respiratory, thoracic and mediastinal disorders",
     "Skin and subcutaneous tissue disorders",
