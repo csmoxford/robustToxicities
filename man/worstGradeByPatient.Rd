@@ -16,6 +16,9 @@ worstGradeByPatientSystem(toxDB, df = NULL)
 
 \item{df}{(optional) an existing data.frame to add the column to. If noy provided this is created from the data.}
 }
+\value{
+Returns a data.frame
+}
 \description{
 Returns a patient level data.frame containing the worst grade for each patient. The ass_TRUE is used as a filter.
 }
