@@ -152,4 +152,6 @@ table_tox_categories = function(data, categoryList = "all", strata = NULL, strat
   )
 
   names(tble)[1:2] = c("Category", "Grade")
+
+  return(tble)
 }
