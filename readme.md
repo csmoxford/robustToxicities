@@ -14,8 +14,6 @@ See the examples in inst\examples, or read the help files using `?robustToxiciti
 
 ## To-do list ##
 
-1. Link the examples properly.
-
 ## Credits ##
 
 Peter Dutton (Centre for Statistics in Medicine, University of Oxford)
