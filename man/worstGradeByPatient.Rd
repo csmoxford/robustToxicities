@@ -2,9 +2,12 @@
 % Please edit documentation in R/worstGradeByPatient.R
 \name{worstGradeByPatient}
 \alias{worstGradeByPatient}
+\alias{worstGradeByPatientSystem}
 \title{Generate worst grade by patient}
 \usage{
 worstGradeByPatient(toxDB, colName, df = NULL)
+
+worstGradeByPatientSystem(toxDB, df = NULL)
 }
 \arguments{
 \item{toxDB}{an object of class robustToxicities}
@@ -15,5 +18,8 @@ worstGradeByPatient(toxDB, colName, df = NULL)
 }
 \description{
 Returns a patient level data.frame containing the worst grade for each patient. The ass_TRUE is used as a filter.
+}
+\details{
+worstGradeByPatientSystem does the same thing but wraps over all categories.
 }
 
