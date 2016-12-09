@@ -145,7 +145,7 @@ table_tox_categories = function(data, categoryList = "all", strata = NULL, strat
     strata = strata,
     strata.names = strata.names,
     strata.count = strata.count,
-    type = rep("stp",28),
+    type = rep("stp",length(categoryList)),
     round = 1,
     overall = overall,
     count = count
