@@ -96,7 +96,7 @@ worstGradeByPatientSystem = function(toxDB, df = NULL){
 #' @return Returns a data.frame
 #' @export table_tox_categories
 #' @importFrom prettyTables table_values
-table_tox_categories = function(data, categoryList = "all", strata = NULL, strata.names = NULL, strata.count = TRUE, overall = TRUE, count = "n", round = 3){
+table_tox_categories = function(data, strata = NULL, strata.names = NULL, categoryList = "all", strata.count = TRUE, overall = TRUE, count = "n", round = 3){
 
   if(categoryList == "all"){
     categoryList = c(
@@ -146,7 +146,7 @@ table_tox_categories = function(data, categoryList = "all", strata = NULL, strat
     strata.names = strata.names,
     strata.count = strata.count,
     type = rep("stp",length(categoryList)),
-    round = 1,
+    round = round,
     overall = overall,
     count = count
   )
