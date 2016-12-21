@@ -21,7 +21,7 @@ worstGradeByPatient = function(toxDB, colName, df = NULL){
     colName = "Missing"
   }
   if(is.null(df)){
-    df = data.frame(patid = unique(toxDB@cleanData$patid))
+    df = data.frame(patid = unique(toxDB@cleanData$patid), stringsAsFactors = FALSE)
   }
   # print(table(toxDB@cleanData$ass_TRUE, useNA = "always"))
 
