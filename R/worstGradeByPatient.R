@@ -65,8 +65,10 @@ worstGradeByPatientSystem = function(toxDB, df = NULL){
     "Other",
     "")
 
+  ass_TRUE_init = toxDB@cleanData$ass_TRUE
+
   for(i in categoryList){
-    toxDB@cleanData$ass_TRUE = toxDB@cleanData$ae_system == i
+    toxDB@cleanData$ass_TRUE = ass_TRUE_init & toxDB@cleanData$ae_system == i
     df=worstGradeByPatient(toxDB, i, df)
   }
 
