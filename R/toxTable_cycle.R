@@ -24,7 +24,7 @@
   }
 
   #####################################################################
-  # subset database with toxicities in requested cycles cycles
+  # subset database with toxicities in requested cycles
   toxDB@cleanData$x = apply(toxDB@cleanData[paste0("occur_in_cycle_", cycles)] , 1 , function(y) max(as.numeric(y)))
   cleanDataSub = toxDB@cleanData[toxDB@cleanData$x > 0 & toxDB@cleanData$ass_TRUE, ]
 
@@ -32,10 +32,6 @@
   max.cycle = sum(str_detect(names(cleanDataSub), "occur_in_cycle_"))
   # names of the cycles
   names_occur = names(cleanDataSub)[str_detect(names(cleanDataSub), "occur_in_cycle_")]
-
-
-
-
 
   # generate initial table
   if(toxDB@options@tabulationMethod == "worst"){

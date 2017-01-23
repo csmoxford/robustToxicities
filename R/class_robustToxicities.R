@@ -527,6 +527,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
 
   ################################################################################
   # number Toxicities
+  cleanData$ass_toxicity_disp[is.na(cleanData$ass_toxicity_disp)] = ""
   cleanData$order = 1:dm[1]
   cleanData = cleanData[order(cleanData$ass_category, cleanData$ass_toxicity_disp), ]
 
@@ -534,7 +535,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   cleanData$ass_toxID[1] = 1
   j=1
 
-  for (i in 2:length( cleanData$ass_toxID)) {
+  for (i in 2:length(cleanData$ass_toxID)) {
     if (cleanData$ass_toxicity_disp[i] != cleanData$ass_toxicity_disp[i-1]) {
       j = j + 1
     }
