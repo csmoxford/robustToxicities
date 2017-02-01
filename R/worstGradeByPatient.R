@@ -25,7 +25,7 @@ worstGradeByPatient = function(toxDB, colName, df = NULL){
   }
   # print(table(toxDB@cleanData$ass_TRUE, useNA = "always"))
 
-  df[,colName] = sapply(df$patid, function(patid) max(0,toxDB@cleanData$ae_grade[toxDB@cleanData$patid == patid & toxDB@cleanData$ass_TRUE], na.rm = TRUE))
+  df[,colName] = sapply(df$patid, function(patid) max(-1,toxDB@cleanData$ae_grade[toxDB@cleanData$patid == patid & toxDB@cleanData$ass_TRUE], na.rm = TRUE))
 
   return(df)
 
