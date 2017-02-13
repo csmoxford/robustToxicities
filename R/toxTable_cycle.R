@@ -26,7 +26,7 @@
   #####################################################################
   # subset database with toxicities in requested cycles
   toxDB@cleanData$x = apply(toxDB@cleanData[paste0("occur_in_cycle_", cycles)] , 1 , function(y) max(as.numeric(y)))
-  cleanDataSub = toxDB@cleanData[toxDB@cleanData$x > 0 & toxDB@cleanData$ass_TRUE, ]
+  cleanDataSub = toxDB@cleanData[toxDB@cleanData$x >= toxDB@options@minGrade & toxDB@cleanData$ass_TRUE, ]
 
   # maximum cycle must go up to
   max.cycle = sum(str_detect(names(cleanDataSub), "occur_in_cycle_"))
@@ -102,11 +102,13 @@
   toxTable$toxID = NULL
 
   # remove duplication of writing categories (one under the other before)
-  a = dim(toxTable)[1]
-  if(a >= 3){
-    for(i in a:2){
-      if(toxTable$category[i-1] == toxTable$category[i]){
-        toxTable$category[i] = ""
+  if(toxDB@options@cycleCategoryFirstOnly){
+    a = dim(toxTable)[1]
+    if(a >= 3){
+      for(i in a:2){
+        if(toxTable$category[i-1] == toxTable$category[i]){
+          toxTable$category[i] = ""
+        }
       }
     }
   }

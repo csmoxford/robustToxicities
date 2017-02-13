@@ -26,11 +26,13 @@
 #' @slot plotPxHeight Number of pixels to use to generate plot vertically
 #' @slot plotPxWidth Number of pixels to use to generate plot horizontally
 #' @slot plotXLegendScale "days", "weeks", or a number entered as a string
+#' @slot minGrade The lowest grade to use to generate a table.
 #' @slot sumCycleMerge Cycles to merge in the \code{\link{print_toxTable_summary}}. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.
 #' @slot sumColumnMerge Grades to merge in the \code{\link{print_toxTable_summary}}. Similar syntax to sumCycleMerge
 #' @slot cycleCycleMerge Cycles to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge
 #' @slot cycleColumnMerge Grades to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge
 #' @slot cycleCategoryMerge A list of categories to collapse down to one row in the \code{\link{print_toxTable_cycle}}.
+#' @slot cycleCategoryFirstOnly A logical value asking whether to keep only the category on the first row a category is used. This makes tables prettier but should be turned off if you plan to sort these later but still want the categories.
 #'
 #' @import methods
 #' @exportClass toxicityOptions
@@ -53,11 +55,13 @@
   plotPxHeight = "numeric",
   plotPxWidth = "numeric",
   plotXLegendScale = "character",
+  minGrade = "numeric",
   sumCycleMerge = "character",
   sumColumnMerge = "character",
   cycleCycleMerge = "character",
   cycleColumnMerge = "character",
-  cycleCategoryMerge = "character" # what is this supposed to be?
+  cycleCategoryMerge = "character", # what is this supposed to be?
+  cycleCategoryFirstOnly = "logical"
 ),validity = function(object) {
 
   if(!object@timeType %in% c("time","cycle")) {
@@ -110,10 +114,12 @@ defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", t
     plotPxHeight = 0,
     plotPxWidth = 1100,
     plotXLegendScale = "days",
+    minGrade = 1,
     sumCycleMerge = "",
     sumColumnMerge = "total|1|2|3|4,5",
     cycleColumnMerge = "1|2|3|4,5",
     cycleCycleMerge = "",
-    cycleCategoryMerge = "" # collapse CTCAE categories in table
+    cycleCategoryMerge = "", # collapse CTCAE categories in table
+    cycleCategoryFirstOnly = TRUE
   )
 }
