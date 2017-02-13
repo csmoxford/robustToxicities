@@ -4,18 +4,18 @@
 \alias{table_tox_categories}
 \title{Generate a prettyTable of worst toxicity by category.}
 \usage{
-table_tox_categories(data, categoryList = "all", strata = NULL,
-  strata.names = NULL, strata.count = TRUE, overall = TRUE, count = "n",
-  round = 3)
+table_tox_categories(data, strata = NULL, strata.names = NULL,
+  categoryList = "all", strata.count = TRUE, overall = TRUE,
+  count = "n", round = 3)
 }
 \arguments{
 \item{data}{A data.frame This should be the output from \code{\link{worstGradeByPatientSystem}}}
 
-\item{categoryList}{A list of categories. Default is all. A subset is selected by changing this value.}
-
 \item{strata}{A string of the column to used to stratify on}
 
 \item{strata.names}{Otional. A named vector of alternative strata names}
+
+\item{categoryList}{A list of categories. Default is all. A subset is selected by changing this value.}
 
 \item{strata.count}{TRUE/FALSE for displaying strata counts at the top of each column}
 

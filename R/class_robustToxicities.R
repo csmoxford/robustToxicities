@@ -441,7 +441,7 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
     }
 
     # mark if ae present in cycle
-    dates = c(names_cycle, "date_stopped_treatment")
+    dates = c(names_cycle, "date_end_assessment")
     for (j in 1:length(names_cycle)) {
       c_sd=dates[j]
       c_ed=dates[j+1]
@@ -451,17 +451,18 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
       for (i in 1:dm[1]) {
         if (cleanData$ae_grade[i] > 0) {
           if (!is.na(cleanData[i,c_sd]) & !is.na(cleanData[i,c_ed])) {
-            if (cleanData[i,c_sd] <= cleanData$ae_start_date[i] & cleanData$ae_start_date[i] < cleanData[i,c_ed] |
-                cleanData[i,c_sd]<=cleanData$ae_end_date[i]   & cleanData$ae_end_date[i]<cleanData[i,c_ed]   |
-                cleanData$ae_start_date[i]<=cleanData[i,c_sd] & cleanData[i,c_sd]<=cleanData$ae_end_date[i]   |
-                cleanData$ae_start_date[i]<cleanData[i,c_ed] & cleanData[i,c_ed]<cleanData$ae_start_date[i] ){
+            if ((cleanData[i,c_sd] <= cleanData$ae_start_date[i] & cleanData$ae_start_date[i] < cleanData[i,c_ed]) | # start date in time window
+                (cleanData[i,c_sd]<=cleanData$ae_end_date[i]   & cleanData$ae_end_date[i]<cleanData[i,c_ed])   | # end date in time window
+                (cleanData$ae_start_date[i]<=cleanData[i,c_sd] & cleanData[i,c_ed]<=cleanData$ae_end_date[i]) ){ # time window inside start end date
+
               cleanData[i,occur]=cleanData$ae_grade[i] * cleanData[i,present]
+
             }
-          } else if(!is.na(cleanData[i,c_sd]) & is.na(cleanData[i,c_ed]) & !is.na(cleanData[i,"date_stopped_treatment"])){
-            if(cleanData[i,c_sd] <= cleanData$ae_start_date[i] & cleanData$ae_start_date[i] < cleanData[i,"date_stopped_treatment"] |
-               cleanData[i,c_sd] <= cleanData$ae_end_date[i]   & cleanData$ae_end_date[i] < cleanData[i,"date_stopped_treatment"]   |
-               cleanData$ae_start_date[i] <= cleanData[i, c_sd] & cleanData[i, c_sd] <= cleanData$ae_end_date[i]   |
-               cleanData$ae_start_date[i] < cleanData[i, "date_stopped_treatment"] & cleanData[i, "date_stopped_treatment"] < cleanData$ae_start_date[i] ){
+          } else if(!is.na(cleanData[i,c_sd]) & is.na(cleanData[i,c_ed]) & !is.na(cleanData[i,"date_stopped_treatment"])){  window
+            if((cleanData[i,c_sd] <= cleanData$ae_start_date[i] & cleanData$ae_start_date[i] < cleanData[i,"date_stopped_treatment"]) | # start date in time
+               (cleanData[i,c_sd] <= cleanData$ae_end_date[i]   & cleanData$ae_end_date[i] < cleanData[i,"date_stopped_treatment"])   | # end date in time window
+               (cleanData$ae_start_date[i] <= cleanData[i, c_sd] & cleanData[i, c_sd] <= cleanData$ae_end_date[i])){ # time window inside start end date
+
               cleanData[i, occur] = cleanData$ae_grade[i] * cleanData[i,present]
             }
           } else if(!is.na(cleanData[i,c_sd]) & is.na(cleanData[i,c_ed]) & is.na(cleanData[i,"date_stopped_treatment"])){

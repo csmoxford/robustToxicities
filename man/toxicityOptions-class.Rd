@@ -64,6 +64,8 @@ Default toxicity options generator, requiring metadata only.
 
 \item{\code{plotXLegendScale}}{"days", "weeks", or a number entered as a string}
 
+\item{\code{minGrade}}{The lowest grade to use to generate a table.}
+
 \item{\code{sumCycleMerge}}{Cycles to merge in the \code{\link{print_toxTable_summary}}. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.}
 
 \item{\code{sumColumnMerge}}{Grades to merge in the \code{\link{print_toxTable_summary}}. Similar syntax to sumCycleMerge}
@@ -73,5 +75,7 @@ Default toxicity options generator, requiring metadata only.
 \item{\code{cycleColumnMerge}}{Grades to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge}
 
 \item{\code{cycleCategoryMerge}}{A list of categories to collapse down to one row in the \code{\link{print_toxTable_cycle}}.}
+
+\item{\code{cycleCategoryFirstOnly}}{A logical value asking whether to keep only the category on the first row a category is used. This makes tables prettier but should be turned off if you plan to sort these later but still want the categories.}
 }}
 
