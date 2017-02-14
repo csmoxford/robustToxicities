@@ -559,16 +559,23 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   message("Number of notes: ", sum(queries$problem_type == "Note"))
   message("Number of missing data problems: ", sum(queries$problem_type == "Missing data"))
   message("Number of incorrect data problems: ", sum(queries$problem_type == "Wrong data"))
-  afterAss = sum(cleanData$ae_start_date > cleanData$date_end_assessment)
+  afterAss = sum(cleanData$ae_start_date > cleanData$date_end_assessment, na.rm = TRUE)
   if(afterAss > 0){
     message("There are ", afterAss, " adverse events starting after the date_end_assessment these will be not currently be reported.")
     warning("There are ", afterAss, " adverse events starting after the date_end_assessment these will be not currently be reported.")
   }
 
-  beforeAss = sum(cleanData$ae_end_date < cleanData$cycle_start_date_1)
+  beforeAss = sum(cleanData$ae_end_date < cleanData$cycle_start_date_1, na.rm = TRUE)
   if(beforeAss > 0){
     message("There are ", beforeAss, " adverse events ending before the first time point cycle_start_date_1 (labeled ",cycleLabels[1] ,") these will be not currently be reported.")
     warning("There are ", beforeAss, " adverse events ending before the first time point cycle_start_date_1 (labeled ",cycleLabels[1] ,") these will be not currently be reported.")
+  }
+
+  if(sum(is.na(cleanData$date_end_assessment))){
+    warning("Missing date_end_addessment for ", sum(is.na(cleanData$date_end_assessment)), " rows of data")
+  }
+  if(sum(is.na(cleanData$cycle_start_date_1))){
+    warning("Missing cycle_start_date_1 (labeled ",cycleLabels[1] ,") for ", sum(is.na(cleanData$cycle_start_date_1)), "rows of data")
   }
 
   return(.robustToxicities(data = data, queries = queries, treatmentLabels = treatmentLabels, cycleLabels = cycleLabels, cleanData = cleanData, options = options))
