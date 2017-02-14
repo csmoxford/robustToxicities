@@ -458,14 +458,14 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
               cleanData[i,occur]=cleanData$ae_grade[i] * cleanData[i,present]
 
             }
-          } else if(!is.na(cleanData[i,c_sd]) & is.na(cleanData[i,c_ed]) & !is.na(cleanData[i,"date_stopped_treatment"])){  window
-            if((cleanData[i,c_sd] <= cleanData$ae_start_date[i] & cleanData$ae_start_date[i] < cleanData[i,"date_stopped_treatment"]) | # start date in time
-               (cleanData[i,c_sd] <= cleanData$ae_end_date[i]   & cleanData$ae_end_date[i] < cleanData[i,"date_stopped_treatment"])   | # end date in time window
+          } else if(!is.na(cleanData[i,c_sd]) & is.na(cleanData[i,c_ed]) & !is.na(cleanData[i,"date_end_assessment"])){  window
+            if((cleanData[i,c_sd] <= cleanData$ae_start_date[i] & cleanData$ae_start_date[i] < cleanData[i,"date_end_assessment"]) | # start date in time
+               (cleanData[i,c_sd] <= cleanData$ae_end_date[i]   & cleanData$ae_end_date[i] < cleanData[i,"date_end_assessment"])   | # end date in time window
                (cleanData$ae_start_date[i] <= cleanData[i, c_sd] & cleanData[i, c_sd] <= cleanData$ae_end_date[i])){ # time window inside start end date
 
               cleanData[i, occur] = cleanData$ae_grade[i] * cleanData[i,present]
             }
-          } else if(!is.na(cleanData[i,c_sd]) & is.na(cleanData[i,c_ed]) & is.na(cleanData[i,"date_stopped_treatment"])){
+          } else if(!is.na(cleanData[i,c_sd]) & is.na(cleanData[i,c_ed]) & is.na(cleanData[i,"date_end_assessment"])){
             #if the cycle start date is the last recorded date it must be in this cycle
             cleanData[i,occur] = cleanData$ae_grade[i] * cleanData[i,present]
           }
@@ -473,6 +473,9 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
       }
     }
   }
+
+
+
 
   length(cycleLabels)
   ################################################################################
@@ -556,7 +559,17 @@ robustToxicities = function(data, cycleLabels, options, treatmentLabels = NULL) 
   message("Number of notes: ", sum(queries$problem_type == "Note"))
   message("Number of missing data problems: ", sum(queries$problem_type == "Missing data"))
   message("Number of incorrect data problems: ", sum(queries$problem_type == "Wrong data"))
+  afterAss = sum(cleanData$ae_start_date > cleanData$date_end_assessment)
+  if(afterAss > 0){
+    message("There are ", afterAss, " adverse events starting after the date_end_assessment these will be not currently be reported.")
+    warning("There are ", afterAss, " adverse events starting after the date_end_assessment these will be not currently be reported.")
+  }
 
+  beforeAss = sum(cleanData$ae_end_date < cleanData$cycle_start_date_1)
+  if(beforeAss > 0){
+    message("There are ", beforeAss, " adverse events ending before the first time point cycle_start_date_1 (labeled ",cycleLabels[1] ,") these will be not currently be reported.")
+    warning("There are ", beforeAss, " adverse events ending before the first time point cycle_start_date_1 (labeled ",cycleLabels[1] ,") these will be not currently be reported.")
+  }
 
   return(.robustToxicities(data = data, queries = queries, treatmentLabels = treatmentLabels, cycleLabels = cycleLabels, cleanData = cleanData, options = options))
 }
