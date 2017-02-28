@@ -42,6 +42,8 @@ Default toxicity options generator, requiring metadata only.
 
 \item{\code{tabulationPercent}}{A logical value used to determine if toxicity tables should report counts (FALSE) or percentages (TRUE)}
 
+\item{\code{tabulationZeros}}{A logical value used to determine if zeros should be included, default TRUE}
+
 \item{\code{cumulativeGrades}}{A logical value used to determine whether toxicity grades should be reported cumulatively or not}
 
 \item{\code{discardBaseline}}{A logical value used to determine if toxicities reported at baseline should be reported or not}
