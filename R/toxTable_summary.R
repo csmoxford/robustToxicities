@@ -5,7 +5,11 @@
   no_cycles = sum(str_detect(names(toxDB@cleanData), "present_in_cycle_"))
   names_cycle = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "present_in_cycle_")]
 
-  cycle.lists=strsplit(toxDB@options@sumCycleMerge,"[|]")[[1]]
+  cycle.lists = strsplit(toxDB@options@sumCycleMerge,"[|]")[[1]]
+
+  if(length(cycle.lists) == 0){
+    error("toxDB@options@sumCycleMerge is not provided see the help ?toxicityOptions-class for details")
+  }
 
   # create table to populate
   toxTable = data.frame(cycle.number = cycle.lists, stringsAsFactors = FALSE)

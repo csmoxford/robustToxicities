@@ -76,6 +76,17 @@ print_toxTable_cycle = function(toxDB, cycles = 1, printMethod = "table") {
     }
   }
 
+  if(!toxDB@options@tabulationZeros) {
+    dm = dim(toxTable)
+    for(i in 1:dm[1]){
+      for(j in 1:dm[2]){
+        if(toxTable[i,j] == 0){
+          toxTable[i,j] = ""
+        }
+      }
+    }
+  }
+
 
   toxTable = rbind(rep("",dim(toxTable)[1]),toxTable)
   toxTable[1,] = ""

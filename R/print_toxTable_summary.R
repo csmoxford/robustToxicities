@@ -72,6 +72,17 @@ print_toxTable_summary = function(toxDB, printMethod = "table") {
     }
   }
 
+  if(!toxDB@options@tabulationZeros) {
+    dm = dim(toxTable)
+    for(i in 1:dm[1]){
+      for(j in 1:dm[2]){
+        if(toxTable[i,j] == 0){
+          toxTable[i,j] = ""
+        }
+      }
+    }
+  }
+
   if( printMethod == "print") {
     print(toxTable, row.names = FALSE)
   } else if( printMethod == "table") {

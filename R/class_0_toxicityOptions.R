@@ -15,6 +15,7 @@
 #' @slot displayNotes A logical value used by \code{\link{robustToxicities}} to determine whether to print note or note
 #' @slot tabulationMethod One of "worst" or "all" determining if all toxicity changes are counted or only the worst reported grade in a time period
 #' @slot tabulationPercent A logical value used to determine if toxicity tables should report counts (FALSE) or percentages (TRUE)
+#' @slot tabulationZeros A logical value used to determine if zeros should be included, default TRUE
 #' @slot cumulativeGrades A logical value used to determine whether toxicity grades should be reported cumulatively or not
 #' @slot discardBaseline A logical value used to determine if toxicities reported at baseline should be reported or not
 #' @slot plotStartTreatment The column name of the treatment start date used in plotting (character string)
@@ -44,6 +45,7 @@
   displayNotes = "logical",
   tabulationMethod = "character",
   tabulationPercent = "logical",
+  tabulationZeros = "logical",
   cumulativeGrades = "logical",
   discardBaseline = "logical",
   plotStartTreatment = "character",
@@ -103,6 +105,7 @@ defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", t
     displayNotes = TRUE,
     tabulationMethod = "worst",
     tabulationPercent = FALSE,
+    tabulationZeros = TRUE,
     cumulativeGrades = TRUE,
     discardBaseline = FALSE,
     plotStartTreatment = "cycle_start_date_1",
