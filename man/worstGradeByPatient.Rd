@@ -5,24 +5,21 @@
 \alias{worstGradeByPatientSystem}
 \title{Generate worst grade by patient}
 \usage{
-worstGradeByPatient(toxDB, colName, df = NULL)
+worstGradeByPatient(rt, toxData = NULL)
 
-worstGradeByPatientSystem(toxDB, df = NULL)
+worstGradeByPatientSystem(rt, categoryList = NULL)
 }
 \arguments{
-\item{toxDB}{an object of class robustToxicities}
+\item{rt}{an object of class robustToxicities}
 
-\item{colName}{The name of the column created}
-
-\item{df}{(optional) an existing data.frame to add the column to. If noy provided this is created from the data.}
+\item{toxData}{A data.frame subset of rt@toxData if not all data should be used}
 }
 \value{
 Returns a data.frame
 }
 \description{
-Returns a patient level data.frame containing the worst grade for each patient. The ass_TRUE is used as a filter.
+Returns a patient level data.frame containing the worst grade for each patient. The ass_TRUE is used as a filter. Optionally a subset of rt@toxData can be passed in as the second variable. In this case ass_TRUE is still used as a filter.
 }
 \details{
 worstGradeByPatientSystem does the same thing but wraps over all categories.
 }
-

@@ -7,13 +7,8 @@
 \format{A data frame with 29 rows and 20 variables}
 \usage{
 data(toxicityDataTime)
-
-data(toxicityDataCycle)
 }
 \description{
 A time based data set of toxicities. Used as one of the key examples for the robustToxicities pacakge
-
-A time based data set of toxicities. Used as one of the key examples for the robustToxicities pacakge
 }
 \keyword{datasets}
-

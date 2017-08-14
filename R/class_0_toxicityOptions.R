@@ -8,70 +8,30 @@
 #' @name toxicityOptions-class
 #' @rdname toxicityOptions-class
 #'
-#' @slot trialName Trial Name (character string)
-#' @slot folderPath Reference to the folder the data file is stored in (character string)
-#' @slot fileName Reference to the stored data (character string)
-#' @slot timeType One of "Time" or "Cycle" to denote whether the data is primarily time based or only cycle / time period based
 #' @slot displayNotes A logical value used by \code{\link{robustToxicities}} to determine whether to print note or note
-#' @slot tabulationMethod One of "worst" or "all" determining if all toxicity changes are counted or only the worst reported grade in a time period
-#' @slot tabulationPercent A logical value used to determine if toxicity tables should report counts (FALSE) or percentages (TRUE)
-#' @slot tabulationZeros A logical value used to determine if zeros should be included, default TRUE
-#' @slot cumulativeGrades A logical value used to determine whether toxicity grades should be reported cumulatively or not
-#' @slot discardBaseline A logical value used to determine if toxicities reported at baseline should be reported or not
-#' @slot plotStartTreatment The column name of the treatment start date used in plotting (character string)
-#' @slot plotLeftSideOption What should be displayed on the left hand side of the plot. One of "patid", "treatment" or "both"
-#' @slot plotxMin minimum x axis limit
-#' @slot plotxMax maximum x axis limit
-#' @slot plotCycleLength optional cycle length value
-#' @slot plotCycles optional number of cycles to plot
-#' @slot plotPxHeight Number of pixels to use to generate plot vertically
-#' @slot plotPxWidth Number of pixels to use to generate plot horizontally
-#' @slot plotXLegendScale "days", "weeks", or a number entered as a string
-#' @slot minGrade The lowest grade to use to generate a table.
-#' @slot sumCycleMerge Cycles to merge in the \code{\link{print_toxTable_summary}}. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.
-#' @slot sumColumnMerge Grades to merge in the \code{\link{print_toxTable_summary}}. Similar syntax to sumCycleMerge
-#' @slot cycleCycleMerge Cycles to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge
-#' @slot cycleColumnMerge Grades to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge
-#' @slot cycleCategoryMerge A list of categories to collapse down to one row in the \code{\link{print_toxTable_cycle}}.
-#' @slot cycleCategoryFirstOnly A logical value asking whether to keep only the category on the first row a category is used. This makes tables prettier but should be turned off if you plan to sort these later but still want the categories.
+#' @slot toxTable_cycle_tabulationMethod One of "worst" or "all" determining if all toxicity changes are counted or only the worst reported grade in a time period
+#' @slot toxTable_tabulationPercent A logical value used to determine if toxicity tables should report counts (FALSE) or percentages (TRUE)
+#' @slot toxTable_tabulationZeros A logical value used to determine if zeros should be included, default TRUE
+#' @slot toxTable_cumulativeGrades A logical value used to determine whether toxicity grades should be reported cumulatively or not
+#' @slot toxTable_discardToxAtStudyEntry A logical value used to determine if toxicities reported at baseline should be reported or not
+#' @slot toxTable_mergeGrades Grades to merge in the \code{\link{print_toxTable_cycle}}. Columns are seperated by "|" and merged values are seperated by ",". "n"
+#' @slot toxTable_cycle_toxicityOrder What order should the data be returned in. "c" ordered by categories and then adverse events. "a" ordered by adverse events. "n" ordered by number of adverse events. The n option can be followed by a number to denote the minimum grade to use for sorting. e.g. "n3" will order by grades 3-5 and then 1-5 for ties within grades 3-5.
 #'
 #' @import methods
 #' @exportClass toxicityOptions
 .toxicityOptions = setClass("toxicityOptions", slots = c(
-  trialName = "character",
-  folderPath = "character",
-  fileName = "character",
-  timeType = "character",
   displayNotes = "logical",
-  tabulationMethod = "character",
-  tabulationPercent = "logical",
-  tabulationZeros = "logical",
-  cumulativeGrades = "logical",
-  discardBaseline = "logical",
-  plotStartTreatment = "character",
-  plotLeftSideOption = "character",
-  plotxMin = "numeric",
-  plotxMax = "numeric",
-  plotCycleLength = "numeric",
-  plotCycles = "numeric",
-  plotPxHeight = "numeric",
-  plotPxWidth = "numeric",
-  plotXLegendScale = "character",
-  minGrade = "numeric",
-  sumCycleMerge = "character",
-  sumColumnMerge = "character",
-  cycleCycleMerge = "character",
-  cycleColumnMerge = "character",
-  cycleCategoryMerge = "character", # what is this supposed to be?
-  cycleCategoryFirstOnly = "logical"
+  toxTable_cycle_tabulationMethod = "character",
+  toxTable_tabulationPercent = "logical",
+  toxTable_tabulationZeros = "logical",
+  toxTable_cumulativeGrades = "logical",
+  toxTable_discardToxAtStudyEntry = "logical",
+  toxTable_mergeGrades = "character",
+  toxTable_cycle_toxicityOrder = "character"
 ),validity = function(object) {
 
-  if(!object@timeType %in% c("time","cycle")) {
-    return("Option timeType is not one of 'time' or 'cycle'")
-  }
-
-  if(!object@tabulationMethod %in% c("worst","all")) {
-    return("Option tabulationMethod is not one of 'worst' or 'all'")
+  if(!object@toxTable_cycle_tabulationMethod %in% c("worst","all")) {
+    return("Option toxTable_cycle_tabulationMethod is not one of 'worst' or 'all'")
   }
 
 
@@ -80,49 +40,21 @@
 
 #' Default toxicity options generator, requiring metadata only.
 #'
-#' @name defaultToxicityOptions
+#' @name DefaultToxicityOptions
 #' @rdname toxicityOptions-class
 #'
-#' @param trialName Trial or study Name
-#' @param folderPath Path to the folder containing the data
-#' @param fileName Name of the file containing the data
-#' @param timeType One of "Time" or "Cycle" to denote whether the data is primarily time based or only cycle / time period based
+
 #'
-#'
-#' @export defaultToxicityOptions
-defaultToxicityOptions = function(trialName, folderPath = NULL, fileName = "", timeType="time") {
-
-  if(!timeType %in% c("time", "cycle")){
-    stop("timeType must be one of time or cycle")
-  }
-
-
+#' @export DefaultToxicityOptions
+DefaultToxicityOptions = function() {
   .toxicityOptions(
-    trialName = trialName,
-    folderPath = folderPath,
-    fileName = fileName,
-    timeType = timeType,
     displayNotes = TRUE,
-    tabulationMethod = "worst",
-    tabulationPercent = FALSE,
-    tabulationZeros = TRUE,
-    cumulativeGrades = TRUE,
-    discardBaseline = FALSE,
-    plotStartTreatment = "cycle_start_date_1",
-    plotLeftSideOption = "treatment",
-    plotxMin = -7,
-    plotxMax = 60,
-    plotCycleLength = 21,
-    plotCycles = 6,
-    plotPxHeight = 0,
-    plotPxWidth = 1100,
-    plotXLegendScale = "days",
-    minGrade = 1,
-    sumCycleMerge = "",
-    sumColumnMerge = "total|1|2|3|4,5",
-    cycleColumnMerge = "1|2|3|4,5",
-    cycleCycleMerge = "",
-    cycleCategoryMerge = "", # collapse CTCAE categories in table
-    cycleCategoryFirstOnly = TRUE
+    toxTable_cycle_tabulationMethod = "worst",
+    toxTable_tabulationPercent = FALSE,
+    toxTable_tabulationZeros = TRUE,
+    toxTable_cumulativeGrades = TRUE,
+    toxTable_discardToxAtStudyEntry = FALSE,
+    toxTable_mergeGrades = "n|1|2|3|4,5",
+    toxTable_cycle_toxicityOrder = "c"
   )
 }

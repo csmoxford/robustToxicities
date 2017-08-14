@@ -1,93 +1,92 @@
-#' @import stringr
 
-.toxTable_summary = function(toxDB) {
+#' Toxicity table summary
+#'
+#' Returns a summary toxicity table with the requested data according to the ass_TRUE column.
+#'
+#' @param rt an object of class robustToxicities
+#'
+#'
+#' @export ToxTable_summary
+ToxTable_summary = function(rt) {
 
-  no_cycles = sum(str_detect(names(toxDB@cleanData), "present_in_cycle_"))
-  names_cycle = names(toxDB@cleanData)[str_detect(names(toxDB@cleanData), "present_in_cycle_")]
-
-  cycle.lists = strsplit(toxDB@options@sumCycleMerge,"[|]")[[1]]
-
-  if(length(cycle.lists) == 0){
-    error("toxDB@options@sumCycleMerge is not provided see the help ?toxicityOptions-class for details")
+  if(!rt@wasQueried){
+    message("Warning: QueryRobustToxicities has not been applied to this object")
   }
 
-  # create table to populate
-  toxTable = data.frame(cycle.number = cycle.lists, stringsAsFactors = FALSE)
-  # for each treatment generate space to count these.
-  treats = sort(unique(toxDB@cleanData$treatment))
-  for (treatment in treats) {
-    toxTable[paste0("tox.", treatment,".total", sep = "")]= 0
-    toxTable[paste0("tox.", treatment,".0", sep = "")]= 0
-    toxTable[paste0("tox.", treatment,".1", sep = "")]= 0
-    toxTable[paste0("tox.", treatment,".2", sep = "")]= 0
-    toxTable[paste0("tox.", treatment,".3", sep = "")]= 0
-    toxTable[paste0("tox.", treatment,".4", sep = "")]= 0
-    toxTable[paste0("tox.", treatment,".5", sep = "")]= 0
+  validObject(rt)
+
+  if (class(rt) != "robustToxicitiesClass") {
+    stop("rt must be of class rt")
   }
 
 
-  for (treatment in 1:length(treats)) {
+  toxTable = .toxTable_summary(rt)
 
-    #sub set by treatment
-    cleanDataAll=toxDB@cleanData[toxDB@cleanData$treatment  ==  treats[treatment],]
-    for(cycle.no in 1:length(cycle.lists)){
-      cycles=strsplit(cycle.lists[cycle.no],"[,]")[[1]]
-      # if merging more than one cycle need to apply to merge columns
-      cleanDataSub = cleanDataAll[cleanDataAll$ass_TRUE  ==  TRUE,]
-      if(length(cycles)>1){
-        # cycle totals
-        toxTable[cycle.no, 7 * treatment - 5] = length(unique(cleanDataAll$patid[apply(cleanDataAll[, paste0("present_in_cycle_", cycles)], 1, function(x) sum(x) > 0)]))
-        x=aggregate(apply(cleanDataAll[, paste0("occur_in_cycle_",cycles)],1,max),by=list(cleanDataAll$patid),FUN=max)$x
+  ############################################
+  # create column names
+  treatment = suppressWarnings(as.integer(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][2])))
+  grade     = suppressWarnings(sapply(colnames(toxTable), function(x) strsplit(x,"[.]")[[1]][3]))
+
+  for (i in 1:length(grade)) {
+    if (!is.na(grade[i])) {
+      if (grade[i] == "n") {
+        grade[i] = "Patients"
+      } else if (str_length(grade[i]) == 1) {
+        if (rt@options@toxTable_cumulativeGrades) {
+          if(grade[i] != "5"){
+            grade[i] = paste0(grade[i],"+")
+          } else {
+            grade[i] = paste0(grade[i])
+          }
+        } else {
+          grade[i] = paste(grade[i])
+        }
       } else {
-        toxTable[cycle.no, 7 * treatment - 5 ] = length(unique(cleanDataAll$patid[cleanDataAll[, paste0("present_in_cycle_", cycles)]]))
-        x=aggregate(cleanDataSub[,paste0("occur_in_cycle_",cycles)],by=list(cleanDataSub$patid),FUN=max)$x
+        if (str_length(grade[i]) == 2) {
+          grade[i] = paste(paste0(strsplit(grade[i],"")[[1]], collapse = " and "))
+        } else {
+          num = as.numeric(strsplit(grade[i],"")[[1]])
+          grade[i] = paste(min(num),"-",max(num))
+        }
       }
-      toxTable[cycle.no,3:8 + (treatment - 1) * 7] = c(sum(x == 0),sum(x == 1),sum(x == 2),sum(x == 3),sum(x == 4),sum(x == 5))
+    } else {
+      grade[i] = "Time period"
     }
   }
 
-  # Perform the column merge for toxicities
-  if(is.null(toxDB@options@sumColumnMerge) == FALSE){
-    colMerge = strsplit(toxDB@options@sumColumnMerge, "[|]")[[1]]
-    toxTableClean = data.frame(toxTable$cycle, stringsAsFactors = FALSE)
-    for(side in 1:length(treats)){
-      for(col in colMerge){
-        if(col == "total") {
+  nColTrt = (dim(toxTable)[2]-1)/length(rt@treatmentLabels)
+  colnames(toxTable) = grade
 
-          cols = paste0("tox.", side, ".total")
-          toxTableClean[, cols] = toxTable[, cols]
-        } else if(toxDB@options@cumulativeGrades) {
+  ############################################
+  # Add percentages if required
+  # Note: This only adds percentages if greater than zero
+  if(rt@options@toxTable_tabulationPercent) {
+    nColTrt = (dim(toxTable)[2]-1)/length(rt@treatmentLabels)
+    dm = dim(toxTable)
+    for(i in 1:length(rt@treatmentLabels)) {
+      for(j in 1:dm[1]){
+        counts = as.numeric(toxTable[j,2 + 1:(nColTrt-1) + (nColTrt)*(i-1)])
+        percent = round(100 * counts / toxTable[j,2 + (nColTrt)*(i-1)], 0)
+        value = sapply(1:length(counts), function(x) paste0(counts[x], ifelse(counts[x] > 0,paste0(" (", percent[x], "%)"),"")))
+        toxTable[j,2 + 1:(nColTrt-1) + (nColTrt)*(i-1)] = value
+      }
+    }
+  }
 
-          composition = min(as.numeric(strsplit(col, ",")[[1]])):5
-          cols = paste0("tox.", side, ".", composition)
-          cname = paste0("tox.", side, ".", composition[1])
-          if(length(composition) > 1) {
-            toxTableClean[, cname] = apply(toxTable[, cols], 1, function(x) {sum(as.numeric(x), na.rm = TRUE)})
-          } else {
-            toxTableClean[, cname] = toxTable[, cols]
-          }
-
-        } else {
-
-          composition = as.numeric(strsplit(col, ",")[[1]])
-          cols = paste0("tox.", side, ".", composition)
-          cname = paste0("tox.", side, ".", paste0(composition, collapse = ""))
-          if(length(composition) > 1) {
-            toxTableClean[, cname] = apply(toxTable[, cols], 1, function(x) {sum(as.numeric(x), na.rm = TRUE)})
-          } else {
-            toxTableClean[, cols] = toxTable[, cols]
-          }
+  ############################################
+  # Remove zeros if necessary
+  if(!rt@options@toxTable_tabulationZeros) {
+    dm = dim(toxTable)
+    for(i in 1:dm[1]){
+      for(j in 1:dm[2]){
+        if(toxTable[i,j] == 0){
+          toxTable[i,j] = ""
         }
       }
     }
-    toxTable = toxTableClean
   }
 
-  # renaming
-  colnames(toxTable)[1] = c("Cycle")
-  toxTable[,1] = toxDB@cycleLabels
-
-  # return the table to the app
   return(toxTable)
-
 }
+
+

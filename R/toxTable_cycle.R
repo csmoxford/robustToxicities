@@ -1,205 +1,91 @@
-.toxTable_cycle = function(toxDB , cycles){
 
+#' Toxicity tables by cycle/s
+#'
+#' Returns a toxicity table with the requested data according to the ass_TRUE column, for the cycles requested.
+#'
+#' @param rt an object of class robustToxicities
+#' @param cycles The cycle column names, or index in rt@periodDividerCols of the cycles to tabulate. May also be "all" to use all cycles
+#'
+#' @importFrom stringr str_length
+#' @export ToxTable_cycle
+ToxTable_cycle = function(rt, cycles = "all") {
 
-  treats = sort(unique(toxDB@cleanData$treatment))
-  nPatients = rep(0, length(treats))
-  # count and record number of patients having at least some of the required time period (saved in nPatients)
-  for(treatment in 1:length(treats)){
-    # number of patients at this cycle
-    tox_s = toxDB@cleanData[toxDB@cleanData$treatment == treats[treatment], ]
-    if(length(cycles)>1){
-      nPatients[treatment] = length(unique(tox_s$patid[apply(tox_s[, paste0("present_in_cycle_", cycles)], 1, function(x) sum(x) > 0)]))
-    } else {
-      nPatients[treatment] = length(unique(tox_s$patid[tox_s[, paste0("present_in_cycle_", cycles)]]))
-    }
+  if(!rt@wasQueried){
+    message("Warning: QueryRobustToxicities has not been applied to this object")
   }
 
-  if (toxDB@options@discardBaseline) {
-    toxDB@cleanData = toxDB@cleanData[toxDB@cleanData$occur_in_cycle_1 == 0, ]
+  validObject(rt)
+
+  if (class(rt) != "robustToxicitiesClass") {
+    stop("rt must be of class rt")
   }
 
-  # use all data
-  if(cycles[1] == "all") {
-    cycles = 1:length(toxDB@cycleLabels)
+  nPatients = .countPatientsInCycles(rt, cycles)
+
+  # Get the base table!
+  toxTble = .toxTable_cycle(rt, cycles)
+  ############################################
+  if(dim(toxTble)[1] == 0){
+    return(toxTble)
   }
+  ############################################
+  treatment = as.integer(sapply(colnames(toxTble), function(x) strsplit(x,"[.]")[[1]][2]))
+  grade     = suppressWarnings(sapply(colnames(toxTble), function(x) strsplit(x,"[.]")[[1]][3]))
 
-  #####################################################################
-  # subset database with toxicities in requested cycles
-  toxDB@cleanData$x = apply(toxDB@cleanData[paste0("occur_in_cycle_", cycles)] , 1 , function(y) max(as.numeric(y)))
-  cleanDataSub = toxDB@cleanData[toxDB@cleanData$x >= toxDB@options@minGrade & toxDB@cleanData$ass_TRUE, ]
-
-  # maximum cycle must go up to
-  max.cycle = sum(str_detect(names(cleanDataSub), "occur_in_cycle_"))
-  # names of the cycles
-  names_occur = names(cleanDataSub)[str_detect(names(cleanDataSub), "occur_in_cycle_")]
-
-  # generate initial table
-  if(toxDB@options@tabulationMethod == "worst"){
-    toxTable = .toxTable_worst(cleanDataSub, treats)
-  } else if(toxDB@options@tabulationMethod == "all"){
-    toxTable = .toxTable_all(cleanDataSub, treats)
-  }
-
-
-
-
-
-  # Perform the column merge for toxicities
-  if(is.null(toxDB@options@cycleColumnMerge) == FALSE){
-    colMerge = strsplit(toxDB@options@cycleColumnMerge, "[|]")[[1]]
-    toxTableClean = data.frame(toxID = toxTable$toxID, category = toxTable$category, toxicity = toxTable$toxicity, stringsAsFactors = FALSE)
-    for(side in 1:length(treats)){
-      for(col in colMerge){
-        if(toxDB@options@cumulativeGrades) {
-
-          composition = min(as.numeric(strsplit(col, ",")[[1]])):5
-          cols = paste0("tox.", side, ".", composition)
-          cname = paste0("tox.", side, ".", composition[1])
-          if(length(composition) > 1) {
-            toxTableClean[, cname] = apply(toxTable[, cols], 1, function(x) {sum(as.numeric(x), na.rm = TRUE)})
+  # create column names
+  grade[1:2] = c("Category", "Event Term")
+  for (i in 3:length(grade)) {
+    if (!is.na(grade[i])) {
+      if (str_length(grade[i]) == 1) {
+        if (rt@options@toxTable_cumulativeGrades) {
+          if(grade[i] != "5"){
+            grade[i] = paste0(grade[i],"+")
           } else {
-            toxTableClean[, cname] = toxTable[, cols]
+            grade[i] = paste0(grade[i])
           }
-
         } else {
-
-          composition = as.numeric(strsplit(col, ",")[[1]])
-          cols = paste0("tox.", side, ".", composition)
-          cname = paste0("tox.", side, ".", paste0(composition, collapse = ""))
-          if(length(composition) > 1) {
-            toxTableClean[, cname] = apply(toxTable[, cols], 1, function(x) {sum(as.numeric(x), na.rm = TRUE)})
-          } else {
-            toxTableClean[, cols] = toxTable[, cols]
-          }
+          grade[i] = paste(grade[i])
         }
-      }
-    }
-    toxTable = toxTableClean
-  }
-
-  # Order according to toxID (ensuring that the toxicities are ordered alphabetically first by category and then by toxicity)
-  toxTable = toxTable[order(as.numeric(as.character(toxTable$toxID)), decreasing = FALSE), ]
-  toxTable = toxTable[which(toxTable$toxicity!= ""), ]
-  # Perform the row merge for categories
-  if(length(toxDB@options@cycleCategoryMerge)){
-    for(category in toxDB@options@cycleCategoryMerge){
-      if(category != ""){
-        if(category %in% toxTable$category){
-          merge.rows = which(category == toxTable$category)
-          di = dim(toxTable)
-          toxTable[merge.rows[1], 4:di[2]] = apply(toxTable[merge.rows, 4:di[2]], 2, function(x) {sum(as.numeric(x))})
-          toxTable$toxicity[merge.rows[1]] = ""
-          if(length(merge.rows)>1){
-            toxTable = toxTable[-merge.rows[2:length(merge.rows)], ]
-          }
-        }
-      }
-    }
-  }
-
-
-  # drop toxID as not needed after ordering
-  toxTable$toxID = NULL
-
-  # remove duplication of writing categories (one under the other before)
-  if(toxDB@options@cycleCategoryFirstOnly){
-    a = dim(toxTable)[1]
-    if(a >= 3){
-      for(i in a:2){
-        if(toxTable$category[i-1] == toxTable$category[i]){
-          toxTable$category[i] = ""
-        }
-      }
-    }
-  }
-
-  # renaming
-  colnames(toxTable)[1:2] = c("Category", "Toxicity")
-
-  # return the table to the app
-  return(list(toxTable=toxTable, nPatients=nPatients))
-}
-
-# end
-
-
-
-
-.toxTable_worst = function (toxDB, treatments) {
-
-
-  # create table to populate
-  toxTable = .toxTableSetup(length(treatments))
-  dm = dim(toxTable)
-
-  i = 0
-  toxID = sort(unique(toxDB$ass_toxID)) # note ass_toxID is generated by prepareToxicity
-  for(tox in toxID){
-
-    toxDB_2 = toxDB[toxDB$ass_toxID == tox,]
-    i = i + 1
-    # ID, category and name of toxicity
-    toxTable[i,1:3] = c(tox, toxDB_2$ass_category[1], toxDB_2$ass_toxicity_disp[1])
-    toxTable[i,4:dm[2]] = rep(0, length(treatments) * 5)
-
-    # by treatment add data
-    for(treatment in 1:length(treatments)) {
-      toxDB_3 = toxDB_2[toxDB_2$treatment == treatments[treatment],]
-      # aggregate for each patient taking the maximum grade
-      if(dim(toxDB_3)[1]>0) {
-        x = aggregate(toxDB_3$x, by = list(toxDB_3$patid), FUN = max)$x
-        toxTable[i,4:8 + (treatment - 1) * 5] = c(sum(x == 1), sum(x == 2), sum(x == 3), sum(x == 4), sum(x == 5))
       } else {
-        toxTable[i,4:8 + (treatment - 1) * 5] = rep(0, 5)
+        if (str_length(grade[i]) == 2) {
+          grade[i] = paste(paste0(strsplit(grade[i],"")[[1]], collapse = " and "))
+        } else {
+          num = as.numeric(strsplit(grade[i],"")[[1]])
+          grade[i] = paste(min(num),"-",max(num))
+        }
+      }
+    }
+  }
+  nColTrt = (dim(toxTble)[2]-2)/length(rt@treatmentLabels)
+  colnames(toxTble) = grade
+
+  ############################################
+  # Add percentages if required
+  # Note: This only adds percentages if greater than zero
+  if(rt@options@toxTable_tabulationPercent) {
+    dm = dim(toxTble)
+    for(i in 1:length(rt@treatmentLabels)) {
+      for(j in 1:dim(toxTble)[1]){
+        counts = as.numeric(toxTble[j,2 + 1:nColTrt + nColTrt*(i-1)])
+        percent = round(100 * counts / nPatients[i], 0)
+        value = sapply(1:length(counts), function(x) paste0(counts[x], ifelse(counts[x] > 0,paste0(" (", percent[x], "%)"),"")))
+        toxTble[j,2 + 1:nColTrt + nColTrt*(i-1)] = value
       }
     }
   }
 
-  return(toxTable)
-}
-
-.toxTable_all=function(toxDB,treatments){
-
-
-  # create table to populate
-  toxTable = .toxTableSetup(length(treatments))
-  i=0
-  toxID=sort(unique(toxDB$ass_toxID))
-  for (tox in toxID) {
-    toxDB_2 = toxDB[toxDB$ass_toxID == tox, ]
-    i = i + 1
-    # ID, category and name of toxicity
-    toxTable[i, 1:3] = c(tox, toxDB_2$ass_category[1], toxDB_2$ass_toxicity_disp[1])
-    toxTable[i, 3 + 1:(length(treatments) * 5)] = 0
-    # by treatment add data
-    for (treatment in 1:length(treatments)) {
-      toxDB_3 = toxDB_2[toxDB_2$treatment == treatments[treatment], ]
-      # aggregate for each patient taking the maximum grade
-      if (dim(toxDB_3)[1] > 0) {
-        # add to table
-        toxTable[i, 4:8 + (treatment - 1) * 5]=c(sum(toxDB_3$x == 1), sum(toxDB_3$x == 2), sum(toxDB_3$x == 3), sum(toxDB_3$x == 4), sum(toxDB_3$x == 5))
-      } else {
-        toxTable[i, 4:8 + (treatment-1) * 5]= rep(0, 5)
+  ############################################
+  # Remove zeros if necessary
+  if(!rt@options@toxTable_tabulationZeros) {
+    dm = dim(toxTble)
+    for(i in 1:dm[1]){
+      for(j in 1:dm[2]){
+        if(toxTble[i,j] == 0){
+          toxTble[i,j] = ""
+        }
       }
     }
   }
 
-  return(toxTable)
+  return(toxTble)
 }
-
-
-
-.toxTableSetup = function(noTreatments) {
-
-  # create table to populate
-  toxTable=data.frame(toxID=rep(0,1), category=rep("",1), toxicity=rep("",1), stringsAsFactors = FALSE)
-  for(side in 1:noTreatments){
-    toxTable[paste0("tox.", side,".1", sep = "")]= 0
-    toxTable[paste0("tox.", side,".2", sep = "")]= 0
-    toxTable[paste0("tox.", side,".3", sep = "")]= 0
-    toxTable[paste0("tox.", side,".4", sep = "")]= 0
-    toxTable[paste0("tox.", side,".5", sep = "")]= 0
-  }
-  return(toxTable[0,])
-}
-

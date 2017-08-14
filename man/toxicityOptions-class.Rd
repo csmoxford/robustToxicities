@@ -2,22 +2,12 @@
 % Please edit documentation in R/class_0_toxicityOptions.R
 \docType{class}
 \name{toxicityOptions-class}
-\alias{.toxicityOptions}
-\alias{defaultToxicityOptions}
 \alias{toxicityOptions-class}
+\alias{.toxicityOptions}
+\alias{DefaultToxicityOptions}
 \title{Toxicity Options}
 \usage{
-defaultToxicityOptions(trialName, folderPath = NULL, fileName = "",
-  timeType = "time")
-}
-\arguments{
-\item{trialName}{Trial or study Name}
-
-\item{folderPath}{Path to the folder containing the data}
-
-\item{fileName}{Name of the file containing the data}
-
-\item{timeType}{One of "Time" or "Cycle" to denote whether the data is primarily time based or only cycle / time period based}
+DefaultToxicityOptions()
 }
 \description{
 An object containing all the key options for creating the toxicity tables.
@@ -28,56 +18,20 @@ Default toxicity options generator, requiring metadata only.
 \section{Slots}{
 
 \describe{
-\item{\code{trialName}}{Trial Name (character string)}
-
-\item{\code{folderPath}}{Reference to the folder the data file is stored in (character string)}
-
-\item{\code{fileName}}{Reference to the stored data (character string)}
-
-\item{\code{timeType}}{One of "Time" or "Cycle" to denote whether the data is primarily time based or only cycle / time period based}
-
 \item{\code{displayNotes}}{A logical value used by \code{\link{robustToxicities}} to determine whether to print note or note}
 
-\item{\code{tabulationMethod}}{One of "worst" or "all" determining if all toxicity changes are counted or only the worst reported grade in a time period}
+\item{\code{toxTable_cycle_tabulationMethod}}{One of "worst" or "all" determining if all toxicity changes are counted or only the worst reported grade in a time period}
 
-\item{\code{tabulationPercent}}{A logical value used to determine if toxicity tables should report counts (FALSE) or percentages (TRUE)}
+\item{\code{toxTable_tabulationPercent}}{A logical value used to determine if toxicity tables should report counts (FALSE) or percentages (TRUE)}
 
-\item{\code{tabulationZeros}}{A logical value used to determine if zeros should be included, default TRUE}
+\item{\code{toxTable_tabulationZeros}}{A logical value used to determine if zeros should be included, default TRUE}
 
-\item{\code{cumulativeGrades}}{A logical value used to determine whether toxicity grades should be reported cumulatively or not}
+\item{\code{toxTable_cumulativeGrades}}{A logical value used to determine whether toxicity grades should be reported cumulatively or not}
 
-\item{\code{discardBaseline}}{A logical value used to determine if toxicities reported at baseline should be reported or not}
+\item{\code{toxTable_discardToxAtStudyEntry}}{A logical value used to determine if toxicities reported at baseline should be reported or not}
 
-\item{\code{plotStartTreatment}}{The column name of the treatment start date used in plotting (character string)}
+\item{\code{toxTable_mergeGrades}}{Grades to merge in the \code{\link{print_toxTable_cycle}}. Columns are seperated by "|" and merged values are seperated by ",". "n"}
 
-\item{\code{plotLeftSideOption}}{What should be displayed on the left hand side of the plot. One of "patid", "treatment" or "both"}
-
-\item{\code{plotxMin}}{minimum x axis limit}
-
-\item{\code{plotxMax}}{maximum x axis limit}
-
-\item{\code{plotCycleLength}}{optional cycle length value}
-
-\item{\code{plotCycles}}{optional number of cycles to plot}
-
-\item{\code{plotPxHeight}}{Number of pixels to use to generate plot vertically}
-
-\item{\code{plotPxWidth}}{Number of pixels to use to generate plot horizontally}
-
-\item{\code{plotXLegendScale}}{"days", "weeks", or a number entered as a string}
-
-\item{\code{minGrade}}{The lowest grade to use to generate a table.}
-
-\item{\code{sumCycleMerge}}{Cycles to merge in the \code{\link{print_toxTable_summary}}. Use numeric values with | to divide the merged cycles and , to divide cycles in a merge e.g. "1,2|3,4,5" is two merged time periods with the first 2 time periods and the last 3 time periods.}
-
-\item{\code{sumColumnMerge}}{Grades to merge in the \code{\link{print_toxTable_summary}}. Similar syntax to sumCycleMerge}
-
-\item{\code{cycleCycleMerge}}{Cycles to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge}
-
-\item{\code{cycleColumnMerge}}{Grades to merge in the \code{\link{print_toxTable_cycle}}. Similar syntax to sumCycleMerge}
-
-\item{\code{cycleCategoryMerge}}{A list of categories to collapse down to one row in the \code{\link{print_toxTable_cycle}}.}
-
-\item{\code{cycleCategoryFirstOnly}}{A logical value asking whether to keep only the category on the first row a category is used. This makes tables prettier but should be turned off if you plan to sort these later but still want the categories.}
+\item{\code{toxTable_cycle_toxicityOrder}}{What order should the data be returned in. "c" ordered by categories and then adverse events. "a" ordered by adverse events. "n" ordered by number of adverse events. The n option can be followed by a number to denote the minimum grade to use for sorting. e.g. "n3" will order by grades 3-5 and then 1-5 for ties within grades 3-5.}
 }}
 
