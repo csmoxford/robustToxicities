@@ -10,6 +10,7 @@
 #' This functions return the ConstructFlexTable object from the prettyTables package. To create the FlexTable you can call object$GetTable() on the returned object. This can then be added to a word document using \code{\link{addFlexTable}} from the ReporteRs package.
 #'
 #' @importFrom prettyTables ConstructFlexTable
+#' @importFrom stringr str_count
 #' @name FT_ToxTable
 NULL
 
