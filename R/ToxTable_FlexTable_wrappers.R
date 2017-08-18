@@ -76,15 +76,16 @@ FT_ToxTable_cycle = function(rt, cycles = "all", tble = NULL) {
 
     ft$SetSpanRowByColumn(1)
     ft$SetBorderWidthHorizontalByMatchingOnColumn(2,1)
-    ft$SetColorRowAlternatingByColumn(c("#cccccc","#ffffff"),1)
     ft$SetTextAlign("center")
     if(length(rt@treatmentCodes) > 1){
-      ft$SetColorRowByIndex("#cccccc",2)
+      ft$SetColorRowAlternatingByColumn(c("#ffffff","#cccccc"),1)
+      ft$SetColorRowByIndex("#cccccc",1)
       ft$SetTextAlignColByIndex("left",c(1,2))
       ft$SetBorderWidthVerticalByMatchingOnRow(2,1)
     } else {
+      ft$SetColorRowAlternatingByColumn(c("#cccccc","#ffffff"),1)
       ft$SetTextAlignColByIndex("left",c(1))
-      ft$SetBorderWidthVerticalByColumn(2,c(0,2,ft$numCol))
+      ft$SetBorderWidthVerticalByColumn(2,c(0,1,ft$numCol))
     }
 
     return(ft)
@@ -110,23 +111,25 @@ FT_ToxTable_category = function(rt, cycles = "all", tble = NULL) {
     ###################################################################
     # header rows
     if(length(rt@treatmentCodes) > 1){
-      toSpan = str_count(rt@options@toxTable_mergeGrades, pattern = fixed("|"))
+      toSpan = (dim(tble)[2] - 1) / length(rt@treatmentCodes)
       # add count to treatment labels for this cycle
       treatmentLabels = paste0(rt@treatmentLabels, " (n=", nPatients,")")
-      ft$InsertHeaderRow(0,c("","",rep(treatmentLabels, each = toSpan)))
+      ft$InsertHeaderRow(0,c("",rep(treatmentLabels, each = toSpan)))
       ft$SetSpanColumnByRow(1)
     }
     ###################################################################
 
     ft$SetSpanRowByColumn(1)
     ft$SetBorderWidthHorizontalByMatchingOnColumn(2,1)
-    ft$SetColorRowAlternatingByColumn(c("#cccccc","#ffffff"),1)
+
     ft$SetTextAlign("center")
     if(length(rt@treatmentCodes) > 1){
-      ft$SetColorRowByIndex("#cccccc",2)
+      ft$SetColorRowAlternatingByColumn(c("#ffffff","#cccccc"),1)
+      ft$SetColorRowByIndex("#cccccc",1)
       ft$SetTextAlignColByIndex("left",c(1,2))
       ft$SetBorderWidthVerticalByMatchingOnRow(2,1)
     } else {
+      ft$SetColorRowAlternatingByColumn(c("#cccccc","#ffffff"),1)
       ft$SetTextAlignColByIndex("left",c(1))
       ft$SetBorderWidthVerticalByColumn(2,c(0,1,ft$numCol))
     }
