@@ -161,7 +161,7 @@ QueryRobustToxicities = function(rt) {
   message("Number of patients with no toxicities: ", noToxicities)
   message("Number of notes: ", sum(queries$problem_type == "Note"))
   message("Number of missing data problems: ", sum(queries$problem_type == "Missing data"))
-  message("Number of incorrect data problems: ", sum(queries$problem_type == "Wrong data"))
+  # message("Number of incorrect data problems: ", sum(queries$problem_type == "Wrong data"))
 
   if(sum(is.na(patientData[,rt@dateOfStartOfToxWindow]))){
     warning("Missing date of study entry for ", sum(is.na(patientData[,rt@dateOfStartOfToxWindow])), " patient")

@@ -50,6 +50,7 @@ FT_ToxTable_summary = function(rt, tble = NULL) {
 
 
 #' @export FT_ToxTable_cycle
+#' @importFrom stringr fixed
 #' @describeIn FT_ToxTable A wrapper for ToxTable_cycle
 FT_ToxTable_cycle = function(rt, cycles = "all", tble = NULL) {
 
