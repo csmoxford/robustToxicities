@@ -5,6 +5,10 @@
 #' @param rt an object of class robustToxicities
 #' @param rowID_range optional, a length 2 vector detailing the minimum and maximum row to plot
 #' @param plot whether to plot the graph or return the number of rows to plot
+#' @param xlim Range to plot on xaxis. Default is c(-7,60)
+#' @param plotCycleLength Cycle length is used to add greater highlights to vertical lines. Default is 21
+#' @param plotLeftSideOption What to display on right axis. Options are: "treatment", "patid" or "both". Default is "treatment"
+#' @param plotXLegendScale What scale to use on xaxis. Options are "days","weeks","months". Default is "days"
 #'
 #' @return
 #' This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.

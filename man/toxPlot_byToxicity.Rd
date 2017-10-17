@@ -14,6 +14,14 @@ toxPlot_byToxicity(rt, rowID_range = NULL, plot = TRUE,
 \item{rowID_range}{optional, a length 2 vector detailing the minimum and maximum row to plot}
 
 \item{plot}{whether to plot the graph or return the number of rows to plot}
+
+\item{plotLeftSideOption}{What to display on right axis. Options are: "treatment", "patid" or "both". Default is "treatment"}
+
+\item{xlim}{Range to plot on xaxis. Default is c(-7,60)}
+
+\item{plotCycleLength}{Cycle length is used to add greater highlights to vertical lines. Default is 21}
+
+\item{plotXLegendScale}{What scale to use on xaxis. Options are "days","weeks","months". Default is "days"}
 }
 \value{
 This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.

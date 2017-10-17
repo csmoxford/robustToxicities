@@ -5,7 +5,7 @@
 
 
   if (rt@options@toxTable_discardToxAtStudyEntry) {
-    rt@toxData = rt@toxData[rt@toxData$rel_ae_start >= 0, ]
+    rt@toxData = rt@toxData[rt@toxData$rel_ae_start >= 0 & !is.na(rt@toxData$rel_ae_start), ]
   }
 
   # toxicities in AssTrue
@@ -20,7 +20,6 @@
   } else if(rt@options@toxTable_cycle_tabulationMethod == "all"){
     toxTable = .toxTable_all(toxDataSub, rt, rt@treatmentCodes)
   }
-
 
   ## Ordering
   if(rt@options@toxTable_cycle_toxicityOrder == "a"){

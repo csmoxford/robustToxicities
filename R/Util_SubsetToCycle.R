@@ -38,11 +38,11 @@
       toxDataSub$inCycle = toxDataSub$inCycle | sapply(1:dim(toxDataSub)[1], function(x){
         if(is.na(toxDataSub$t0[x])) {
           return(FALSE)
-        } else if(toxDataSub[x,rt@dateOfStartTox] > toxDataSub$t1[x]) {
+        } else if(toxDataSub[x,rt@dateOfStartTox] >= toxDataSub$t1[x]) {
           return(FALSE)
         } else if(is.na(toxDataSub[x,rt@dateOfEndTox])){
           return(TRUE)
-        } else if(toxDataSub[x,rt@dateOfEndTox] < toxDataSub$t0[x]) {
+        } else if(toxDataSub[x,rt@dateOfEndTox] <= toxDataSub$t0[x]) {
           return(FALSE)
         } else {
           return(TRUE)

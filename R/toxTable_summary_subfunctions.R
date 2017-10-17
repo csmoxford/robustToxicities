@@ -3,7 +3,7 @@
 .toxTable_summary = function(rt) {
 
   if (rt@options@toxTable_discardToxAtStudyEntry) {
-    rt@toxData = rt@toxData[rt@toxData$rel_ae_start >= 0, ]
+    rt@toxData = rt@toxData[rt@toxData$rel_ae_start >= 0 & !is.na(rt@toxData$rel_ae_start), ]
   }
 
 

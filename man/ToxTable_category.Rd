@@ -4,7 +4,7 @@
 \alias{ToxTable_category}
 \title{Toxicity table of categories by cycle/s}
 \usage{
-ToxTable_category(rt, cycles)
+ToxTable_category(rt, cycles = "all")
 }
 \arguments{
 \item{rt}{an object of class robustToxicities}
