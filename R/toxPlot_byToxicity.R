@@ -134,7 +134,11 @@ toxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
     abline(h = a,lwd = 2, col = "grey")
     abline(h = b,lwd = 2)
     #########################################################
-    trtLabels = rt@treatmentLabels[which(unique(toxDataSub[,rt@treatmentCol]) %in% rt@treatmentCodes)]
+    print(unique(toxDataSub[,rt@treatmentCol]))
+    print(rt@treatmentCodes)
+    print(which(unique(toxDataSub[,rt@treatmentCol]) %in% rt@treatmentCodes))
+    trtLabels = rt@treatmentLabels[sapply(unique(toxDataSub[,rt@treatmentCol]), function(x) which(x == rt@treatmentCodes))]
+    print(trtLabels)
     ## LHS patid and or treatment
     if(plotLeftSideOption == "patid") {
       axis(2,labels = unique(toxDataSub[,rt@patidCol]), at = patid.lab, tick = FALSE)
