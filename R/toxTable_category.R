@@ -14,7 +14,7 @@
 #' This function acts as a wrapper for ToxTable_cycle to get category data instead of toxicity level data.
 #'
 #' @export ToxTable_category
-ToxTable_category = function(rt, cycles) {
+ToxTable_category = function(rt, cycles = "all") {
 
   rt@toxData[,rt@toxNameCol] = rt@toxData[,rt@toxCategoryCol]
 

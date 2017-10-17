@@ -5,7 +5,7 @@
 
 
   if (rt@options@toxTable_discardToxAtStudyEntry) {
-    rt@toxData = rt@toxData[!(rt@toxData$dateOfStartOfToxWindow > rt@toxData[,rt@dateOfStartTox] & rt@toxData$dateOfStartOfToxWindow < rt@toxData[,rt@dateOfEndTox]), ]
+    rt@toxData = rt@toxData[rt@toxData$rel_ae_start >= 0, ]
   }
 
   # toxicities in AssTrue

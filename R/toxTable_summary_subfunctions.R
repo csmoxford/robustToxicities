@@ -2,6 +2,10 @@
 
 .toxTable_summary = function(rt) {
 
+  if (rt@options@toxTable_discardToxAtStudyEntry) {
+    rt@toxData = rt@toxData[rt@toxData$rel_ae_start >= 0, ]
+  }
+
 
   #######################################################
   # create table to populate
