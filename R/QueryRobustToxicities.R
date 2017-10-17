@@ -40,7 +40,40 @@ QueryRobustToxicities = function(rt) {
   # patid complete?
   for (i in 1:dm[1]) {
     if (toxData[i, rt@patidCol] == "") {
-      msg = paste("Missing patid on row", i)
+      msg = paste("Missing patid on row", i, "(toxData)")
+      queries = query(toxData, i, msg, "Missing data", notes)
+    }
+  }
+
+  ############################################################################################
+  ############################################################################################
+  # patid complete?
+  for (i in 1:dim(patientData)[1]) {
+    if (patientData[i, rt@patidCol] == "") {
+      stop("Missing patid on row", i, "(patientData)")
+      # queries = query(toxData, i, msg, "Missing data", notes)
+    }
+  }
+
+  ############################################################################################
+  ############################################################################################
+  # patid in toxData and  patientData
+  for (pt in unique(toxData[, rt@patidCol] )) {
+    k = sum(pt== patientData[,rt@patidCol])
+    if (k == 0) {
+      msg = paste0("Error: Patient (", pt, ") does not appear in (toxData)")
+      i = which(toxData[, rt@patidCol] == pt)[1]
+      queries = query(toxData, i, msg, "Missing data", notes)
+    }
+  }
+
+  ############################################################################################
+  ############################################################################################
+  # start tox window exists
+  for (i in 1:dim(patientData)[1]) {
+    if (is.na(patientData[i, rt@dateOfStartOfToxWindow])) {
+      msg = paste0("Missing (",rt@dateOfStartOfToxWindow, ") on row ", i, " (patientData), Setting to 01/01/1970")
+      patientData[i, rt@dateOfStartOfToxWindow] = as.Date("01/01/1970","%d/%m/%Y")
       queries = query(toxData, i, msg, "Missing data", notes)
     }
   }
@@ -146,8 +179,8 @@ QueryRobustToxicities = function(rt) {
 
   ############################################################################################
   # Generate toxStart from registration and toxEnd from registration here.
-  toxData[[rt@dateOfStartOfToxWindow]] = sapply(toxData[,rt@patidCol], function(x) patientData[patientData[,rt@patidCol] == x,rt@dateOfStartOfToxWindow])
-  toxData[[rt@dateOfEndOfToxWindow]] = sapply(toxData[,rt@patidCol], function(x) patientData[patientData[,rt@patidCol] == x,rt@dateOfEndOfToxWindow])
+  toxData[ ,rt@dateOfStartOfToxWindow] = sapply(toxData[,rt@patidCol], function(x) patientData[patientData[,rt@patidCol] == x,rt@dateOfStartOfToxWindow])
+  toxData[ ,rt@dateOfEndOfToxWindow] = sapply(toxData[,rt@patidCol], function(x) patientData[patientData[,rt@patidCol] == x,rt@dateOfEndOfToxWindow])
 
   toxData$rel_ae_start   = as.numeric(toxData[,rt@dateOfStartTox] - toxData[, rt@dateOfStartOfToxWindow])
   toxData$rel_ae_end     = as.numeric(toxData[,rt@dateOfEndTox]   - toxData[, rt@dateOfStartOfToxWindow])

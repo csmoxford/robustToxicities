@@ -120,6 +120,8 @@ toxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
     ## get label positions for treatment and patid
     a = sort(c(min(toxDataSub$gid)-1, by(toxDataSub$gid, toxDataSub[,rt@patidCol], max)) + 0.5)
     b = sort(c(min(toxDataSub$gid)-1, by(toxDataSub$gid, toxDataSub[,rt@treatmentCol], max)) + 0.5)
+
+
     patid.lab = rep(0, length(a) - 1)
     treatment.lab = rep(0, length(b) - 1)
     for (i in 1:length(patid.lab)) {
@@ -132,11 +134,13 @@ toxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
     abline(h = a,lwd = 2, col = "grey")
     abline(h = b,lwd = 2)
     #########################################################
+    trtLabels = rt@treatmentLabels[which(unique(toxDataSub[,rt@treatmentCol]) %in% rt@treatmentCodes)]
     ## LHS patid and or treatment
     if(plotLeftSideOption == "patid") {
       axis(2,labels = unique(toxDataSub[,rt@patidCol]), at = patid.lab, tick = FALSE)
     } else if(plotLeftSideOption %in% c("treatment", "both")) {
-      axis(2,labels = rt@treatmentLabels, at = treatment.lab, tick = FALSE)
+      print(treatment.lab)
+      axis(2,labels = trtLabels, at = treatment.lab, tick = FALSE)
 
       if(plotLeftSideOption == "both") {
         text(x = xlim[1] + 0.25 , y = patid.lab, labels = unique(toxDataSub[,rt@patidCol]), pos = 4)

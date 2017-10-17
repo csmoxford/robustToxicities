@@ -106,6 +106,13 @@ SetupRobustToxicities = function(toxData, patientData, patidCol, treatmentCol = 
     stop("Patients in nPatients are not all unique. This data should be one row per patient.")
   }
 
+  patids = unique(toxData[,patidCol])
+  missingPatients = which(!patids %in% patientData[,patidCol])
+  if(length(missingPatients) > 0) {
+    message("The following patients have toxicities but are missing in patientData: ", paste0(patids[missingPatients],collapse = ", "))
+    warning("The following patients have toxicities but are missing in patientData: ", paste0(patids[missingPatients],collapse = ", "), call. = FALSE)
+  }
+
   if(is.null(treatmentCol)) {
     message("No treatment column was provided, creating Treatment column with value NA")
     treatmentCol = "Treatment"
@@ -143,7 +150,7 @@ SetupRobustToxicities = function(toxData, patientData, patidCol, treatmentCol = 
     options = DefaultToxicityOptions()
   }
 
-  toxData[[treatmentCol]] = sapply(toxData[,patidCol], function(x) patientData[patientData[,patidCol] == x,treatmentCol])
+  toxData[ ,treatmentCol] = sapply(toxData[,patidCol], function(x) patientData[patientData[,patidCol] == x,treatmentCol])
 
   dm = dim(toxData)
   ################################################################################
