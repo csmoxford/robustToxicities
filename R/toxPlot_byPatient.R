@@ -8,6 +8,9 @@ toxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
                               plotCycles = 6,
                               plotXLegendScale = "days") {
 
+  if(!rt@wasQueried){
+    stop("Warning: QueryRobustToxicities has not been applied to this object")
+  }
 
   .toxPlot_time = function(rt, toxDataSub, rowID_range = NULL, cols = cols) {
 

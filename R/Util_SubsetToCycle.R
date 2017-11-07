@@ -34,6 +34,8 @@
       # Get out end of cycle time
       toxDataSub$t1 = sapply(toxDataSub[,rt@patidCol], function(x) min(as.numeric(rt@patientData[rt@patientData[,rt@patidCol] == x,cycleCols]), na.rm = TRUE))
 
+
+
       # check if toxicity occuring at least in part within time period.
       toxDataSub$inCycle = toxDataSub$inCycle | sapply(1:dim(toxDataSub)[1], function(x){
         if(is.na(toxDataSub$t0[x])) {
@@ -48,8 +50,10 @@
           return(TRUE)
         }
       })
+
+      # keep if and only if t0 is less than or equal to t1
+      toxDataSub =  toxDataSub[toxDataSub$t0 <= toxDataSub$t1 & toxDataSub$inCycle,]
     }
-    toxDataSub = toxDataSub[toxDataSub$inCycle,]
   }
 
 

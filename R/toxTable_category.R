@@ -5,7 +5,7 @@
 
 #' Toxicity table of categories by cycle/s
 #'
-#' Returns a toxicity table with the requested data according to the ass_TRUE column, for the cycles requested.
+#' Returns a toxicity table with the requested data according to the ass_TRUE column, for the cycles requested. Note this is a wrapper function which essentially replaces the toxicity names with the categories, updates the toxID's and then calls ToxTable_cycle on the categories. This function could be used as a template for summarising other data.
 #'
 #' @param rt an object of class robustToxicities
 #' @param cycles The cycle column names, or index in rt@rt@periodDividerCols of the cycles to tabulate. May also be "all" to use all cycles

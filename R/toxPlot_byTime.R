@@ -3,6 +3,10 @@
 #' @export toxPlot_byTime
 toxPlot_byTime = function(rt, gradeRequired = 1, timeBoundaries, labelUnits = "days", colors = c("blue","red"), tableSpace = 0.1, las = 1, legendPosition = "right", add = FALSE) {
 
+  if(!rt@wasQueried){
+    stop("Warning: QueryRobustToxicities has not been applied to this object")
+  }
+
   rt = CreateTimeDividers(rt, timeBoundaries)
 
   toxPlot_byCycle(rt, gradeRequired = gradeRequired, colors = colors, tableSpace = tableSpace, las = las, legendPosition = legendPosition, add = add)

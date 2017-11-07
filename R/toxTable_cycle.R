@@ -11,7 +11,7 @@
 ToxTable_cycle = function(rt, cycles = "all") {
 
   if(!rt@wasQueried){
-    message("Warning: QueryRobustToxicities has not been applied to this object")
+    stop("Warning: QueryRobustToxicities has not been applied to this object")
   }
 
   validObject(rt)

@@ -3,6 +3,10 @@
 #' @export toxPlot_byCycle
 toxPlot_byCycle = function(rt, gradeRequired = 1, colors = c("blue","red"), tableSpace = 0.1, las = 1, legendPosition = "right", add = FALSE) {
 
+  if(!rt@wasQueried){
+    stop("Warning: QueryRobustToxicities has not been applied to this object")
+  }
+
   rt@options@toxTable_cumulativeGrades = TRUE
   rt@options@toxTable_mergeGrades = "n|1|2|3|4|5"
   rt@options@toxTable_tabulationPercent = FALSE
