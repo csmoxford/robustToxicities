@@ -1,16 +1,37 @@
-
-
-#' @export toxPlot_byPatient
-toxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
+#' Plot patients worst grade over time
+#'
+#' This function plots the worst grade adverse event for each patient over time.
+#'
+#' @param rt an object of class robustToxicities
+#' @param rowID_range optional, a length 2 vector detailing the minimum and maximum row to plot
+#' @param plot whether to plot the graph or return the number of rows to plot
+#' @param xlim Range to plot on xaxis. Default is c(-7,60)
+#' @param plotCycleLength Cycle length is used to add greater highlights to vertical lines. Default is 21
+#' @param plotLeftSideOption What to display on right axis. Options are: "treatment", "patid" or "both". Default is "treatment"
+#' @param plotXLegendScale What scale to use on xaxis. Options are "days","weeks","months". Default is "days"
+#' @param permitMarSet Allow the function to set the mar for the plot
+#'
+#' @return
+#' This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
+#'
+#' #' @seealso \code{\link{ToxPlot_byToxicity}}, \code{\link{ToxPlot_byTime}}, \code{\link{ToxPlot_byCycle}}
+#'
+#' @example inst/HelpExamples/ToxPlot_byPatient_example.R
+#'
+#' @export ToxPlot_byPatient
+ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
                               plotLeftSideOption = "treatment",
                               xlim = c(-7,60),
                               plotCycleLength = 21,
                               plotCycles = 6,
-                              plotXLegendScale = "days") {
+                              plotXLegendScale = "days",
+                              permitMarSet = TRUE) {
 
   if(!rt@wasQueried){
     stop("Warning: QueryRobustToxicities has not been applied to this object")
   }
+
+  validObject(rt)
 
   .toxPlot_time = function(rt, toxDataSub, rowID_range = NULL, cols = cols) {
 
@@ -32,7 +53,9 @@ toxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
 
     sizeBase = ifelse(size[1] < 9, 1, 0.6)
     ratioBase = sizeBase/size[2]
-    par(mar=c(3.5,3,0.75,0.75))
+    if(permitMarSet) {
+      par(mar=c(3.5,3,0.75,0.75))
+    }
     split.screen(
       figs = matrix(c(
         0,1,ratioBase,1,
@@ -116,8 +139,8 @@ toxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
   # subset to specific stuff if required
   toxDataSub = rt@toxData[rt@toxData$ass_TRUE == TRUE, ]
 
-  cols = c("#00CC00","#FF9900","red","#551A8B","black")
-  cols = c("#98cee2", "#4c7bd3","#ff8d00","#ff0000","#b719b4")
+  cols = c("#00CC00", "#FF9900", "red", "#551A8B", "black")
+  cols = c("#98cee2", "#4c7bd3", "#ff8d00", "#ff0000", "#b719b4")
 
 
   val = .toxPlot_time(rt,toxDataSub, rowID_range, cols = cols)

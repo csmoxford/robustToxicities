@@ -1,10 +1,17 @@
 
-#' Toxicity tables by cycle/s
+#' Tabulation of toxicities in a cycle
 #'
-#' Returns a toxicity table with the requested data according to the ass_TRUE column, for the cycles requested.
+#' Returns a toxicity table with the requested data according to the ass_TRUE column and for the cycles requested.
 #'
 #' @param rt an object of class robustToxicities
-#' @param cycles The cycle column names, or index in rt@periodDividerCols of the cycles to tabulate. May also be "all" to use all cycles
+#' @param cycles The cycle column names, or index in rt@periodDividerCols of the cycles to tabulate. May also be "all" to use all cycles. "all" is the default.
+#'
+#'
+#' @seealso \code{\link{toxicityOptions-class}}
+#'
+#' @return data.frame
+#'
+#' @example inst/HelpExamples/toxTable_cycle_example.R
 #'
 #' @importFrom stringr str_length
 #' @export ToxTable_cycle

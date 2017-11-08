@@ -43,6 +43,10 @@ test.SetupAndQueriesWorks = function() {
 
   checkTrue(rt@wasQueried, "SetupRobustToxicities not completed correctly")
 
+  ret = tryCatch(QueryRobustToxicities(rt))
+
+  checkEquals(ret$message, "This function was already applied to this object", "Should not be able to rerun queries on a robustToxicitiesClass objec more than once")
+
 }
 
 test.SetupRobustToxicitiesDataFrameInputOnly = function() {

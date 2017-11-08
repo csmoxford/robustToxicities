@@ -1,6 +1,6 @@
 #' Generate a prettyTable of worst toxicity by category.
 #'
-#' This is a wrapper for the table_values function in prettyTables for worst grade by category.
+#' This is a wrapper for the table_values function in prettyTables for worst grade by category. Note that there is an alternative version of this table \code{\link{ToxTable_category}} which formats similarly to all the other objects in this package.
 #'
 #' @param rt RobustToxicitiesClass object
 #' @param categoryList A list of categories. Default is all. A subset is selected by changing this value.
@@ -61,7 +61,7 @@ ToxTable_categories = function(rt, categoryList = NULL, strata.count = TRUE, ove
     )
   }
 
-  rt = worstGradeByPatientSystem(rt,categoryList)
+  rt = worstGradeByPatientCategory(rt,categoryList)
 
   var.order = list()
   for(i in categoryList){

@@ -1,6 +1,6 @@
-#' Plot toxicities
+#' Plot toxicities over time
 #'
-#' This function plots all the toxicities provided over time
+#' This function plots the worst grade of each toxicity over time. There should be no overlap between toxicities but in the case that there is the wors grade is given priority.
 #'
 #' @param rt an object of class robustToxicities
 #' @param rowID_range optional, a length 2 vector detailing the minimum and maximum row to plot
@@ -9,22 +9,29 @@
 #' @param plotCycleLength Cycle length is used to add greater highlights to vertical lines. Default is 21
 #' @param plotLeftSideOption What to display on right axis. Options are: "treatment", "patid" or "both". Default is "treatment"
 #' @param plotXLegendScale What scale to use on xaxis. Options are "days","weeks","months". Default is "days"
+#' @param permitMarSet Allow the function to set the mar for the plot
 #'
 #' @return
 #' This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
-
-#' @export toxPlot_byToxicity
-
-toxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
+#'
+#' @seealso \code{\link{ToxPlot_byPatient}}, \code{\link{ToxPlot_byTime}}, \code{\link{ToxPlot_byCycle}}
+#'
+#' @example inst/HelpExamples/ToxPlot_byToxicity_example.R
+#'
+#' @export ToxPlot_byToxicity
+ToxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
                    plotLeftSideOption = "treatment",
                    xlim = c(-7,60),
                    plotCycleLength = 21,
                    plotCycles = 6,
-                   plotXLegendScale = "days") {
+                   plotXLegendScale = "days",
+                   permitMarSet = TRUE) {
 
   if(!rt@wasQueried){
     stop("Warning: QueryRobustToxicities has not been applied to this object")
   }
+
+  validObject(rt)
 
   #######################################################
   .toxPlot_time = function(rt, toxDataSub, rowID_range = NULL, plot = TRUE, cols) {
@@ -71,7 +78,9 @@ toxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
 
     sizeBase = ifelse(size[1] < 9, 1, 0.6)
     ratioBase = sizeBase/size[2]
-    par(mar=c(3.5,3,0.75,0.75))
+    if(permitMarSet){
+      par(mar=c(3.5,3,0.75,0.75))
+    }
     split.screen(
       figs = matrix(c(
         0,1,ratioBase,1,
@@ -167,7 +176,7 @@ toxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
   }
 
   # subset to specific stuff if required
-  toxDataSub = rt@toxData[rt@toxData$ass_TRUE == TRUE, ]
+  toxDataSub = rt@toxData[rt@toxData$ass_TRUE, ]
 
   cols = c("#00CC00","#FF9900","red","#551A8B","black")
   cols = c("#98cee2", "#4c7bd3","#ff8d00","#ff0000","#b719b4")

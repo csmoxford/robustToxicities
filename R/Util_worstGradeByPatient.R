@@ -7,12 +7,12 @@
 #' @param toxData A data.frame subset of rt@toxData if not all data should be used
 #'
 #' @details
-#' worstGradeByPatientSystem does the same thing but wraps over all categories.
+#' worstGradeByPatientCategory does the same thing but wraps over all categories.
 #'
 #' @return Returns a data.frame
 #'
 #' @export worstGradeByPatient
-worstGradeByPatient = function(rt, toxData = NULL){
+worstGradeByPatient = function(rt, toxData = NULL) {
 
   if(!rt@wasQueried){
     message("Warning: QueryRobustToxicities has not been applied to this object")
@@ -26,9 +26,9 @@ worstGradeByPatient = function(rt, toxData = NULL){
 
 }
 
-#' @export worstGradeByPatientSystem
+#' @export worstGradeByPatientCategory
 #' @rdname worstGradeByPatient
-worstGradeByPatientSystem = function(rt, categoryList = NULL){
+worstGradeByPatientCategory = function(rt, categoryList = NULL){
 
   if(!rt@wasQueried){
     message("Warning: QueryRobustToxicities has not been applied to this object")

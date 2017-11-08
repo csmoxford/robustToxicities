@@ -4,10 +4,13 @@
 \alias{QueryRobustToxicities}
 \title{Query RobustToxicities}
 \usage{
-QueryRobustToxicities(rt)
+rt = QueryRobustToxicities(rt)
 }
 \arguments{
 \item{rt}{The robustToxicitiesClass object}
+}
+\value{
+An S4 object of class robustToxicitiesClass. The queries are stored as a data.frame in the slot queries (rt@queires)
 }
 \description{
 A function which checks the provided data

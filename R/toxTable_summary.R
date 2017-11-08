@@ -1,9 +1,16 @@
 
-#' Toxicity table summary
+#' Summary table of toxicities
 #'
 #' Returns a summary toxicity table with the requested data according to the ass_TRUE column.
 #'
 #' @param rt an object of class robustToxicities
+#'
+#' @seealso \code{\link{toxicityOptions-class}}
+#'
+#' @return data.frame
+#'
+#' @example inst/HelpExamples/toxTable_summary_example.R
+#'
 #'
 #'
 #' @export ToxTable_summary

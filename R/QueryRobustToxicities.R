@@ -4,16 +4,22 @@
 #' A function which checks the provided data
 #'
 #' @param rt The robustToxicitiesClass object
-
+#'
+#' @return An S4 object of class robustToxicitiesClass. The queries are stored as a data.frame in the slot queries (rt@queires)
+#'
+#' @usage rt = QueryRobustToxicities(rt)
+#'
 #' @export QueryRobustToxicities
 QueryRobustToxicities = function(rt) {
 
   if(rt@wasQueried){
-    message("Warning: this function was already applied to this object")
+    stop("This function was already applied to this object")
   }
 
+  # Check that the rt ofbject is valid.
   validObject(rt)
 
+  # for readability take the datasets and options out of their slots.
   toxData = rt@toxData
   patientData = rt@patientData
   dm = dim(toxData)

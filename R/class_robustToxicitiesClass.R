@@ -1,5 +1,5 @@
 
-#' The robustToxicities class
+#' The robustToxicitiesClass
 #'
 #' This is core object of this package. This object stores the original dataset as well as the automatically cleaned dataset and a list of notes and queries generated when cleaning the dataset. A list of options is also provided to store plot and tabulation options and provide additional metadata. Finally treatment and cycle labels are also required.
 #'
@@ -22,9 +22,11 @@
 #' @slot options An s4 object of class \code{\link{toxicityOptions-class}} containing options and metadata for the files.
 #' @slot wasQueried Logical detailing if queries were run on this object.
 
-
+#' @name robustToxicitiesClass
 #' @importFrom stringr word
 #' @exportClass robustToxicitiesClass
+NULL
+
 .robustToxicitiesClass = setClass(
   "robustToxicitiesClass",
   slots = c(
