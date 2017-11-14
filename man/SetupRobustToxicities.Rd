@@ -109,20 +109,21 @@ ToxTable_categories(rt)
 ###########################################################
 # Plot Examples
 ###########################################################
-toxPlot_byToxicity(rt)
+ToxPlot_byToxicity(rt)
 
-toxPlot_byPatient(rt)
+ToxPlot_byPatient(rt)
 
-toxPlot_byCycle(rt)
+ToxPlot_byCycle(rt)
 
 ###########################################################
 # Alternative specification to cycles
 ###########################################################
 # wrapper for toxPlot_byCycle adding alternative boundaries
+timeBoundaries = c(0,21,42,63,84,105,126)
 rt2 = CreateTimeDividers(rt, timeBoundaries)
 ToxTable_summary(rt2)
 
-timeBoundaries = c(0,21,42,63,84,105,126)
-rt2 = toxPlot_byTime(rt, timeBoundaries)
+
+ToxPlot_byTime(rt, timeBoundaries = timeBoundaries)
 
 }
