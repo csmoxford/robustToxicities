@@ -101,7 +101,10 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
     for(j in 1:5){
       toxDataSub2 = toxDataSub[toxDataSub[,rt@toxGradeCol] == j,]
       if(dim(toxDataSub2)[1] > 0){
-        rect(toxDataSub2$rel_ae_start,toxDataSub2$gid - ud,toxDataSub2$rel_ae_end+1,toxDataSub2$gid + ud,col = cols[j], border = NA)
+
+        toxEndxlimRestricted = sapply(1:length(toxDataSub2$rel_ae_end), function(i) toxDataSub2$rel_ae_end[i] + ifelse(toxDataSub2$rel_ae_end[i] - toxDataSub2$rel_ae_start[i] < 1, 1, 0)) # add one to toxicities is only occur on one day
+
+        rect(toxDataSub2$rel_ae_start,toxDataSub2$gid - ud,toxEndxlimRestricted,toxDataSub2$gid + ud,col = cols[j], border = NA)
       }
     }
 

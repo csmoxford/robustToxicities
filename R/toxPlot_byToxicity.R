@@ -193,7 +193,11 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
 
       toxDataSub2 = toxDataSub2[toxDataSub2$rel_ae_start < xlim[2],]
       if(dim(toxDataSub2)[1] > 0){
-        toxEndxlimRestricted = pmin(toxDataSub2$rel_ae_end + 1, xlim[2])
+
+        toxEndxlimRestricted = sapply(1:length(toxDataSub2$rel_ae_end), function(i) toxDataSub2$rel_ae_end[i] + ifelse(toxDataSub2$rel_ae_end[i] - toxDataSub2$rel_ae_start[i] < 1, 1, 0)) # add one to toxicities is only occur on one day
+
+        toxEndxlimRestricted = pmin(toxEndxlimRestricted, xlim[2])
+
         rect(toxDataSub2$rel_ae_start,toxDataSub2$gid - ud, toxEndxlimRestricted, toxDataSub2$gid + ud, col = cols[j], border = NA)
       }
     }
