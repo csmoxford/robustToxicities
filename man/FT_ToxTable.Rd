@@ -18,7 +18,7 @@ FT_ToxTable_category(rt, cycles = "all", tble = NULL)
 
 \item{tble}{Optionally pass a pre computed table into the wrapper instead of computing it here. Note if columns don't match what is expected this is likely to fail. May be usefull for dropping some rows, or saving time rerunning the table generator function for large data sets.
 
-This functions return the ConstructFlexTable object from the prettyTables package. To create the FlexTable you can call object$GetTable() on the returned object. This can then be added to a word document using \code{\link{addFlexTable}} from the ReporteRs package.}
+This functions return the ConstructFlexTable object from the prettyTables package. To create the FlexTable you can call object$GetTable() on the returned object. This can then be added to a word document using \code{\link[ReporteRs]{addFlexTable}} from the ReporteRs package.}
 
 \item{cycles}{The cycle column names, or index in rt@periodDividerCols of the cycles to tabulate. May also be "all" to use all cycles}
 }

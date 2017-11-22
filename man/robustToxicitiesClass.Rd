@@ -2,6 +2,7 @@
 % Please edit documentation in R/class_robustToxicitiesClass.R
 \name{robustToxicitiesClass}
 \alias{robustToxicitiesClass}
+\alias{robustToxicitiesClass-class}
 \title{The robustToxicitiesClass}
 \description{
 This is core object of this package. This object stores the original dataset as well as the automatically cleaned dataset and a list of notes and queries generated when cleaning the dataset. A list of options is also provided to store plot and tabulation options and provide additional metadata. Finally treatment and cycle labels are also required.

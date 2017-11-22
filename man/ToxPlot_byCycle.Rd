@@ -4,13 +4,15 @@
 \alias{ToxPlot_byCycle}
 \title{Summary plot of toxicities by cycle}
 \usage{
-ToxPlot_byCycle(rt, gradeRequired = 1, colors = c("blue", "red"),
+ToxPlot_byCycle(rt, gradeRequired = 1, col = c("blue", "red"),
   tableSpace = 0.1, las = 1, legendPosition = "right", add = FALSE)
 }
 \arguments{
 \item{rt}{An object of class robustToxicities}
 
 \item{gradeRequired}{Only include adverse events with at least this grade}
+
+\item{col}{A vector of colours to plot each arm with}
 
 \item{tableSpace}{A parameter to assist in vertical row spacing the table appropriately}
 
@@ -19,12 +21,6 @@ ToxPlot_byCycle(rt, gradeRequired = 1, colors = c("blue", "red"),
 \item{legendPosition}{The location to place the legend see \code{\link{legend}} for details}
 
 \item{add}{TRUE/FALSE whether to add to an existing plot or start a new one}
-
-\item{timeBoundaries}{A vector of times from the dateOfStartOfToxWindow}
-
-\item{xlab}{The xaxis label. "days","weeks" and "months" are converted to "Time from registration (days)" etc.}
-
-\item{col}{A vector of colours to plot each arm with}
 }
 \description{
 This plot summarises the proportion of patients having an adverse event in each time period as defined by periodDividerCols in the \code{\link{robustToxicitiesClass}}.

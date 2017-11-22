@@ -13,6 +13,8 @@ worstGradeByPatientCategory(rt, categoryList = NULL)
 \item{rt}{an object of class robustToxicities}
 
 \item{toxData}{A data.frame subset of rt@toxData if not all data should be used}
+
+\item{categoryList}{A vector of categories}
 }
 \value{
 Returns a data.frame

@@ -23,6 +23,7 @@
 #' @slot wasQueried Logical detailing if queries were run on this object.
 
 #' @name robustToxicitiesClass
+#' @aliases robustToxicitiesClass-class
 #' @importFrom stringr word
 #' @exportClass robustToxicitiesClass
 NULL

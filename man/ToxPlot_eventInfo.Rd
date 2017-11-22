@@ -11,11 +11,11 @@ ToxPlot_eventInfo(columns, label = columns[1], lwd = 4, col = "grey")
 \arguments{
 \item{columns}{A vector of columns contain the event}
 
+\item{label}{A short name for the event}
+
 \item{lwd}{Line width}
 
 \item{col}{The colour to use for each event}
-
-\item{labels}{A short name for the event}
 }
 \value{
 An object of class eventInfo containing the same slots as paramters taken by ToxPlot_causalityInfo

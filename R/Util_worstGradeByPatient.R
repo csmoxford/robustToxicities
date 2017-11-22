@@ -5,6 +5,7 @@
 #'
 #' @param rt an object of class robustToxicities
 #' @param toxData A data.frame subset of rt@toxData if not all data should be used
+#' @param categoryList A vector of categories
 #'
 #' @details
 #' worstGradeByPatientCategory does the same thing but wraps over all categories.

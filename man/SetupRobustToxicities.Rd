@@ -39,6 +39,10 @@ SetupRobustToxicities(toxData, patientData, patidCol, treatmentCol = NULL,
 \item{periodDividerLabels}{Display names for data periodDividerCols
 param treatmentLabels A vector of treatment labels}
 
+\item{treatmentCodes}{Levels of treatment in the treatmentCol}
+
+\item{treatmentLabels}{What to name each treatment in output tables}
+
 \item{options}{Optional. An object of class toxicityOptions. The easiest place to start is with \code{DefaultToxicityOptions()}. See \code{\link{DefaultToxicityOptions}} for more details on options.}
 }
 \value{

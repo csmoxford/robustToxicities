@@ -10,7 +10,7 @@ devtools::install_github("csmoxford/robustToxicities")
 
 ## Usage ##
 
-See the examples in inst\examples, or read the help files using `?robustToxicities`.
+See the examples in the help files using `?robustToxicities`.
 
 ## To-do list ##
 

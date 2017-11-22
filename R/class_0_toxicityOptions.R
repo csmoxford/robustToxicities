@@ -3,7 +3,7 @@
 #' Toxicity Options class
 #'
 #' An object containing all the key options for creating the toxicity tables.
-#' This is a slot in the \code{\link{robustToxicities-class}}. This class can be generated using \code{DefaultToxicityOptions()} and updated manually.
+#' This is a slot in the \code{\link{robustToxicitiesClass}}. This class can be generated using \code{DefaultToxicityOptions()} and updated manually.
 #'
 #' @name toxicityOptions
 #'
@@ -13,10 +13,11 @@
 #' @slot toxTable_tabulationZeros A logical value used to determine if zeros should be included, default TRUE
 #' @slot toxTable_cumulativeGrades A logical value used to determine whether toxicity grades should be reported cumulatively or not, default TRUE
 #' @slot toxTable_discardToxAtStudyEntry A logical value used to determine if toxicities reported at baseline should be reported or not, default FALSE
-#' @slot toxTable_mergeGrades Grades to merge in the \code{\link{print_toxTable_cycle}}. Columns are seperated by "|" and merged values are seperated by ",". "n"
+#' @slot toxTable_mergeGrades Grades to merge in the tables. Columns are seperated by "|" and merged values are seperated by ",". "n"
 #' @slot toxTable_cycle_toxicityOrder What order should the data be returned in. "c" ordered by categories and then adverse events. "a" ordered by adverse events. "n" ordered by number of adverse events. The n option can be followed by a number to denote the minimum grade to use for sorting. e.g. "n3" will order by grades 3-5 and then 1-5 for ties within grades 3-5.
 #'
 #' @import methods
+#' @aliases toxicityOptions-class
 #' @exportClass toxicityOptions
 NULL
 

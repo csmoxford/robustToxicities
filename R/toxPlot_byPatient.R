@@ -27,7 +27,6 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
                              xlim = c(-7,60),
                              xlab = character(0),
                              plotCycleLength = 21,
-                             plotCycles = 6,
                              plotXLegendScale = "days",
                              permitMarSet = TRUE,
                              events = list(),
@@ -134,7 +133,7 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
     abline(v = -10:500*7, lty = 2, col = "lightgrey")
     abline(h = 1:1000-0.5, lty = 1, col = "lightgrey")
     if (plotCycleLength > 0) {
-      abline(v = 0:plotCycles * plotCycleLength, col="grey")
+      abline(v = 0:100 * plotCycleLength, col="grey")
     }
 
 

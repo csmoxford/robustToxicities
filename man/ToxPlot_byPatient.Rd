@@ -6,8 +6,8 @@
 \usage{
 ToxPlot_byPatient(rt, rowID_range = NULL, plot = TRUE,
   plotLeftSideOption = "treatment", xlim = c(-7, 60), xlab = character(0),
-  plotCycleLength = 21, plotCycles = 6, plotXLegendScale = "days",
-  permitMarSet = TRUE, events = list(), offsetEvent = NULL)
+  plotCycleLength = 21, plotXLegendScale = "days", permitMarSet = TRUE,
+  events = list(), offsetEvent = NULL)
 }
 \arguments{
 \item{rt}{an object of class robustToxicities}

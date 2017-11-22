@@ -13,7 +13,7 @@
 #'
 #'
 #' @param columns A vector of columns contain the event
-#' @param labels A short name for the event
+#' @param label A short name for the event
 #' @param lwd Line width
 #' @param col The colour to use for each event
 #'

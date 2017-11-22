@@ -21,6 +21,8 @@
 #' @param periodDividerCols Column names for date dividing times into periods or cycles (optional)
 #' @param periodDividerLabels Display names for data periodDividerCols
 #' param treatmentLabels A vector of treatment labels
+#' @param treatmentCodes Levels of treatment in the treatmentCol
+#' @param treatmentLabels What to name each treatment in output tables
 #' @param options Optional. An object of class toxicityOptions. The easiest place to start is with \code{DefaultToxicityOptions()}. See \code{\link{DefaultToxicityOptions}} for more details on options.
 #'
 #' @return An object of class \code{\link{robustToxicitiesClass}}

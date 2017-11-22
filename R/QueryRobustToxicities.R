@@ -7,7 +7,6 @@
 #'
 #' @return An S4 object of class robustToxicitiesClass. The queries are stored as a data.frame in the slot queries (rt@queires)
 #'
-#' @usage rt = QueryRobustToxicities(rt)
 #'
 #' @export QueryRobustToxicities
 QueryRobustToxicities = function(rt) {

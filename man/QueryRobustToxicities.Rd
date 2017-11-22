@@ -4,7 +4,7 @@
 \alias{QueryRobustToxicities}
 \title{Query RobustToxicities}
 \usage{
-rt = QueryRobustToxicities(rt)
+QueryRobustToxicities(rt)
 }
 \arguments{
 \item{rt}{The robustToxicitiesClass object}

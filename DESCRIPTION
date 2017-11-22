@@ -1,8 +1,8 @@
 Package: robustToxicities
 Type: Package
 Title: Toxicity tables
-Version: 1.0.3
-Date: 2017-11-07
+Version: 1.1.0
+Date: 2017-11-22
 Author: Peter Dutton
 Maintainer: Peter Dutton <peter.dutton@ndorms.ox.ac.uk>
 Description: Creates publication ready table and graphs from time based toxicity

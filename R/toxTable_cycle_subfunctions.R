@@ -1,4 +1,4 @@
-
+#' @importFrom stats aggregate
 
 .toxTable_cycle = function(rt, cycles) {
 

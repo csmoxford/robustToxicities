@@ -4,8 +4,7 @@
 #'
 #' @param rt An object of class robustToxicities
 #' @param gradeRequired Only include adverse events with at least this grade
-#' @param timeBoundaries A vector of times from the dateOfStartOfToxWindow
-#' @param xlab The xaxis label. "days","weeks" and "months" are converted to "Time from registration (days)" etc.
+
 #' @param col A vector of colours to plot each arm with
 #' @param tableSpace A parameter to assist in vertical row spacing the table appropriately
 #' @param las numeric in {0,1,2,3}; the style of axis labels. {0: always parallel to the axis}, {1: always horizontal [default]}, {2: always perpendicular to the axis}, {3: always vertical}
@@ -18,7 +17,7 @@
 #' @seealso \code{\link{ToxPlot_byPatient}}, \code{\link{ToxPlot_byToxicity}}, \code{\link{ToxPlot_byTime}}
 
 #' @export ToxPlot_byCycle
-ToxPlot_byCycle = function(rt, gradeRequired = 1, colors = c("blue","red"), tableSpace = 0.1, las = 1, legendPosition = "right", add = FALSE) {
+ToxPlot_byCycle = function(rt, gradeRequired = 1, col = c("blue","red"), tableSpace = 0.1, las = 1, legendPosition = "right", add = FALSE) {
 
   if(!rt@wasQueried){
     stop("Warning: QueryRobustToxicities has not been applied to this object")
@@ -51,8 +50,8 @@ ToxPlot_byCycle = function(rt, gradeRequired = 1, colors = c("blue","red"), tabl
     ydata = dta[[paste0("tox",i)]]/dta[[paste0("total",i)]]
     polygon(c(xdata[1],xdata,xdata[length(xdata)]),
             c(0, ydata, 0),
-            col = adjustcolor(colors[i], alpha.f = 0.25),
-            border = colors[i],
+            col = adjustcolor(col[i], alpha.f = 0.25),
+            border = col[i],
             lwd = 2)
 
     text(xdata,1 + tableSpace*(1+length(rt@treatmentLabels) - i),labels = dta[[paste0("total",i)]], xpd = TRUE)
@@ -64,7 +63,7 @@ ToxPlot_byCycle = function(rt, gradeRequired = 1, colors = c("blue","red"), tabl
     axis(1, labels = rt@periodDividerLabels, at = 1:length(rt@periodDividerLabels), las = las, lwd = 2)
     axis(2, labels = 0:5/5, at = 0:5/5, las = 2, lwd = 2)
 
-    legend(legendPosition,border = colors, fill = adjustcolor(colors, alpha.f = 0.25), legend = rt@treatmentLabels, bty = "n")
+    legend(legendPosition,border = col, fill = adjustcolor(col, alpha.f = 0.25), legend = rt@treatmentLabels, bty = "n")
   }
 
 }

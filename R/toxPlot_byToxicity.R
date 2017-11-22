@@ -22,13 +22,15 @@
 #'
 #' @example inst/HelpExamples/ToxPlot_byToxicity_example.R
 #'
+#' @importFrom graphics abline axis box close.screen legend mtext par plot points polygon rect screen segments split.screen text
+#' @importFrom grDevices adjustcolor colors dev.size
+#'
 #' @export ToxPlot_byToxicity
 ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
                    plotLeftSideOption = "treatment",
                    xlim = c(-7,60),
                    xlab = character(0),
                    plotCycleLength = 21,
-                   plotCycles = 6,
                    plotXLegendScale = "days",
                    permitMarSet = TRUE,
                    causality = NULL,
@@ -176,7 +178,7 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
     abline(v = -10:500*7, lty = 2, col = "lightgrey")
     abline(h = 1:1000-0.5, lty = 2, col = "lightgrey", lwd = 0.5)
     if (plotCycleLength > 0) {
-      abline(v = 0:plotCycles * plotCycleLength, col="grey")
+      abline(v = 0:100 * plotCycleLength, col="grey")
     }
 
 
