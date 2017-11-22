@@ -13,7 +13,7 @@
 #' @param permitMarSet Allow the function to set the mar for the plot
 #' @param causality Adds causality columns to the plot on the righthand side. This must be an object of type \code{\link{causalityInfo-class}}
 #' @param events a list of Objects of type eventInfo.
-#' @param offsetEvent the name of a column in patientData to use as time 0.
+#' @param offsetEvent the name of a column in patientData to use as time 0. If not provided the start of assessment date is used
 #'
 #' @return
 #' This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
@@ -61,7 +61,7 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
   }
 
   #######################################################
-  .toxPlot_fun = function(rt, toxDataSub, rowID_range = NULL, plotNow = TRUE, cols, xlab, causality, events) {
+  .toxPlot_fun = function(rt, toxDataSub, rowID_range = NULL, plotNow = TRUE, cols, xlab, causality, events, offsetEvent) {
 
 
     ####################################################################
@@ -76,8 +76,9 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
       rt@patientData$newOffsetAmount =  rt@patientData[,offsetEvent] - rt@patientData[,rt@dateOfStartOfToxWindow]
       toxDataSub$offSetDateAmount = sapply(toxDataSub[,rt@patidCol], function(patid) rt@patientData$newOffsetAmount[rt@patientData[,rt@patidCol] == patid] )
 
+
       toxDataSub$rel_ae_start = toxDataSub$rel_ae_start - toxDataSub$offSetDateAmount
-      toxDataSub$rel_ae_end = toxDataSub$rel_ae_start - toxDataSub$offSetDateAmount
+      toxDataSub$rel_ae_end = toxDataSub$rel_ae_end - toxDataSub$offSetDateAmount
     } else {
       toxDataSub$offSetDateAmount = 0
       rt@patientData$newOffsetAmount = 0
@@ -284,7 +285,7 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
   cols = c("#00CC00","#FF9900","red","#551A8B","black")
   cols = c("#98cee2", "#4c7bd3","#ff8d00","#ff0000","#b719b4")
 
-  val = .toxPlot_fun(rt = rt, toxDataSub = toxDataSub, rowID_range = rowID_range, plotNow = plotNow, cols = cols, xlab = xlab, causality = causality, events = events)
+  val = .toxPlot_fun(rt = rt, toxDataSub = toxDataSub, rowID_range = rowID_range, plotNow = plotNow, cols = cols, xlab = xlab, causality = causality, events = events, offsetEvent = offsetEvent)
 
   if(!plotNow) {
     return(val)
@@ -297,37 +298,12 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
   plot(0,0,type="n",axes=FALSE,xlim=c(0,1),ylim=c(0,1),xlab="",ylab="", xaxs = "i", yaxs = "i")
 
   numItems = 5 + length(events) + ifelse(!is.null(causality), length(causality@labels), 0)
+  numRowLegend = ceiling(numItems / 5)
 
-  getPosition = function(index, itemsOnRow, totalItems) {
-
-    pos = list(x = rep(NA,length(index)),y = rep(NA,length(index)))
-
-    fullMod = function(i, mod) {
-      ret = i %% mod
-      if(ret == 0) {return(mod)}
-      return(ret)
-    }
-
-    for(j in 1:length(index)) {
-      i = index[j]
-      numberOfRows = ceiling(totalItems / itemsOnRow)
-      areOnRow = ceiling(i / itemsOnRow)
-
-      if(areOnRow < numberOfRows || totalItems == itemsOnRow * numberOfRows) {
-        pos$x[j] = fullMod(i,itemsOnRow) / (itemsOnRow) - 0.5/itemsOnRow
-      } else {
-        itemsOnThisRow = fullMod(totalItems,itemsOnRow)
-        pos$x[j] = fullMod(i,itemsOnRow) / (itemsOnRow) - 0.5/itemsOnRow + (itemsOnRow - itemsOnThisRow)/(2*itemsOnRow)
-      }
-      pos$y[j] = (numberOfRows + 1 - areOnRow)  / (numberOfRows + 1)
-
-    }
-    return(pos)
-  }
 
 
   # row 1: grade 1-5
-  pos = getPosition(1:5,5,numItems)
+  pos = .legendGetPosition(1:5,5,numItems)
   pos$x = pos$x + 0.05
   xsize = 0.025
   xoffset = 0.03
@@ -341,7 +317,7 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
   curItems = 5
 
   if(!is.null(causality)) {
-  pos = getPosition(curItems + 1:length(causality@labels) , 5, numItems)
+  pos = .legendGetPosition(curItems + 1:length(causality@labels) , 5, numItems)
   pos$x = pos$x + 0.05
   curItems = curItems + length(causality@labels)
 
@@ -353,7 +329,7 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
   }
 
     if(length(events) > 0) {
-      pos = getPosition(curItems + 1:length(events) , 5, numItems)
+      pos = .legendGetPosition(curItems + 1:length(events) , 5, numItems)
       pos$x = pos$x + 0.05
       curItems = curItems + length(causality@labels)
 

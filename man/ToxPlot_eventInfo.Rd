@@ -6,20 +6,20 @@
 \alias{eventInfo-class}
 \title{eventInfo class}
 \usage{
-ToxPlot_eventInfo(columns, labels = columns, lwd = 1.5, col = 1)
+ToxPlot_eventInfo(columns, label = columns[1], lwd = 4, col = "grey")
 }
 \arguments{
-\item{columns}{A vector of column names for toxData}
-
-\item{labels}{A short name for each event}
+\item{columns}{A vector of columns contain the event}
 
 \item{lwd}{Line width}
 
 \item{col}{The colour to use for each event}
+
+\item{labels}{A short name for the event}
 }
 \value{
 An object of class eventInfo containing the same slots as paramters taken by ToxPlot_causalityInfo
 }
 \description{
-Stores event data to pass to toxPlot_byToxicity in the causality parameter. The columns containing the data in patientData should hold date data or \code{\link{difftime}} data in days.
+Stores event data to pass to toxPlot_byToxicity in the causality parameter. The columns containing the data in patientData should hold date of class "Date".
 }

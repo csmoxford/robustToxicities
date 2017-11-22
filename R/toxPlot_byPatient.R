@@ -6,10 +6,13 @@
 #' @param rowID_range optional, a length 2 vector detailing the minimum and maximum row to plot
 #' @param plot whether to plot the graph or return the number of rows to plot
 #' @param xlim Range to plot on xaxis. Default is c(-7,60)
+#' @param xlab xaxis title / label
 #' @param plotCycleLength Cycle length is used to add greater highlights to vertical lines. Default is 21
 #' @param plotLeftSideOption What to display on right axis. Options are: "treatment", "patid" or "both". Default is "treatment"
 #' @param plotXLegendScale What scale to use on xaxis. Options are "days","weeks","months". Default is "days"
 #' @param permitMarSet Allow the function to set the mar for the plot
+#' @param events a list of Objects of type eventInfo.
+#' @param offsetEvent the name of a column in patientData to use as time 0. If not provided the start of assessment date is used
 #'
 #' @return
 #' This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
@@ -20,12 +23,15 @@
 #'
 #' @export ToxPlot_byPatient
 ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
-                              plotLeftSideOption = "treatment",
-                              xlim = c(-7,60),
-                              plotCycleLength = 21,
-                              plotCycles = 6,
-                              plotXLegendScale = "days",
-                              permitMarSet = TRUE) {
+                             plotLeftSideOption = "treatment",
+                             xlim = c(-7,60),
+                             xlab = character(0),
+                             plotCycleLength = 21,
+                             plotCycles = 6,
+                             plotXLegendScale = "days",
+                             permitMarSet = TRUE,
+                             events = list(),
+                             offsetEvent = NULL) {
 
   if(!rt@wasQueried){
     stop("Warning: QueryRobustToxicities has not been applied to this object")
@@ -33,7 +39,15 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
 
   validObject(rt)
 
-  .toxPlot_time = function(rt, toxDataSub, rowID_range = NULL, cols = cols) {
+  if(length(events) > 0) {
+    for(i in 1:length(events)) {
+      if(class(events[[i]]) != "eventInfo") {
+        stop("Items passed to ... must be events")
+      }
+    }
+  }
+
+  .toxPlot_time = function(rt, toxDataSub, rowID_range = NULL, cols, xlab, events, offsetEvent) {
 
 
     if(is.null(rt@patientData$rowID)) {
@@ -42,6 +56,19 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
     }
 
     toxDataSub$gid = sapply(toxDataSub[,rt@patidCol], function(x){ rt@patientData$rowID[rt@patientData[,rt@patidCol] == x] })
+
+    ####################################################################
+    ## Change offset to event different to start of tox window
+    if(!is.null(offsetEvent)) {
+      rt@patientData$newOffsetAmount =  rt@patientData[,offsetEvent] - rt@patientData[,rt@dateOfStartOfToxWindow]
+      toxDataSub$offSetDateAmount = sapply(toxDataSub[,rt@patidCol], function(patid) rt@patientData$newOffsetAmount[rt@patientData[,rt@patidCol] == patid] )
+
+      toxDataSub$rel_ae_start = toxDataSub$rel_ae_start - toxDataSub$offSetDateAmount
+      toxDataSub$rel_ae_end = toxDataSub$rel_ae_end - toxDataSub$offSetDateAmount
+    } else {
+      toxDataSub$offSetDateAmount = 0
+      rt@patientData$newOffsetAmount = 0
+    }
 
 
     ylim = c(min(rt@patientData$rowID)-0.5, max(rt@patientData$rowID) + 0.5)
@@ -79,22 +106,30 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
       }
     }
 
-
-    # end of assessment vertical line
-    segments(toxDataSub[, "rel_ae_ent_assessment"],toxDataSub$gid-0.5,toxDataSub[, "rel_ae_ent_assessment"],toxDataSub$gid+0.5,lwd=4,col="grey")
-
-
-
-    if(plotXLegendScale == "days"){
-      axis(1, labels = -10:500 * 7, at = -10:500*7, pos = ylim[1])
-      mtext("Days from start of treatment",side = 1, line = 2.5, cex = par("cex"))
-    } else if(plotXLegendScale == "weeks"){
-      axis(1, labels = -10:500, at = -10:500*7, pos = ylim[1])
+    if(plotXLegendScale == "days") {
+      mx = floor(xlim[2] / 7)
+      axis(1, labels = -10:mx * 7, at = -10:mx*7, pos = ylim[1])
+      if(length(xlab) == 0) {
+        xlab = "Days from start of treatment"
+      }
+    } else if(plotXLegendScale == "weeks") {
+      mx = floor(xlim[2] / 7)
+      axis(1, labels = -10:mx, at = -10:mx*7, pos = ylim[1])
       mtext("Weeks from start of treatment", side = 1, line = 2.5, cex = par("cex"))
-    } else {
-      axis(1, labels = -10:500, at = -10:500*as.numeric(plotXLegendScale), pos = ylim[1])
-      mtext("Cycles from start of treatment", side = 1, line = 2.5, cex = par("cex"))
+      if(length(xlab) == 0) {
+        xlab = "Weeks from start of treatment"
+      }
+    } else if(plotXLegendScale == "months") {
+      mx = floor(xlim[2] / 7)
+      axis(1, labels = -10:mx, at = -10:mx*30.4, pos = ylim[1])
+      if(length(xlab) == 0) {
+        xlab = "Months from start of treatment"
+      }
+    }else {
+      stop("plotXLegendScale must be one of 'days', 'weeks', 'months'")
     }
+
+    mtext(xlab,side = 1, line = 2.5, cex = par("cex"))
 
     abline(v = -10:500*7, lty = 2, col = "lightgrey")
     abline(h = 1:1000-0.5, lty = 1, col = "lightgrey")
@@ -110,6 +145,17 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
     treatmentLine = sapply(rt@treatmentCodes, function(x) max(patientData$rowID[patientData[,rt@treatmentCol] == x])) + 0.5
 
     abline(h = treatmentLine,lwd = 2)
+
+    #########################################################
+    # Add any provided events
+    if(length(events) > 0) {
+      for(event in events) {
+        for(i in 1:length(event@columns)) {
+          patientData[,event@columns[i]] = patientData[,event@columns[i]] - rt@patientData[,rt@dateOfStartOfToxWindow]  - patientData$newOffsetAmount
+          segments(patientData[,event@columns[i]],patientData$rowID-0.5,patientData[,event@columns[i]],patientData$rowID+0.5, lwd=event@lwd, col= event@col, lend = 1)
+        }
+      }
+    }
 
 
     #########################################################
@@ -143,44 +189,48 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
   cols = c("#98cee2", "#4c7bd3", "#ff8d00", "#ff0000", "#b719b4")
 
 
-  val = .toxPlot_time(rt,toxDataSub, rowID_range, cols = cols)
+  val = .toxPlot_time(rt,toxDataSub, rowID_range, cols = cols, events = events, xlab = xlab, offsetEvent = offsetEvent)
 
   #############################################################
   #############################################################
   ## legend
   screen(2)
-
-  size = dev.size("in")
-  sizeBase = ifelse(size[1] < 9, 1, 0.6)
-
-  par(mar=c(0,3,0,0.75))
+  par(mar=c(0,0,0,0))
   plot(0,0,type="n",axes=FALSE,xlim=c(0,1),ylim=c(0,1),xlab="",ylab="", xaxs = "i", yaxs = "i")
 
-  if(sizeBase == 0.6){
-    xpos = c(0.2, 0.4, 0.6, 0.8, 1) - 0.05
-    ypos = c(0.5, 0.5, 0.5, 0.5, 0.5)
-    xsize = 0.03
-    xoffset = 0.03
-    ysize = 0.2
-  } else {
-    xpos = c(0.33, 0.66, 1, 0.33, 0.66) - 0.2
-    ypos = c(0.7, 0.7, 0.7, 0.25, 0.25)
-    xsize = 0.03
-    xoffset = 0.03
-    ysize = 0.13
-  }
+  numItems = 5 + length(events)
+  numRowLegend = ceiling(numItems / 5)
+
+
+
+  # row 1: grade 1-5
+  pos = .legendGetPosition(1:5,5,numItems)
+  pos$x = pos$x + 0.05
+  xsize = 0.025
+  xoffset = 0.03
+  ysize = 0.2 / numRowLegend
   label = c("Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5")
 
   par(xpd=TRUE)
-  for(i in 1:5){
-    text(xpos[i]-xoffset, ypos[i],labels=label[i],pos=2)
-    polygon(xpos[i]+xsize*c(-1,-1,1,1),ypos[i]+ysize*c(-1,1,1,-1),col=cols[i],border=cols[i])
-  }
-  par(xpd=FALSE)
-  #############################################################
-  #############################################################
-  #############################################################
+  text(pos$x - xoffset, pos$y,labels = label, pos = 2)
+  rect(pos$x - xsize, pos$y - ysize, pos$x + xsize, pos$y + ysize, col = cols, border = cols)
 
+  curItems = 5
+
+  if(length(events) > 0) {
+    pos = .legendGetPosition(curItems + 1:length(events) , 5, numItems)
+    pos$x = pos$x + 0.05
+
+
+    xsize = 0.03
+    xoffset = 0.03
+    ysize =  0.2 / numRowLegend
+
+    text(pos$x - xoffset, pos$y, labels = sapply(events, function(e) e@label), pos = 2)
+    segments(pos$x, pos$y - ysize, pos$x, pos$y + ysize, col = sapply(events, function(e) e@col), lwd = sapply(events, function(e) e@lwd))
+  }
+
+  par(xpd=FALSE)
   # Do we really want to close screens?
   close.screen(all.screens = TRUE)
 

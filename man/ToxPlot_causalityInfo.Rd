@@ -7,8 +7,8 @@
 \title{causalityInfo class}
 \usage{
 ToxPlot_causalityInfo(columns, names = character(0), width = 1.5,
-  pch = c(NA, NA, 4, 8, 16), cex = 1, col = 1, labels = c("Possibly",
-  "Probably", "Definitely"))
+  pch = c(NA, NA, 4, 8, 16), cex = 1, col = 1,
+  labels = c("Possibly related", "Probably related", "Definitely related"))
 }
 \arguments{
 \item{columns}{A vector of column names for toxData}

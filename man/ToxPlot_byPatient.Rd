@@ -5,9 +5,9 @@
 \title{Plot patients worst grade over time}
 \usage{
 ToxPlot_byPatient(rt, rowID_range = NULL, plot = TRUE,
-  plotLeftSideOption = "treatment", xlim = c(-7, 60),
+  plotLeftSideOption = "treatment", xlim = c(-7, 60), xlab = character(0),
   plotCycleLength = 21, plotCycles = 6, plotXLegendScale = "days",
-  permitMarSet = TRUE)
+  permitMarSet = TRUE, events = list(), offsetEvent = NULL)
 }
 \arguments{
 \item{rt}{an object of class robustToxicities}
@@ -20,11 +20,17 @@ ToxPlot_byPatient(rt, rowID_range = NULL, plot = TRUE,
 
 \item{xlim}{Range to plot on xaxis. Default is c(-7,60)}
 
+\item{xlab}{xaxis title / label}
+
 \item{plotCycleLength}{Cycle length is used to add greater highlights to vertical lines. Default is 21}
 
 \item{plotXLegendScale}{What scale to use on xaxis. Options are "days","weeks","months". Default is "days"}
 
 \item{permitMarSet}{Allow the function to set the mar for the plot}
+
+\item{events}{a list of Objects of type eventInfo.}
+
+\item{offsetEvent}{the name of a column in patientData to use as time 0. If not provided the start of assessment date is used}
 }
 \value{
 This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
@@ -73,4 +79,42 @@ ToxPlot_byPatient(rt, rowID_range = c(1,3), plotLeftSideOption = "both")
 # subset to a specific set of adverse events
 rt@toxData$ass_TRUE = rt@toxData$toxicity == "Headache"
 ToxPlot_byPatient(rt)
+
+
+#########################################################
+# Add event data
+rt@toxData$ass_TRUE = TRUE
+
+event_EOT = ToxPlot_eventInfo(
+  columns = c("end_of_treatment_date"),
+  label = c("End Of Treatment"),
+  lwd = 4,
+  col = c("blue")
+)
+
+event_EOA = ToxPlot_eventInfo(
+  columns = c("end_of_assessment_date"),
+  label = c("End Of Assessment"),
+  lwd = 4,
+  col = c("green")
+)
+ToxPlot_byPatient(rt)
+ToxPlot_byPatient(rt,
+                  xlim = c(-7, 100),
+                  events = list(event_EOT, event_EOA))
+
+#########################################################
+# Change offset event
+event_SOT = ToxPlot_eventInfo(
+  columns = c("Registration_date"),
+  label = c("Registration Date"),
+  lwd = 4,
+  col = c("orange")
+)
+
+ToxPlot_byPatient(rt,
+                  xlim = c(-67, 40),
+                  xlab = "Days from end of treatment",
+                  events = list(event_SOT, event_EOT, event_EOA),
+                  offsetEvent = "end_of_treatment_date")
 }

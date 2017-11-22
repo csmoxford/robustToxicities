@@ -90,7 +90,7 @@ event_SOT = ToxPlot_eventInfo(
 
 ToxPlot_byToxicity(rt,
                    causality = causality,
-                   xlim = c(-80, 40),
+                   xlim = c(-67, 40),
                    xlab = "Days from end of treatment",
                    events = list(event_SOT, event_EOT, event_EOA),
                    offsetEvent = "end_of_treatment_date")

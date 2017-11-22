@@ -4,17 +4,18 @@
 \alias{ToxPlot_byToxicity}
 \title{Plot toxicities over time}
 \usage{
-ToxPlot_byToxicity(rt, rowID_range = NULL, plot = TRUE,
+ToxPlot_byToxicity(rt, rowID_range = NULL, plotNow = TRUE,
   plotLeftSideOption = "treatment", xlim = c(-7, 60), xlab = character(0),
   plotCycleLength = 21, plotCycles = 6, plotXLegendScale = "days",
-  permitMarSet = TRUE, causality = NULL)
+  permitMarSet = TRUE, causality = NULL, events = list(),
+  offsetEvent = NULL)
 }
 \arguments{
 \item{rt}{an object of class robustToxicities}
 
 \item{rowID_range}{optional, a length 2 vector detailing the minimum and maximum row to plot}
 
-\item{plot}{whether to plot the graph or return the number of rows to plot}
+\item{plotNow}{whether to plot the graph or return the number of rows to plot}
 
 \item{plotLeftSideOption}{What to display on right axis. Options are: "treatment", "patid" or "both". Default is "treatment"}
 
@@ -29,6 +30,10 @@ ToxPlot_byToxicity(rt, rowID_range = NULL, plot = TRUE,
 \item{permitMarSet}{Allow the function to set the mar for the plot}
 
 \item{causality}{Adds causality columns to the plot on the righthand side. This must be an object of type \code{\link{causalityInfo-class}}}
+
+\item{events}{a list of Objects of type eventInfo.}
+
+\item{offsetEvent}{the name of a column in patientData to use as time 0. If not provided the start of assessment date is used}
 }
 \value{
 This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
@@ -93,6 +98,46 @@ causality = ToxPlot_causalityInfo(
 ToxPlot_byToxicity(rt,
                    causality = causality)
 
+
+#########################################################
+# Add event data
+
+event_EOT = ToxPlot_eventInfo(
+  columns = c("end_of_treatment_date"),
+  label = c("End Of Treatment"),
+  lwd = 4,
+  col = c("blue")
+)
+
+event_EOA = ToxPlot_eventInfo(
+  columns = c("end_of_assessment_date"),
+  label = c("End Of Assessment"),
+  lwd = 4,
+  col = c("green")
+)
+
+ToxPlot_byToxicity(rt,
+                   causality = causality,
+                   xlim = c(-7, 100),
+                   events = list(event_EOT, event_EOA))
+
+
+########################################################
+# Change offset
+
+event_SOT = ToxPlot_eventInfo(
+  columns = c("Registration_date"),
+  label = c("Registration Date"),
+  lwd = 4,
+  col = c("orange")
+)
+
+ToxPlot_byToxicity(rt,
+                   causality = causality,
+                   xlim = c(-67, 40),
+                   xlab = "Days from end of treatment",
+                   events = list(event_SOT, event_EOT, event_EOA),
+                   offsetEvent = "end_of_treatment_date")
 }
 \seealso{
 \code{\link{ToxPlot_byPatient}}, \code{\link{ToxPlot_byTime}}, \code{\link{ToxPlot_byCycle}}
