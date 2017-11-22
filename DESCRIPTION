@@ -4,7 +4,7 @@ Title: Toxicity tables
 Version: 1.1.0
 Date: 2017-11-22
 Author: Peter Dutton
-Maintainer: Peter Dutton <peter.dutton@ndorms.ox.ac.uk>
+Maintainer: Peter Dutton <peter.dutton@csm.ox.ac.uk>
 Description: Creates publication ready table and graphs from time based toxicity
     data. Performs some built in data cleaning actions.
 License: GPL-2
