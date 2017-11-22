@@ -16,7 +16,7 @@ QueryRobustToxicities = function(rt) {
     stop("This function was already applied to this object")
   }
 
-  # Check that the rt ofbject is valid.
+  # Check that the rt object is valid.
   validObject(rt)
 
   # for readability take the datasets and options out of their slots.

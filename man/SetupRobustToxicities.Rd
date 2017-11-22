@@ -111,6 +111,25 @@ ToxTable_categories(rt)
 ###########################################################
 ToxPlot_byToxicity(rt)
 
+# With causality
+# Not provided so generate some
+rt@toxData$causality1 = sample(1:5,28, replace = TRUE)
+rt@toxData$causality2 = sample(1:5,28, replace = TRUE)
+
+causality = ToxPlot_causalityInfo(
+  columns = c("causality1","causality2"),
+  names = c("A","BA"),
+  width = 1.5,
+  pch = c(NA,NA,4,8,16),
+  cex = 1.2)
+
+
+ToxPlot_byToxicity(rt,
+                   causality = causality)
+
+
+
+
 ToxPlot_byPatient(rt)
 
 ToxPlot_byCycle(rt)

@@ -35,3 +35,62 @@ ToxPlot_byToxicity(rt, rowID_range = c(1,7))
 # subset to a specific set of adverse events
 rt@toxData$ass_TRUE = rt@toxData$Treatment == "Placebo"
 ToxPlot_byToxicity(rt)
+
+###########################################################
+# Add causality data
+rt@toxData$ass_TRUE = TRUE
+
+# With causality
+# Not provided so generate some for illustrative purposes
+rt@toxData$causality1 = sample(1:5,28, replace = TRUE)
+rt@toxData$causality2 = sample(1:5,28, replace = TRUE)
+
+causality = ToxPlot_causalityInfo(
+  columns = c("causality1","causality2"),
+  names = c("A","B"),
+  width = 1.5,
+  cex = 1.2)
+
+ToxPlot_byToxicity(rt,
+                   causality = causality)
+
+
+#########################################################
+# Add event data
+
+event_EOT = ToxPlot_eventInfo(
+  columns = c("end_of_treatment_date"),
+  label = c("End Of Treatment"),
+  lwd = 4,
+  col = c("blue")
+)
+
+event_EOA = ToxPlot_eventInfo(
+  columns = c("end_of_assessment_date"),
+  label = c("End Of Assessment"),
+  lwd = 4,
+  col = c("green")
+)
+
+ToxPlot_byToxicity(rt,
+                   causality = causality,
+                   xlim = c(-7, 100),
+                   events = list(event_EOT, event_EOA))
+
+
+########################################################
+# Change offset
+
+event_SOT = ToxPlot_eventInfo(
+  columns = c("Registration_date"),
+  label = c("Registration Date"),
+  lwd = 4,
+  col = c("orange")
+)
+
+ToxPlot_byToxicity(rt,
+                   causality = causality,
+                   xlim = c(-80, 40),
+                   xlab = "Days from end of treatment",
+                   events = list(event_SOT, event_EOT, event_EOA),
+                   offsetEvent = "end_of_treatment_date")

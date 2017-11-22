@@ -4,12 +4,16 @@
 #'
 #' @param rt an object of class robustToxicities
 #' @param rowID_range optional, a length 2 vector detailing the minimum and maximum row to plot
-#' @param plot whether to plot the graph or return the number of rows to plot
+#' @param plotNow whether to plot the graph or return the number of rows to plot
 #' @param xlim Range to plot on xaxis. Default is c(-7,60)
+#' @param xlab xaxis title / label
 #' @param plotCycleLength Cycle length is used to add greater highlights to vertical lines. Default is 21
 #' @param plotLeftSideOption What to display on right axis. Options are: "treatment", "patid" or "both". Default is "treatment"
 #' @param plotXLegendScale What scale to use on xaxis. Options are "days","weeks","months". Default is "days"
 #' @param permitMarSet Allow the function to set the mar for the plot
+#' @param causality Adds causality columns to the plot on the righthand side. This must be an object of type \code{\link{causalityInfo-class}}
+#' @param events a list of Objects of type eventInfo.
+#' @param offsetEvent the name of a column in patientData to use as time 0.
 #'
 #' @return
 #' This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
@@ -19,31 +23,67 @@
 #' @example inst/HelpExamples/ToxPlot_byToxicity_example.R
 #'
 #' @export ToxPlot_byToxicity
-ToxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
+ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
                    plotLeftSideOption = "treatment",
                    xlim = c(-7,60),
+                   xlab = character(0),
                    plotCycleLength = 21,
                    plotCycles = 6,
                    plotXLegendScale = "days",
-                   permitMarSet = TRUE) {
+                   permitMarSet = TRUE,
+                   causality = NULL,
+                   events = list(),
+                   offsetEvent = NULL) {
+
+  if(class(events) == "eventInfo") {
+    events = list(events)
+  }
 
   if(!rt@wasQueried){
     stop("Warning: QueryRobustToxicities has not been applied to this object")
   }
 
+  if(!is.null(causality)) {
+    if(class(causality) != "causalityInfo") {
+      stop("causality must be of class causalityInfo. This can be generated using the function ToxPlot_causalityInfo")
+    }
+  }
+
   validObject(rt)
 
+
+  if(length(events) > 0) {
+    for(i in 1:length(events)) {
+      if(class(events[[i]]) != "eventInfo") {
+        stop("Items passed to ... must be events")
+      }
+    }
+  }
+
   #######################################################
-  .toxPlot_time = function(rt, toxDataSub, rowID_range = NULL, plot = TRUE, cols) {
+  .toxPlot_fun = function(rt, toxDataSub, rowID_range = NULL, plotNow = TRUE, cols, xlab, causality, events) {
 
 
     ####################################################################
-    ## Convert dates to relative to start of treatment date
-
-
 
     toxDataSub = toxDataSub[order(toxDataSub[,rt@treatmentCol],toxDataSub[,rt@patidCol],toxDataSub[,rt@toxCategoryCol],toxDataSub[,rt@toxNameCol],toxDataSub$rel_ae_start),]
     un = unique(toxDataSub[, c(rt@patidCol, rt@toxCategoryCol, rt@toxNameCol)])
+
+
+    ####################################################################
+    ## Change offset to event different to start of tox window
+    if(!is.null(offsetEvent)) {
+      rt@patientData$newOffsetAmount =  rt@patientData[,offsetEvent] - rt@patientData[,rt@dateOfStartOfToxWindow]
+      toxDataSub$offSetDateAmount = sapply(toxDataSub[,rt@patidCol], function(patid) rt@patientData$newOffsetAmount[rt@patientData[,rt@patidCol] == patid] )
+
+      toxDataSub$rel_ae_start = toxDataSub$rel_ae_start - toxDataSub$offSetDateAmount
+      toxDataSub$rel_ae_end = toxDataSub$rel_ae_start - toxDataSub$offSetDateAmount
+    } else {
+      toxDataSub$offSetDateAmount = 0
+      rt@patientData$newOffsetAmount = 0
+    }
+
+
 
     # give each item a row id for all common toxicities
     toxDataSub$gid = 0
@@ -52,7 +92,7 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
       toxDataSub$gid[i] = st
     }
 
-    if(!plot) {
+    if(!plotNow) {
       return(max(toxDataSub$gid))
     }
 
@@ -76,10 +116,16 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
     # get plot region size and split-screen
     size = dev.size("in")
 
-    sizeBase = ifelse(size[1] < 9, 1, 0.6)
+    numItems = 5 + length(events) + ifelse(!is.null(causality), length(causality@labels), 0)
+    numRowLegend = ceiling(numItems / 5)
+
+    sizeBase = 0.1 + numRowLegend*0.4
     ratioBase = sizeBase/size[2]
     if(permitMarSet){
       par(mar=c(3.5,3,0.75,0.75))
+      if(!is.null(causality)) {
+        par(mar=c(3.5,3,2.5,0.75))
+      }
     }
     split.screen(
       figs = matrix(c(
@@ -91,22 +137,40 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
 
     ##############################################################
     # Main plot
-    screen(1)
-    plot(0, 0, xlim = xlim, ylim = ylim, type = "n", axes = FALSE, xlab = "", ylab = "", xaxs = "i", yaxs = "i")
 
-
-
-
-    if(plotXLegendScale == "days"){
-      axis(1, labels = -10:500 * 7, at = -10:500*7, pos = ylim[1])
-      mtext("Days from start of treatment",side = 1, line = 2.5, cex = par("cex"))
-    } else if(plotXLegendScale == "weeks"){
-      axis(1, labels = -10:500, at = -10:500*7, pos = ylim[1])
-      mtext("Weeks from start of treatment", side = 1, line = 2.5, cex = par("cex"))
-    } else {
-      axis(1, labels = -10:500, at = -10:500*as.numeric(plotXLegendScale), pos = ylim[1])
-      mtext("Cycles from start of treatment", side = 1, line = 2.5, cex = par("cex"))
+    addX = 0
+    if(!is.null(causality)) {
+      addX = causality@width * length(causality@columns)
     }
+
+    screen(1)
+    plot(0, 0, xlim = c(xlim[1],xlim[2]+addX), ylim = ylim, type = "n", axes = FALSE, xlab = "", ylab = "", xaxs = "i", yaxs = "i")
+
+
+    if(plotXLegendScale == "days") {
+      mx = floor(xlim[2] / 7)
+      axis(1, labels = -10:mx * 7, at = -10:mx*7, pos = ylim[1])
+      if(length(xlab) == 0) {
+        xlab = "Days from start of treatment"
+      }
+    } else if(plotXLegendScale == "weeks") {
+      mx = floor(xlim[2] / 7)
+      axis(1, labels = -10:mx, at = -10:mx*7, pos = ylim[1])
+      mtext("Weeks from start of treatment", side = 1, line = 2.5, cex = par("cex"))
+      if(length(xlab) == 0) {
+        xlab = "Weeks from start of treatment"
+      }
+    } else if(plotXLegendScale == "months") {
+      mx = floor(xlim[2] / 7)
+      axis(1, labels = -10:mx, at = -10:mx*30.4, pos = ylim[1])
+      if(length(xlab) == 0) {
+        xlab = "Months from start of treatment"
+      }
+    }else {
+      stop("plotXLegendScale must be one of 'days', 'weeks', 'months'")
+    }
+
+    mtext(xlab,side = 1, line = 2.5, cex = par("cex"))
 
     abline(v = -10:500*7, lty = 2, col = "lightgrey")
     abline(h = 1:1000-0.5, lty = 2, col = "lightgrey", lwd = 0.5)
@@ -123,13 +187,29 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
 
     for(j in 1:5){
       toxDataSub2 = toxDataSub[toxDataSub[,rt@toxGradeCol] == j,]
+
+      toxDataSub2 = toxDataSub2[toxDataSub2$rel_ae_start < xlim[2],]
       if(dim(toxDataSub2)[1] > 0){
-        rect(toxDataSub2$rel_ae_start,toxDataSub2$gid - ud,toxDataSub2$rel_ae_end+1,toxDataSub2$gid + ud,col = cols[j], border = NA)
+        toxEndxlimRestricted = pmin(toxDataSub2$rel_ae_end + 1, xlim[2])
+        rect(toxDataSub2$rel_ae_start,toxDataSub2$gid - ud, toxEndxlimRestricted, toxDataSub2$gid + ud, col = cols[j], border = NA)
       }
     }
 
-    # end of assessment vertical line
-    segments(toxDataSub[, "rel_ae_ent_assessment"],toxDataSub$gid-0.5,toxDataSub[, "rel_ae_ent_assessment"],toxDataSub$gid+0.5,lwd=4,col="grey")
+
+    # Add any provided events
+    if(length(events) > 0) {
+      for(event in events) {
+        for(i in 1:length(event@columns)) {
+
+          rt@patientData[,event@columns[i]] = rt@patientData[,event@columns[i]] - rt@patientData$newOffsetAmount
+
+        toxDataSub$eventDate = sapply(toxDataSub[,rt@patidCol] ,function(x) rt@patientData[rt@patientData[,rt@patidCol] == x, event@columns[i]])
+        toxDataSub$relEventTime = toxDataSub$eventDate - toxDataSub[,rt@dateOfStartOfToxWindow]
+
+        segments(toxDataSub$relEventTime,toxDataSub$gid-0.5,toxDataSub$relEventTime,toxDataSub$gid+0.5, lwd=event@lwd, col= event@col, lend = 1)
+        }
+      }
+    }
 
 
     #########################################################
@@ -164,10 +244,33 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
 
     #########################################################
     ## RHS toxicity names
+    gid = unique(toxDataSub$gid)
+    toxicities = sapply(gid, function(x) toxDataSub[which(toxDataSub$gid == x)[1],rt@toxNameCol])
 
-    text(xlim[2],toxDataSub$gid,labels=toxDataSub[,rt@toxNameCol],pos = 2,offset=0.25)
+    text(xlim[2], gid, labels=toxicities, pos = 2, offset=0.25)
     box(lwd=2)
 
+    #########################################################
+    ## add Causality
+    if(!is.null(causality)) {
+      par(xpd = TRUE)
+      for(columnIndex in 1:length(causality@columns)) {
+        column = causality@columns[columnIndex]
+
+        causalityValues = sapply(gid, function(x) max(1,toxDataSub[which(toxDataSub$gid == x), column], na.rm = TRUE))
+        # rect(xlim[2],toxDataSub2$gid-ud,xlim[2] + 2, toxDataSub2$gid+ud,col = 1, border = NA)
+        points(rep(xlim[2] + causality@width*(- 0.5 + columnIndex),length(gid)),gid, pch = causality@pch[causalityValues], col = causality@col[causalityValues], cex = causality@cex)
+
+        if(length(causality@names) >0) {
+          top = ylim[2] + 1
+          text(xlim[2]  + causality@width*(- 0.5 + columnIndex), ylim[2]+0.5, labels = causality@names[columnIndex])
+        } else {
+          top = ylim[2]
+        }
+        rect(xlim[2],ylim[1], xlim[2] + causality@width*columnIndex, top, lwd=2)
+      }
+      par(xpd = FALSE)
+    }
   }
   #######################################################
 
@@ -181,44 +284,88 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plot = TRUE,
   cols = c("#00CC00","#FF9900","red","#551A8B","black")
   cols = c("#98cee2", "#4c7bd3","#ff8d00","#ff0000","#b719b4")
 
+  val = .toxPlot_fun(rt = rt, toxDataSub = toxDataSub, rowID_range = rowID_range, plotNow = plotNow, cols = cols, xlab = xlab, causality = causality, events = events)
 
-  val = .toxPlot_time(rt,toxDataSub, rowID_range, plot, cols = cols)
-
-  if(!plot) {
+  if(!plotNow) {
     return(val)
   }
 
   #############################################################
   ## legend
   screen(2)
-
-
-  size = dev.size("in")
-  sizeBase = ifelse(size[1] < 9, 1, 0.6)
-
-  par(mar=c(0,3,0,0.75))
+  par(mar=c(0,0,0,0))
   plot(0,0,type="n",axes=FALSE,xlim=c(0,1),ylim=c(0,1),xlab="",ylab="", xaxs = "i", yaxs = "i")
 
-  if(sizeBase == 0.6){
-    xpos = c(0.2, 0.4, 0.6, 0.8, 1) - 0.05
-    ypos = c(0.5, 0.5, 0.5, 0.5, 0.5)
-    xsize = 0.03
-    xoffset = 0.03
-    ysize = 0.2
-  } else {
-    xpos = c(0.33, 0.66, 1, 0.33, 0.66) - 0.2
-    ypos = c(0.7, 0.7, 0.7, 0.25, 0.25)
-    xsize = 0.03
-    xoffset = 0.03
-    ysize = 0.13
+  numItems = 5 + length(events) + ifelse(!is.null(causality), length(causality@labels), 0)
+
+  getPosition = function(index, itemsOnRow, totalItems) {
+
+    pos = list(x = rep(NA,length(index)),y = rep(NA,length(index)))
+
+    fullMod = function(i, mod) {
+      ret = i %% mod
+      if(ret == 0) {return(mod)}
+      return(ret)
+    }
+
+    for(j in 1:length(index)) {
+      i = index[j]
+      numberOfRows = ceiling(totalItems / itemsOnRow)
+      areOnRow = ceiling(i / itemsOnRow)
+
+      if(areOnRow < numberOfRows || totalItems == itemsOnRow * numberOfRows) {
+        pos$x[j] = fullMod(i,itemsOnRow) / (itemsOnRow) - 0.5/itemsOnRow
+      } else {
+        itemsOnThisRow = fullMod(totalItems,itemsOnRow)
+        pos$x[j] = fullMod(i,itemsOnRow) / (itemsOnRow) - 0.5/itemsOnRow + (itemsOnRow - itemsOnThisRow)/(2*itemsOnRow)
+      }
+      pos$y[j] = (numberOfRows + 1 - areOnRow)  / (numberOfRows + 1)
+
+    }
+    return(pos)
   }
+
+
+  # row 1: grade 1-5
+  pos = getPosition(1:5,5,numItems)
+  pos$x = pos$x + 0.05
+  xsize = 0.025
+  xoffset = 0.03
+  ysize = 0.2 / numRowLegend
   label = c("Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5")
 
   par(xpd=TRUE)
-  for(i in 1:5){
-    text(xpos[i]-xoffset, ypos[i],labels=label[i],pos=2)
-    polygon(xpos[i]+xsize*c(-1,-1,1,1),ypos[i]+ysize*c(-1,1,1,-1),col=cols[i],border=cols[i])
+  text(pos$x - xoffset, pos$y,labels = label, pos = 2)
+  rect(pos$x - xsize, pos$y - ysize, pos$x + xsize, pos$y + ysize, col = cols, border = cols)
+
+  curItems = 5
+
+  if(!is.null(causality)) {
+  pos = getPosition(curItems + 1:length(causality@labels) , 5, numItems)
+  pos$x = pos$x + 0.05
+  curItems = curItems + length(causality@labels)
+
+    xsize = 0.03
+    xoffset = 0.03
+
+    text(pos$x - xoffset, pos$y, labels = causality@labels, pos = 2)
+    points(pos$x, pos$y, pch = causality@pch[!is.na(causality@pch)], col = causality@col[!is.na(causality@pch)], cex = 1.5)
   }
+
+    if(length(events) > 0) {
+      pos = getPosition(curItems + 1:length(events) , 5, numItems)
+      pos$x = pos$x + 0.05
+      curItems = curItems + length(causality@labels)
+
+
+      xsize = 0.03
+      xoffset = 0.03
+      ysize =  0.2 / numRowLegend
+
+      text(pos$x - xoffset, pos$y, labels = sapply(events, function(e) e@label), pos = 2)
+      segments(pos$x, pos$y - ysize, pos$x, pos$y + ysize, col = sapply(events, function(e) e@col), lwd = sapply(events, function(e) e@lwd))
+    }
+
   par(xpd=FALSE)
 
   close.screen(all.screens = TRUE)

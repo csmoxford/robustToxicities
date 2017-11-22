@@ -5,9 +5,9 @@
 \title{Plot toxicities over time}
 \usage{
 ToxPlot_byToxicity(rt, rowID_range = NULL, plot = TRUE,
-  plotLeftSideOption = "treatment", xlim = c(-7, 60),
+  plotLeftSideOption = "treatment", xlim = c(-7, 60), xlab = character(0),
   plotCycleLength = 21, plotCycles = 6, plotXLegendScale = "days",
-  permitMarSet = TRUE)
+  permitMarSet = TRUE, causality = NULL)
 }
 \arguments{
 \item{rt}{an object of class robustToxicities}
@@ -20,11 +20,15 @@ ToxPlot_byToxicity(rt, rowID_range = NULL, plot = TRUE,
 
 \item{xlim}{Range to plot on xaxis. Default is c(-7,60)}
 
+\item{xlab}{xaxis title / label}
+
 \item{plotCycleLength}{Cycle length is used to add greater highlights to vertical lines. Default is 21}
 
 \item{plotXLegendScale}{What scale to use on xaxis. Options are "days","weeks","months". Default is "days"}
 
 \item{permitMarSet}{Allow the function to set the mar for the plot}
+
+\item{causality}{Adds causality columns to the plot on the righthand side. This must be an object of type \code{\link{causalityInfo-class}}}
 }
 \value{
 This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
@@ -70,6 +74,25 @@ ToxPlot_byToxicity(rt, rowID_range = c(1,7))
 # subset to a specific set of adverse events
 rt@toxData$ass_TRUE = rt@toxData$Treatment == "Placebo"
 ToxPlot_byToxicity(rt)
+
+###########################################################
+# Add causality data
+rt@toxData$ass_TRUE = TRUE
+
+# With causality
+# Not provided so generate some for illustrative purposes
+rt@toxData$causality1 = sample(1:5,28, replace = TRUE)
+rt@toxData$causality2 = sample(1:5,28, replace = TRUE)
+
+causality = ToxPlot_causalityInfo(
+  columns = c("causality1","causality2"),
+  names = c("A","B"),
+  width = 1.5,
+  cex = 1.2)
+
+ToxPlot_byToxicity(rt,
+                   causality = causality)
+
 }
 \seealso{
 \code{\link{ToxPlot_byPatient}}, \code{\link{ToxPlot_byTime}}, \code{\link{ToxPlot_byCycle}}
