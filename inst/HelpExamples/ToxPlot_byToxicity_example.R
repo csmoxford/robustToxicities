@@ -48,12 +48,11 @@ rt@toxData$causality2 = sample(1:5,28, replace = TRUE)
 causality = ToxPlot_causalityInfo(
   columns = c("causality1","causality2"),
   names = c("A","B"),
-  width = 1.5,
+  width = c(1.5,3),
   cex = 1.2)
 
 ToxPlot_byToxicity(rt,
                    causality = causality)
-
 
 #########################################################
 # Add event data
@@ -76,7 +75,6 @@ ToxPlot_byToxicity(rt,
                    causality = causality,
                    xlim = c(-7, 100),
                    events = list(event_EOT, event_EOA))
-
 
 ########################################################
 # Change offset

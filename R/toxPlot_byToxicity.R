@@ -49,6 +49,13 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
     if(class(causality) != "causalityInfo") {
       stop("causality must be of class causalityInfo. This can be generated using the function ToxPlot_causalityInfo")
     }
+    validObject(causality)
+
+    for(i in 1:length(causality@columns)) {
+      if(!causality@columns[i] %in% names(rt@toxData)) {
+        stop("Column named (",causality@columns[i],") for causality object was not present in rt@toxData")
+      }
+    }
   }
 
   validObject(rt)
@@ -58,6 +65,12 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
     for(i in 1:length(events)) {
       if(class(events[[i]]) != "eventInfo") {
         stop("Items passed to ... must be events")
+      }
+      validObject(events[[i]])
+      for(j in 1:length(events[[i]]@columns)) {
+        if(!events[[i]]@columns[j] %in% names(rt@patientData)) {
+          stop("Column named (", events[[i]]@columns[j], ") for ",ifelse(is.null(names(events[i])),paste0("events[[",i,"]]"),paste0("events$",names(events[i])))," was not present in rt@patientData")
+        }
       }
     }
   }
@@ -143,7 +156,7 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
 
     addX = 0
     if(!is.null(causality)) {
-      addX = causality@width * length(causality@columns)
+      addX = sum(causality@width)
     }
 
     screen(1)
@@ -264,17 +277,20 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
       for(columnIndex in 1:length(causality@columns)) {
         column = causality@columns[columnIndex]
 
+        xpos = xlim[2] + ifelse(columnIndex > 1, sum(causality@width[1:(columnIndex - 1)]), 0) + causality@width[columnIndex] / 2
+        xedge = xpos + causality@width[columnIndex] / 2
+
         causalityValues = sapply(gid, function(x) max(1,toxDataSub[which(toxDataSub$gid == x), column], na.rm = TRUE))
         # rect(xlim[2],toxDataSub2$gid-ud,xlim[2] + 2, toxDataSub2$gid+ud,col = 1, border = NA)
-        points(rep(xlim[2] + causality@width*(- 0.5 + columnIndex),length(gid)),gid, pch = causality@pch[causalityValues], col = causality@col[causalityValues], cex = causality@cex)
+        points(rep(xpos, length(gid)),gid, pch = causality@pch[causalityValues], col = causality@col[causalityValues], cex = causality@cex)
 
         if(length(causality@names) >0) {
           top = ylim[2] + 1
-          text(xlim[2]  + causality@width*(- 0.5 + columnIndex), ylim[2]+0.5, labels = causality@names[columnIndex])
+          text(xpos, ylim[2]+0.5, labels = causality@names[columnIndex])
         } else {
           top = ylim[2]
         }
-        rect(xlim[2],ylim[1], xlim[2] + causality@width*columnIndex, top, lwd=2)
+        rect(xlim[2],ylim[1], xedge, top, lwd=2)
       }
       par(xpd = FALSE)
     }

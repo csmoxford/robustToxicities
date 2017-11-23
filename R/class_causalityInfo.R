@@ -9,6 +9,34 @@
   labels = "character"
 ))
 
+setValidity("causalityInfo", function(object){
+
+  ncol = length(object@columns)
+
+  if(ncol < 1) {
+    return("At least one column name must be provided in column")
+  }
+  if(length(object@names) != 0 && length(object@names) != ncol) {
+    return(paste0("If names provided must be of the same length as columns (", ncol,")"))
+  }
+  if(length(object@width) != ncol) {
+    return(paste0("width must be of the same length as columns (", ncol,")"))
+  }
+
+  if(length(object@pch) != length(object@col)) {
+    return(paste0("col must be of the same length as pch(", length(object@pch),")"))
+  }
+
+  uniquePCH = length(unique(object@pch[!is.na(object@pch)]))
+  if(length(object@labels) != uniquePCH) {
+    return(paste0("labels must be of the same length as the unique values in pch (", uniquePCH,")"))
+  }
+
+  if(length(object@cex) != 1) {
+    return("cex must be of length 1")
+  }
+
+})
 
 #' causalityInfo class
 #'
@@ -32,6 +60,9 @@
 ToxPlot_causalityInfo = function(columns, names = character(0), width = 1.5, pch = c(NA,NA,4,8,16), cex = 1, col = 1, labels = c("Possibly related", "Probably related", "Definitely related")) {
   if(length(col) == 1) {
     col = rep(col,length(pch))
+  }
+  if(length(width) == 1) {
+    width = rep(width, length(columns))
   }
   .causalityInfo(
     columns = columns,

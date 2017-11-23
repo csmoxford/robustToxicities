@@ -31,14 +31,16 @@ NULL
   toxTable_discardToxAtStudyEntry = "logical",
   toxTable_mergeGrades = "character",
   toxTable_cycle_toxicityOrder = "character"
-),validity = function(object) {
+))
+
+setValidity("toxicityOptions", function(object) {
 
   if(!object@toxTable_cycle_tabulationMethod %in% c("worst","all")) {
     return("Option toxTable_cycle_tabulationMethod is not one of 'worst' or 'all'")
   }
 
 
-  return(TRUE)
+  TRUE
 })
 
 #' Default \code{\link{toxicityOptions}}.

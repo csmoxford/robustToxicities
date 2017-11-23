@@ -6,6 +6,22 @@
   col = "ANY"
 ))
 
+setValidity("eventInfo", function(object) {
+
+  if(length(object@columns) < 1) {
+    return("columns must be a least length 1")
+  }
+  if(length(object@label) != 1) {
+    return("label should be of length 1")
+  }
+  if(length(object@lwd) != 1) {
+    return("lwd should be of length 1")
+  }
+  if(length(object@col) != 1) {
+    return("col should be of length 1")
+  }
+  TRUE
+})
 
 #' eventInfo class
 #'

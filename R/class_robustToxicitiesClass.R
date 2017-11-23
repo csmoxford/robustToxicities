@@ -48,28 +48,30 @@ NULL
     treatmentLabels = "character",
     queries = "data.frame",
     wasQueried = "logical",
-    options = "toxicityOptions"), validity = function(object){
+    options = "toxicityOptions"))
 
-      validObject(object@options)
+setValidity("robustToxicitiesClass",function(object){
+
+  validObject(object@options)
 
 
-      # Check columns are present
-      name = names(object@toxData)
-      for (colName in c(object@patidCol, object@toxNameCol, object@toxCategoryCol, object@toxGradeCol,  object@dateOfStartTox, object@dateOfEndTox)) {
-        if (!colName %in% name) {
-          return(paste0("Column with name ",colName, " was not found in the toxData and is required."))
-        }
-      }
+  # Check columns are present
+  name = names(object@toxData)
+  for (colName in c(object@patidCol, object@toxNameCol, object@toxCategoryCol, object@toxGradeCol,  object@dateOfStartTox, object@dateOfEndTox)) {
+    if (!colName %in% name) {
+      return(paste0("Column with name ",colName, " was not found in the toxData and is required."))
+    }
+  }
 
-      name = names(object@patientData)
-      for (colName in c(object@patidCol, object@treatmentCol, object@dateOfStartOfToxWindow, object@dateOfEndOfToxWindow, object@periodDividerCols)) {
-        if (!colName %in% name) {
-          return(paste0("Column with name ",colName, " was not found in the patientData and is required."))
-        }
-      }
+  name = names(object@patientData)
+  for (colName in c(object@patidCol, object@treatmentCol, object@dateOfStartOfToxWindow, object@dateOfEndOfToxWindow, object@periodDividerCols)) {
+    if (!colName %in% name) {
+      return(paste0("Column with name ",colName, " was not found in the patientData and is required."))
+    }
+  }
 
-      return(TRUE)
-    })
+  TRUE
+})
 
 
 
