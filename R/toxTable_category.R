@@ -18,6 +18,8 @@ ToxTable_category = function(rt, cycles = "all") {
   rt@toxData$ass_toxID = as.numeric(factor(rt@toxData[,rt@toxNameCol]))
 
   tble = ToxTable_cycle(rt,cycles)
-  tble = tble[,-2]
+  nme = names(tble)
+  tble = tble[,-2] # interesting that this affects the names...
+  names(tble) = nme[-2]
   return(tble)
 }
