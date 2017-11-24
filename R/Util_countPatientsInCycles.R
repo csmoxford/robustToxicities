@@ -20,7 +20,7 @@
     patids = c()
     for(cycleCol in cycles) {
       patientSub = rt@patientData[!is.na(rt@patientData[,cycleCol]) & rt@patientData[,rt@treatmentCol] == trt, ]
-      patids = unique(c(patids, patientSub[patientSub[,cycleCol] < patientSub[,rt@dateOfEndOfToxWindow], rt@patidCol]))
+      patids = unique(c(patids, patientSub[patientSub[,cycleCol] <= patientSub[,rt@dateOfEndOfToxWindow], rt@patidCol]))
     }
     nPatients = c(nPatients,length(patids))
   }
