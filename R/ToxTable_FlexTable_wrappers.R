@@ -64,6 +64,9 @@ FT_ToxTable_cycle = function(rt, cycles = "all", tble = NULL) {
   }
   nPatients = .countPatientsInCycles(rt, cycles)
 
+  rt@options@toxTable_mergeGrades = gsub("n|","", rt@options@toxTable_mergeGrades, fixed = TRUE)
+
+
   # print(nPatients)
   if(dim(tble)[1] == 0){
     message("Table has no rows table not returned")
@@ -73,7 +76,7 @@ FT_ToxTable_cycle = function(rt, cycles = "all", tble = NULL) {
     ###################################################################
     # header rows
     if(length(rt@treatmentCodes) > 1){
-      toSpan = str_count(rt@options@toxTable_mergeGrades, pattern = fixed("|"))
+      toSpan = str_count(rt@options@toxTable_mergeGrades, pattern = fixed("|")) + 1
       # add count to treatment labels for this cycle
       treatmentLabels = paste0(rt@treatmentLabels, " (n=", nPatients,")")
       ft$InsertHeaderRow(0,c("","",rep(treatmentLabels, each = toSpan)))

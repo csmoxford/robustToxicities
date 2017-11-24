@@ -48,7 +48,7 @@ rt@toxData$causality2 = sample(1:5,28, replace = TRUE)
 causality = ToxPlot_causalityInfo(
   columns = c("causality1","causality2"),
   names = c("A","B"),
-  width = c(1.5,3),
+  width = c(1.5,1.5),
   cex = 1.2)
 
 ToxPlot_byToxicity(rt,

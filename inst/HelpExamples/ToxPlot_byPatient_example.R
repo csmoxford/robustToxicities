@@ -55,7 +55,8 @@ event_EOA = ToxPlot_eventInfo(
   lwd = 4,
   col = c("green")
 )
-ToxPlot_byPatient(rt)
+
+
 ToxPlot_byPatient(rt,
                   xlim = c(-7, 100),
                   events = list(event_EOT, event_EOA))

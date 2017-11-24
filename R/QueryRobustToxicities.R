@@ -42,7 +42,7 @@ QueryRobustToxicities = function(rt) {
 
   ############################################################################################
   ############################################################################################
-  # patid complete?
+  # patid complete toxData?
   for (i in 1:dm[1]) {
     if (toxData[i, rt@patidCol] == "") {
       msg = paste("Missing patid on row", i, "(toxData)")
@@ -52,7 +52,7 @@ QueryRobustToxicities = function(rt) {
 
   ############################################################################################
   ############################################################################################
-  # patid complete?
+  # patid complete patientData?
   for (i in 1:dim(patientData)[1]) {
     if (patientData[i, rt@patidCol] == "") {
       stop("Missing patid on row", i, "(patientData)")
@@ -62,14 +62,20 @@ QueryRobustToxicities = function(rt) {
 
   ############################################################################################
   ############################################################################################
-  # patid in toxData and  patientData
+  # patients in toxData must appear in patientData
+  warn = 0
   for (pt in unique(toxData[, rt@patidCol] )) {
     k = sum(pt== patientData[,rt@patidCol])
     if (k == 0) {
-      msg = paste0("Error: Patient (", pt, ") does not appear in (toxData)")
+      msg = paste0("Error: Patient (", pt, ") does not appear in (patientData)")
       i = which(toxData[, rt@patidCol] == pt)[1]
       queries = query(toxData, i, msg, "Missing data", notes)
+      warn = warn + 1
     }
+  }
+
+  if(warn > 0) {
+    warning(warn, " patients had toxData but did not have an entry in patientData. This is likely to cause errors running other functions")
   }
 
   ############################################################################################
@@ -86,42 +92,57 @@ QueryRobustToxicities = function(rt) {
 
   ############################################################################################
   # set ctcae grade to zero if missing
+  warn = 0
   for (i in 1:dm[1]) {
     if (is.na(toxData[i, rt@toxGradeCol])) {
       msg = paste("Patient", toxData[i, rt@patidCol], "is missing toxicity grade for",toxData[i, rt@toxNameCol] , "line", i, "(currently set to zero)")
       toxData[i,rt@toxGradeCol] = 0
       queries = query(toxData, i, msg, "Note", notes)
+      warn = warn + 1
     }
+  }
+
+  if(warn > 0) {
+    warning(warn, " patients were missing adverse event grade. These were set to grade 0. Check the data.")
   }
 
   ############################################################################################
   # If toxicity without start date assign study entry date -7. Tell user.
+  warn = 0
   for(i in 1:dm[1]){
-    if(toxData[i, rt@toxGradeCol] > 0){
-      if(is.na(toxData[i, rt@dateOfStartTox])){
-        msg = paste("Patient", toxData[i, rt@patidCol], "is missing the date of start of toxicity for:", toxData[i, rt@toxNameCol], "line", i, "(setting to 7 days prior to earlist known date)")
-        queries = query(toxData, i, msg, "Missing data",notes)
-        patid = toxData[i,rt@patidCol]
-        studyEntry = patientData[patientData[,rt@patidCol] == patid, rt@dateOfStartOfToxWindow]
-        toxData[i, rt@dateOfStartTox] = studyEntry - 7
-      }
+    if(is.na(toxData[i, rt@dateOfStartTox])){
+      msg = paste("Patient", toxData[i, rt@patidCol], "is missing the date of start of toxicity for:", toxData[i, rt@toxNameCol], "line", i, "(setting to 7 days prior to earlist known date)")
+      queries = query(toxData, i, msg, "Missing data",notes)
+      patid = toxData[i,rt@patidCol]
+      studyEntry = patientData[patientData[,rt@patidCol] == patid, rt@dateOfStartOfToxWindow]
+      toxData[i, rt@dateOfStartTox] = studyEntry - 7
+      warn = warn + 1
     }
+
+  }
+
+  if(warn > 0) {
+    warning(warn, " patients were missing start of toxicity dates. These were set to (", rt@dateOfStartOfToxWindow, ") - 7 days. Check the data.")
   }
 
 
 
   ############################################################################################
   # if missing end of toxicity date set to start date + 3000
+  warn = 0
   for(i in 1:dm[1]){
-    if(toxData[i, rt@toxGradeCol] > 0){
-      if(is.na(toxData[i, rt@dateOfEndTox])) {
-        msg = paste("Note: Patient:", toxData[i, rt@patidCol], "toxicity:", toxData[i, rt@toxNameCol], "line:", i, "is missing an end date, setting to a large value")
-        queries = query(toxData, i, msg, "Note",notes)
-        patid = toxData[i,rt@patidCol]
-        studyEntry = patientData[patientData[,rt@patidCol] == patid, rt@dateOfStartOfToxWindow]
-        toxData[i,rt@dateOfEndTox] = studyEntry + 3000
-      }
+    if(is.na(toxData[i, rt@dateOfEndTox])) {
+      msg = paste("Note: Patient:", toxData[i, rt@patidCol], "toxicity:", toxData[i, rt@toxNameCol], "line:", i, "is missing an end date, setting to a large value")
+      queries = query(toxData, i, msg, "Note",notes)
+      patid = toxData[i,rt@patidCol]
+      studyEntry = patientData[patientData[,rt@patidCol] == patid, rt@dateOfStartOfToxWindow]
+      toxData[i,rt@dateOfEndTox] = studyEntry + 3000
+      warn = warn + 1
     }
+  }
+
+  if(warn > 0) {
+    warning(warn, " patients were missing end of toxicity dates. These were set to (", rt@dateOfStartOfToxWindow, ") + 3000 days. Check the data.")
   }
 
 
@@ -145,22 +166,34 @@ QueryRobustToxicities = function(rt) {
 
   ############################################################################################
   # missing ae_term
+  warn = 0
   for (i in 1:dm[1]) {
     if (toxData[i, rt@toxGradeCol] > 0) {
-      if (is.na(toxData[i, rt@toxNameCol])) {
+      if (toxData[i, rt@toxNameCol] == "" | is.na(toxData[i, rt@toxNameCol])) {
         msg = paste("Patient", toxData[i, rt@patidCol], "is missing ae_term (toxicity term), line", i)
         queries = query(toxData, i, msg, "Missing data",notes)
+        warn = warn + 1
       }
     }
   }
 
+  if(warn > 0) {
+    warning(warn, " patients are missing adverse event term (", rt@toxNameCol, "). Check the data.")
+  }
+
   ############################################################################################
   # missing category
+  warn = 0
   for (i in 1:dm[1]) {
-    if (toxData[i, rt@toxCategoryCol] == "") {
+    if (toxData[i, rt@toxCategoryCol] == "" | is.na(toxData[i, rt@toxCategoryCol])) {
       msg = paste("Patient", toxData[i, rt@patidCol], "is missing category for the adverse event", toxData[i, rt@toxNameCol], ", line", i)
       queries = query(toxData, i, msg, "Missing data",notes)
+      warn = warn + 1
     }
+  }
+
+  if(warn > 0) {
+    warning(warn, " patients are missing adverse event category (", rt@toxCategoryCol, "). Check the data.")
   }
 
   ############################################################################################
@@ -197,6 +230,7 @@ QueryRobustToxicities = function(rt) {
   message("# Summary of preparation")
   message("Number of patients: ", numPatients)
   message("Number of patients with no toxicities: ", noToxicities)
+  message("Number of rows in toxicity dataset: ", dim(toxData)[1])
   message("Number of notes: ", sum(queries$problem_type == "Note"))
   message("Number of missing data problems: ", sum(queries$problem_type == "Missing data"))
   # message("Number of incorrect data problems: ", sum(queries$problem_type == "Wrong data"))
@@ -205,7 +239,7 @@ QueryRobustToxicities = function(rt) {
     warning("Missing date of study entry for ", sum(is.na(patientData[,rt@dateOfStartOfToxWindow])), " patient")
   }
   if(sum(is.na(patientData[,rt@dateOfEndOfToxWindow]))){
-    warning("Missing date pf end of tox window for ", sum(is.na(patientData[,rt@dateOfEndOfToxWindow])), " patients")
+    warning("Missing date of end of tox window for ", sum(is.na(patientData[,rt@dateOfEndOfToxWindow])), " patients")
   }
 
   rt@toxData = toxData
