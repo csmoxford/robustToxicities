@@ -322,8 +322,6 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
   numItems = 5 + length(events) + ifelse(!is.null(causality), length(causality@labels), 0)
   numRowLegend = ceiling(numItems / 5)
 
-
-
   # row 1: grade 1-5
   pos = .legendGetPosition(1:5,5,numItems)
   pos$x = pos$x + 0.05
@@ -339,9 +337,9 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
   curItems = 5
 
   if(!is.null(causality)) {
-  pos = .legendGetPosition(curItems + 1:length(causality@labels) , 5, numItems)
-  pos$x = pos$x + 0.05
-  curItems = curItems + length(causality@labels)
+    pos = .legendGetPosition(curItems + 1:length(causality@labels) , 5, numItems)
+    pos$x = pos$x + 0.05
+    curItems = curItems + length(causality@labels)
 
     xsize = 0.03
     xoffset = 0.03
@@ -353,7 +351,7 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
     if(length(events) > 0) {
       pos = .legendGetPosition(curItems + 1:length(events) , 5, numItems)
       pos$x = pos$x + 0.05
-      curItems = curItems + length(causality@labels)
+      curItems = curItems + 1
 
 
       xsize = 0.03

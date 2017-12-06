@@ -203,8 +203,6 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
   numItems = 5 + length(events)
   numRowLegend = ceiling(numItems / 5)
 
-
-
   # row 1: grade 1-5
   pos = .legendGetPosition(1:5,5,numItems)
   pos$x = pos$x + 0.05
