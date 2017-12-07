@@ -36,6 +36,10 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
                              cex = 1,
                              cols = NULL) {
 
+  if(class(events) == "eventInfo") {
+    events = list(events)
+  }
+
   if(!rt@wasQueried){
     stop("Warning: QueryRobustToxicities has not been applied to this object")
   }
