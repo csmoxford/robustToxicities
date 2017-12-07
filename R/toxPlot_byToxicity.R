@@ -14,6 +14,8 @@
 #' @param causality Adds causality columns to the plot on the righthand side. This must be an object of type \code{\link{causalityInfo-class}}
 #' @param events a list of Objects of type eventInfo.
 #' @param offsetEvent the name of a column in patientData to use as time 0. If not provided the start of assessment date is used
+#' @param cex The font scale of the labels. Default is 1
+#' @param cols Colours for each toxicity level. The default is NULL which sets cols to c("#98cee2", "#4c7bd3","#ff8d00","#ff0000","#b719b4")
 #'
 #' @return
 #' This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
@@ -35,7 +37,9 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
                    permitMarSet = TRUE,
                    causality = NULL,
                    events = list(),
-                   offsetEvent = NULL) {
+                   offsetEvent = NULL,
+                   cex = 1,
+                   cols = NULL) {
 
   if(class(events) == "eventInfo") {
     events = list(events)
@@ -75,8 +79,13 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
     }
   }
 
+  if(sum(rt@toxData$ass_TRUE, na.rm = TRUE) == 0) {
+    warning("No data in toxData has been selected (toxData$ass_TRUE is FALSE for all rows). Plot not returned")
+    return()
+  }
+
   #######################################################
-  .toxPlot_fun = function(rt, toxDataSub, rowID_range = NULL, plotNow = TRUE, cols, xlab, causality, events, offsetEvent) {
+  .toxPlot_fun = function(rt, toxDataSub, rowID_range = NULL, plotNow = TRUE, cols, xlab, causality, events, offsetEvent, cex) {
 
 
     ####################################################################
@@ -258,7 +267,7 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
       axis(2,labels = trtLabels, at = treatment.lab, tick = FALSE)
 
       if(plotLeftSideOption == "both") {
-        text(x = xlim[1] + 0.25 , y = patid.lab, labels = unique(toxDataSub[,rt@patidCol]), pos = 4)
+        text(x = xlim[1] + 0.25 , y = patid.lab, labels = unique(toxDataSub[,rt@patidCol]), pos = 4, cex = cex)
       }
     }
 
@@ -267,7 +276,7 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
     gid = unique(toxDataSub$gid)
     toxicities = sapply(gid, function(x) toxDataSub[which(toxDataSub$gid == x)[1],rt@toxNameCol])
 
-    text(xlim[2], gid, labels=toxicities, pos = 2, offset=0.25)
+    text(xlim[2], gid, labels=toxicities, pos = 2, offset=0.25, cex = cex)
     box(lwd=2)
 
     #########################################################
@@ -286,7 +295,7 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
 
         if(length(causality@names) >0) {
           top = ylim[2] + 1
-          text(xpos, ylim[2]+0.5, labels = causality@names[columnIndex])
+          text(xpos, ylim[2]+0.5, labels = causality@names[columnIndex], cex = cex)
         } else {
           top = ylim[2]
         }
@@ -304,10 +313,11 @@ ToxPlot_byToxicity = function(rt, rowID_range = NULL, plotNow = TRUE,
   # subset to specific stuff if required
   toxDataSub = rt@toxData[rt@toxData$ass_TRUE, ]
 
-  cols = c("#00CC00","#FF9900","red","#551A8B","black")
-  cols = c("#98cee2", "#4c7bd3","#ff8d00","#ff0000","#b719b4")
+  if(is.null(cols)){
+    cols = c("#98cee2", "#4c7bd3","#ff8d00","#ff0000","#b719b4")
+  }
 
-  val = .toxPlot_fun(rt = rt, toxDataSub = toxDataSub, rowID_range = rowID_range, plotNow = plotNow, cols = cols, xlab = xlab, causality = causality, events = events, offsetEvent = offsetEvent)
+  val = .toxPlot_fun(rt = rt, toxDataSub = toxDataSub, rowID_range = rowID_range, plotNow = plotNow, cols = cols, xlab = xlab, causality = causality, events = events, offsetEvent = offsetEvent, cex = cex)
 
   if(!plotNow) {
     return(val)

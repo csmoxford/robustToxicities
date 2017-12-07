@@ -13,6 +13,8 @@
 #' @param permitMarSet Allow the function to set the mar for the plot
 #' @param events a list of Objects of type eventInfo.
 #' @param offsetEvent the name of a column in patientData to use as time 0. If not provided the start of assessment date is used
+#' @param cex The font scale of the patient labels. Default is 1
+#' @param cols Colours for each toxicity level. The default is NULL which sets cols to c("#98cee2", "#4c7bd3","#ff8d00","#ff0000","#b719b4")
 #'
 #' @return
 #' This plot function return the number of row of unique toxicities * patients. This assists in computing optimal size for saved graphs.
@@ -30,7 +32,9 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
                              plotXLegendScale = "days",
                              permitMarSet = TRUE,
                              events = list(),
-                             offsetEvent = NULL) {
+                             offsetEvent = NULL,
+                             cex = 1,
+                             cols = NULL) {
 
   if(!rt@wasQueried){
     stop("Warning: QueryRobustToxicities has not been applied to this object")
@@ -46,12 +50,21 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
     }
   }
 
-  .toxPlot_time = function(rt, toxDataSub, rowID_range = NULL, cols, xlab, events, offsetEvent) {
+  if(sum(rt@toxData$ass_TRUE, na.rm = TRUE) == 0) {
+    warning("No data in toxData has been selected (toxData$ass_TRUE is FALSE for all rows). Plot not returned")
+    return()
+  }
+
+  .toxPlot_time = function(rt, toxDataSub, rowID_range = NULL, cols, xlab, events, offsetEvent, cex) {
 
 
     if(is.null(rt@patientData$rowID)) {
         rt@patientData = rt@patientData[order(rt@patientData[,rt@treatmentCol],rt@patientData[,rt@patidCol]),]
         rt@patientData$rowID = dim(rt@patientData)[1]:1
+    }
+
+    if(!is.null(rowID_range)) {
+      rt@patientData = rt@patientData[rowID_range[1]:rowID_range[2],]
     }
 
     toxDataSub$gid = sapply(toxDataSub[,rt@patidCol], function(x){ rt@patientData$rowID[rt@patientData[,rt@patidCol] == x] })
@@ -168,7 +181,7 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
       axis(2,labels = rt@treatmentLabels, at = treatment.lab, tick = FALSE)
 
       if(plotLeftSideOption == "both") {
-        text(x = xlim[1] + 0.25 , y = patientData$rowID, labels = patientData[,rt@patidCol], pos = 4)
+        text(x = xlim[1] + 0.25 , y = patientData$rowID, labels = patientData[,rt@patidCol], pos = 4, cex = cex)
       }
     }
 
@@ -187,11 +200,12 @@ ToxPlot_byPatient = function(rt, rowID_range = NULL, plot = TRUE,
   # subset to specific stuff if required
   toxDataSub = rt@toxData[rt@toxData$ass_TRUE == TRUE, ]
 
-  cols = c("#00CC00", "#FF9900", "red", "#551A8B", "black")
-  cols = c("#98cee2", "#4c7bd3", "#ff8d00", "#ff0000", "#b719b4")
+  if(is.null(cols)){
+    cols = c("#98cee2", "#4c7bd3", "#ff8d00", "#ff0000", "#b719b4")
+  }
 
 
-  val = .toxPlot_time(rt,toxDataSub, rowID_range, cols = cols, events = events, xlab = xlab, offsetEvent = offsetEvent)
+  val = .toxPlot_time(rt,toxDataSub, rowID_range, cols = cols, events = events, xlab = xlab, offsetEvent = offsetEvent, cex = cex)
 
   #############################################################
   #############################################################
